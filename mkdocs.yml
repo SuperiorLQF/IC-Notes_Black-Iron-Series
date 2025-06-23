@@ -1,0 +1,5 @@
+site_name: IC笔记 [黑铁篇] 
+nav:
+  - 笔记: index.md
+  - 关于: about.md
+theme: readthedocs
