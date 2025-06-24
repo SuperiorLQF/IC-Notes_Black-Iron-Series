@@ -1,0 +1,34 @@
+.custom-hl1 {
+    color: white !important;
+    background-color: #006400 !important; /* 深绿色 */
+    font-weight: bold; /* 添加加粗 */
+    padding: 0.2em 0.4em; /* 可选：增加内边距 */
+    border-radius: 3px; /* 可选：圆角 */
+}
+/* 基础高亮块 */
+.hb{
+  padding: 1em;
+  margin: 1em 0;
+  border-left: 10px solid;
+  border-radius: 4px;
+  background-color: rgba(224, 224, 224, 0.47);
+}
+
+/* 不同颜色变体 */
+.hb.info {
+  border-color: #2196f3;
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.hb.warn {
+  border-color: #ff9800;
+  background-color: rgba(255, 152, 0, 0.1);
+}
+
+
+.hb.tip {
+  border-color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+

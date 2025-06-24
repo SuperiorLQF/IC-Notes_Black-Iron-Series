@@ -1,5 +1,18 @@
 site_name: IC笔记 [黑铁篇] 
 nav:
-  - 笔记: index.md
+  - 介绍: index.md
+  - 算法章: algo.md
   - 关于: about.md
 theme: readthedocs
+extra_css:
+  - stylesheets/extra.css
+extra_javascript:
+  - javascripts/mathjax-config.js
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+markdown_extensions:
+  - mdx_math
+
+
+
+
+
