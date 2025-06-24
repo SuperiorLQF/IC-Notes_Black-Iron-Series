@@ -1,9 +1,13 @@
-.custom-hl1 {
+.hl {
     color: white !important;
     background-color: #006400 !important; /* 深绿色 */
     font-weight: bold; /* 添加加粗 */
     padding: 0.2em 0.4em; /* 可选：增加内边距 */
-    border-radius: 3px; /* 可选：圆角 */
+    border-radius: 0.6em; /* 可选：圆角 */
+}
+.hl.warn {
+    color: black !important;
+    background-color: #e1d33e !important; /* 深绿色 */
 }
 /* 基础高亮块 */
 .hb{
@@ -31,4 +35,12 @@
   background-color: rgba(76, 175, 80, 0.1);
 }
 
-
+html body img[src*='img10'] { width: 10%;}
+html body img[src*='img20'] { width: 20%;}
+html body img[src*='img30'] { width: 30%;}
+html body img[src*='img40'] { width: 40%;}
+html body img[src*='img50'] { width: 50%;}
+html body img[src*='img60'] { width: 60%;}
+html body img[src*='img70'] { width: 70%;}
+html body img[src*='img80'] { width: 80%;}
+html body img[src*='img90'] { width: 90%;}
