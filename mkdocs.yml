@@ -4,14 +4,51 @@ nav:
   - 算法章: 
     - Cordic算法: cordic.md
   - 关于: about.md
-theme: readthedocs
+theme: 
+  name: material
+  logo: img/home_24dp_E3E3E3.png
+  favicon: img/favicon.ico
+  palette:
+    primary: 'deep purple'
+    accent: 'deep purple'
+
+
+  features:
+    - header.autohide  #自动隐藏
+    - navigation.top # 返回顶部的按钮 在上滑时出现
+    - navigation.tabs   #顶级部分将呈现在上面视口标题下方的菜单层中，但在移动设备上保持原
+    - content.code.copy #代码复制
+    - content.code.annotate
+    - codehilite
+    - search.suggest # 搜索输入一些字母时推荐补全整个单词
+    - search.highlight # 搜索出的文章关键词加入高亮
+
 extra_css:
-  - stylesheets/extra.css
+  - stylesheets/extra.css #用户自定义的markdown高亮扩展
 extra_javascript:
   - javascripts/mathjax-config.js
   - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+
 markdown_extensions:
+  - pymdownx.mark
+  - pymdownx.tilde
   - mdx_math
+  - md_in_html
+  - pymdownx.highlight: # 代码块高亮
+      anchor_linenums: true #为代码行添加锚点
+      linenums: true # 显示行号
+      auto_title: true # 显示编程语言名称
+  - pymdownx.inlinehilite #支持在行内高亮代码块或代码片段
+  - pymdownx.snippets #支持引入外部代码片段或文件，方便复用
+  - pymdownx.superfences #代码块高亮插件
+  - attr_list #允许在Markdown元素后面添加属性（如[text]{.class #id}），实现样式和属性自定义
+  - pymdownx.emoji
+extra:
+  fonts:
+    - href: https://fonts.googleapis.com/icon?family=Material+Icons
+
+
+
 
 
 

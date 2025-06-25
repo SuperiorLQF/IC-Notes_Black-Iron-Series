@@ -230,7 +230,7 @@ $$
 
 1. 由于(7)式的项是递减的，是否会收敛导致无法逼近到一个较大目标角度？  
 ![alt text](img/image-1.png#img50)
-1. 迭代收敛处和目标值之间是否可能存在一个不随着迭代减小的误差？ 
+1. 迭代收敛处和目标值之间是否可能存在一个不随着迭代减小的误差？  
 ![alt text](img/image-6.png#img50)  
 
 对于第一个问题，只需要对（7）求极限
@@ -259,6 +259,34 @@ $$
 因此所求级数可以认为1.743弧度（约为99.88°），第四象限证明完全一致。因此(7)式的最大范围可以覆盖$[-\pi/2,\pi/2]$,对于二三象限的问题，也可以利用对称性转化。因此第一个问题得到解决。   
 &emsp;    
 &emsp;   
-对于第二个问题，
+对于第二个问题，将需要证明的命题转化为数学语言    
+<div class="hb">
+对任意目标角度$\theta\in[-\pi/2,\pi/2]$，第$i$次迭代误差$\varepsilon_i$(<font color=gray>由式(8),(9)确定</font>)，满足：
+$$
+|\varepsilon_i|\leq\Sigma_{k=i}^{+\infty}\theta_k 且 \lim_{i \to+\infty}|\varepsilon_i|=0
+$$
+</div>
+使用数学归纳法证明：  
+$i=0$时，$\varepsilon_0=\theta\in[-\pi/2,\pi/2]$,因此$|\varepsilon_0|\leq\Sigma_{k=0}^{+\infty}\theta_k\approx1.743$ 
+</br>  
+假设$i=m$时，$|\varepsilon_m|\leq\Sigma_{k=m}^{+\infty}\theta_k $   
+则当$i=m+1$时，需要求证$|\varepsilon_{m+1}|\leq\Sigma_{k=m+1}^{+\infty}\theta_k $ 
+其中，
+$$
+\varepsilon_{m+1}=\varepsilon_{m}-\sigma_m\cdot\theta_m
+$$
+分类讨论   
+$(i). \sigma_m = 1$   
+$$
+\varepsilon_{m+1}=\varepsilon_{m}-\theta_m
+$$
+根据三角不等式，有
+$$
+|\varepsilon_{m+1}|=|\varepsilon_{m}-\theta_m|\leq|\varepsilon_{m}|-|\theta_m|
+$$
+$(ii). \sigma_m = -1$   
+
+
+
 
 
