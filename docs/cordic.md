@@ -1,6 +1,4 @@
-# 算法章
-
-## <span class="hl">Cordic算法</span>
+# <span class="hl">Cordic算法</span>
 
 首先复习一下线性代数中有关<span class="hl warn">旋转矩阵</span>知识  
 ![alt text](img/image-2.png#img50)  
@@ -111,7 +109,7 @@ $$
 \end{cases}
 \end{equation}
 $$
-然而满足（6）式的只有特定的角度，可以编写代码如下  
+然而满足（5）式的只有特定的角度，可以编写代码如下  
 ```python
 import math
 print(f"\033[1;7;36m|{'i':<3}|{'tanθ':<20}|{'θ(rad)':<20}|{'θ(degree)':<20}|{'cosθ':<20}|{'prod':<20}|\033[0m")
@@ -223,4 +221,44 @@ $$
   y_A
 \end{bmatrix} 
 \end{equation}
+$$  
+至此，已经可以大致知道从$A$绕原点旋转$\theta$到$B$点坐标的Cordic算法计算过程
+<div class="hb">
+但是，对于 <font color=#000000><b>"多次旋转就能逼近到目标角度"</b></font> 这个命题仍然存疑，需要严格证明一下
+</div>
+存疑主要来自于两处：  
+
+1. 由于(7)式的项是递减的，是否会收敛导致无法逼近到一个较大目标角度？  
+![alt text](img/image-1.png#img50)
+1. 迭代收敛处和目标值之间是否可能存在一个不随着迭代减小的误差？ 
+![alt text](img/image-6.png#img50)  
+
+对于第一个问题，只需要对（7）求极限
 $$
+\Sigma_{i=0}^{+\infty} arctan(2^{-i})
+$$
+首先证明极限存在，   
+根据比较判别法，当$x>0$时，$arctan(x)<x$，因此    
+$$
+arctan(2^{-i})<2^{-i},i\geq0
+$$
+由于公比为1/2的几何级数收敛，故所证级数极限也存在   
+&emsp;   
+
+现在对级数$\Sigma_{i=0}^{+\infty} arctan(2^{-i})$进行求和   
+借助计算机，先求前21项的和$S_{20}\approx$1.743   
+然后对余项进行估计，
+$$
+\begin{align*}
+R_{20}&=\Sigma_{i=21}^{+\infty}arctan(2^{-i})\\
+&<\Sigma_{i=21}^{+\infty}2^{-i}\\
+&=2^{-20}\\
+&\approx 9.537 \times 10^{-7}
+\end{align*}
+$$
+因此所求级数可以认为1.743弧度（约为99.88°），第四象限证明完全一致。因此(7)式的最大范围可以覆盖$[-\pi/2,\pi/2]$,对于二三象限的问题，也可以利用对称性转化。因此第一个问题得到解决。   
+&emsp;    
+&emsp;   
+对于第二个问题，
+
+
