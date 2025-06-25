@@ -1,3 +1,4 @@
+/********高亮字类型**********/
 .hl {
     color: white !important;
     background-color: #006400 !important; /* 深绿色 */
@@ -9,6 +10,14 @@
     color: black !important;
     background-color: #e1d33e !important; /* 深绿色 */
 }
+
+/********下划线类型**********/
+.btl{
+    /* 添加彩色下划线 */
+    border-bottom: 3px solid #73ac37; /* 将红色换成你想要的颜色 */
+}
+
+/********高亮块类型**********/
 /* 基础高亮块 */
 .hb{
   padding: 1em;
