@@ -38,7 +38,25 @@ $$
 \end{bmatrix} 
 \end{equation}
 $$
-命  
+命（2）的右边后两项
+$$
+\begin{equation}
+\begin{bmatrix}
+  1 & -tan \theta\\
+  tan \theta & 1
+\end{bmatrix}
+\begin{bmatrix}
+  x_0 \\
+  y_0
+\end{bmatrix}
+=
+\begin{bmatrix}
+  x_1' \\
+  y_1'
+\end{bmatrix}
+\end{equation}
+$$
+可以先研究（3）以排除$cos\theta$的干扰，（2）就变为了下式 
 $$
 \begin{equation}
 \begin{bmatrix}
@@ -52,24 +70,7 @@ cos\theta
 \end{bmatrix} 
 \end{equation}
 $$
-将（3）和（2）等式右边联立，这样就可以先不管$cos\theta$  
-$$
-\begin{equation}
-\begin{bmatrix}
-  x_1' \\
-  y_1'
-\end{bmatrix}=
-\begin{bmatrix}
-  1 & -tan \theta\\
-  tan \theta & 1
-\end{bmatrix}
-\begin{bmatrix}
-  x_0 \\
-  y_0
-\end{bmatrix} 
-\end{equation}
-$$
-根据式(3),易知点$B'$在射线$OB$上,如下图所示  
+根据式（4）,易知点$B'$在射线$OB$上,如下图所示  
 (4)式表示点$A$旋转到点$B'(x_1',y_1')$  
 ![alt text](img/image-3.png#img50)  
 由于旋转的过程中半径变了，因此称之为<span class="hl warn">伪旋转</span>  
