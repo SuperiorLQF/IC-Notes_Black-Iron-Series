@@ -510,7 +510,7 @@ cos\theta
 <img alt="alt text" src="../img/image-3.png#img50" /><br />
 &emsp;<br />
 由于从$A$到$B'$旋转的过程中半径变了，因此称之为<span class="hl warn">伪旋转</span>，只是完成了角度$\theta$的变换 <br />
-而$B$到$B'$则是进行了半径的调整 <br />
+而$B'$到$B$则是进行了半径的调整 <br />
 &emsp;<br />
 &emsp;     <br />
 &emsp;<br />
@@ -586,7 +586,7 @@ $$
 \begin{equation}\theta=\Sigma_{i=0}^{+\infty}\sigma_i\theta_i\end{equation}   
 $$
 其中$\theta_i=arctan(2^{-i})$,具体数值见上表，<br>       
-$\sigma_i=\pm1$,为旋转方向，具体数值取决于如式（8）和（9）<br> <br> 
+$\sigma_i=\pm1$,为旋转方向，具体数值取决于如式（6）和（7）<br> <br> 
 (5)更直观的写法是
 $$
 \theta = \pm arctan(2^0)
@@ -604,7 +604,7 @@ $$
 $$
 \begin{equation}\varepsilon_i = \theta - \Sigma_{k=0}^{i-1}\sigma_k\theta_k\end{equation}
 $$
-$\varepsilon_i$是目标角度和已累加角度的误差
+$\varepsilon_i$是目标角度和已累加角度的误差(注意是迭代<b>前</b>误差)
 $$
 \begin{equation}
 \sigma_i =
@@ -673,6 +673,8 @@ cos\theta_1
 <div class="hb">
 但是，对于 <font color=#000000><b>"多次旋转就能逼近到目标角度"</b></font> 这个命题仍然存疑，需要严格证明一下
 </div>
+<details class="info" open="open">
+<summary>严格证明过程</summary>
 <p>存疑主要来自于两处：  </p>
 <ol>
 <li>由于(5)式的项是递减的，是否会收敛导致无法逼近到一个较大目标角度？<br />
@@ -716,7 +718,16 @@ R_{20}&=\Sigma_{i=21}^{+\infty}arctan(2^{-i})\\
 $i=0$时，$\varepsilon_0=\theta\in[-\pi/2,\pi/2]$,因此$|\varepsilon_0|\leq\Sigma_{k=0}^{+\infty}\theta_k\approx1.743$ 
 </br><br />
 假设$i=m$时，$|\varepsilon_m|\leq\Sigma_{k=m}^{+\infty}\theta_k $ <br />
-则当$i=m+1$时，需要求证$|\varepsilon_{m+1}|\leq\Sigma_{k=m+1}^{+\infty}\theta_k $ 
+则当$i=m+1$时，需要求证$|\varepsilon_{m+1}|\leq\Sigma_{k=m+1}^{+\infty}\theta_k $ </p>
+<p>要证
+<script type="math/tex; mode=display">
+|\varepsilon_{m+1}|\leq\Sigma_{k=m+1}^{+\infty}\theta_k 
+</script>
+即证明
+<script type="math/tex; mode=display">
+-\Sigma_{k=m+1}^{+\infty}\theta_k \leq\varepsilon_{m+1}\leq\Sigma_{k=m+1}^{+\infty}\theta_k 
+</script>
+<br />
 其中，
 <script type="math/tex; mode=display">
 \varepsilon_{m+1}=\varepsilon_{m}-\sigma_m\cdot\theta_m
@@ -724,20 +735,73 @@ $i=0$时，$\varepsilon_0=\theta\in[-\pi/2,\pi/2]$,因此$|\varepsilon_0|\leq\Si
 分类讨论 <br />
 $(i). \sigma_m = 1$ <br />
 <script type="math/tex; mode=display">
-\varepsilon_{m+1}=\varepsilon_{m}-\theta_m
-</script>
-根据三角不等式，有
-<script type="math/tex; mode=display">
 \begin{align*}
-|\varepsilon_{m+1}|&=|\varepsilon_{m}-\theta_m|\\
-&\leq|\varepsilon_{m}|-|\theta_m|\\
-&=|\varepsilon_{m}|-\theta_m\\
+\varepsilon_{m+1}
+&=\varepsilon_{m}-\theta_m\\
 &\leq\Sigma_{k=m}^{+\infty}\theta_k-\theta_m\\
 &=\Sigma_{k=m+1}^{+\infty}\theta_k+\theta_m-\theta_m\\
 &=\Sigma_{k=m+1}^{+\infty}\theta_k
 \end{align*}
 </script>
-$(ii). \sigma_m = -1$   </p>
+不等式右侧得证  <br />
+&emsp; <br />
+根据(7)，由于$\sigma_m = 1$，此时$\varepsilon_{m} \geq0$ 
+<script type="math/tex; mode=display">
+\begin{align*}
+\varepsilon_{m+1}
+&=\varepsilon_{m}-\theta_m\\
+&\geq-\theta_m\\
+&\geq-\Sigma_{k=m+1}^{+\infty}\theta_k\quad①
+\end{align*}
+</script>
+①这里需要证明一个前提结论 <br />
+<script type="math/tex; mode=display">
+arctan(2^{-i})\leq\Sigma_{j=i+1}^{+\infty}arctan(2^{-j})
+</script>
+$i=0时，左边=0.7，右边1.743-0.7$，左边小于等于右边，成立  <br />
+$i\geq1时，2^{-i} \in(0,\frac{1}{2}]，arctan有如下泰勒展开$
+<script type="math/tex; mode=display">
+arctan(x)\geq x - \frac{x^3}{3}>\frac{x}{2},当x\in(0,\frac{1}{2}]
+</script>
+因此
+<script type="math/tex; mode=display">
+arctan(2^{-j})>2^{-j-1}
+</script>
+所以
+<script type="math/tex; mode=display">
+\Sigma_{j=i+1}^{+\infty}arctan(2^{-j})>\Sigma_{j=i+1}^{+\infty}2^{-j-1}=\frac{1}{2^i} 
+</script>
+而根据泰勒展开
+<script type="math/tex; mode=display">
+arctan(2^{-i})<2^{-i}
+</script>
+所以
+<script type="math/tex; mode=display">
+\Sigma_{j=i+1}^{+\infty}arctan(2^{-j})>\frac{1}{2^i} >arctan(2^{-i})       
+</script>
+①前提结论得证，不等式右侧亦得证  <br />
+$(ii). \sigma_m = -1$ <br />
+<script type="math/tex; mode=display">
+\begin{align*}
+\varepsilon_{m+1}&=\varepsilon_{m}+\theta_m\\
+&\geq -\Sigma_{k=m}^{+\infty}\theta_k +\theta_m\\
+&=-\Sigma_{k=m+1}^{+\infty}\theta_k
+\end{align*}
+</script>
+不等式左侧得证<br />
+&emsp;<br />
+根据前提结论①，$\theta_m\leq\Sigma_{k=m+1}^{+\infty}\theta_k\quad$
+因为$\sigma_m = -1,则\varepsilon_{m}&lt;0,所以$
+<script type="math/tex; mode=display">
+\begin{align*}
+\varepsilon_{m+1}&=\varepsilon_{m}+\theta_m\\
+&\leq\Sigma_{k=m+1}^{+\infty}\theta_k\
+\end{align*}
+</script>
+不等式右侧得证<br />
+&emsp; <br />
+至此，关于Cordic的问题得到了证明   </p>
+</details>
 
 
 
