@@ -18,7 +18,7 @@ theme:
     - navigation.top # 返回顶部的按钮 在上滑时出现
     - navigation.tabs   #顶级部分将呈现在上面视口标题下方的菜单层中，但在移动设备上保持原
     - content.code.copy #代码复制
-    - content.code.annotate
+    - content.code.annotate # 代码注释
     - codehilite
     - search.suggest # 搜索输入一些字母时推荐补全整个单词
     - search.highlight # 搜索出的文章关键词加入高亮
@@ -43,7 +43,9 @@ markdown_extensions:
   - pymdownx.superfences #代码块高亮插件
   - attr_list #允许在Markdown元素后面添加属性（如[text]{.class #id}），实现样式和属性自定义
   - pymdownx.emoji
-extra:
+  - admonition #new
+  - pymdownx.details #new
+extra: 
   fonts:
     - href: https://fonts.googleapis.com/icon?family=Material+Icons
 

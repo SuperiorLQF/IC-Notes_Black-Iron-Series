@@ -470,9 +470,16 @@
 \end{bmatrix} 
 \end{equation}
 </script>
-命（2）的右边后两项
+&emsp;<br />
+&emsp;<br />
+(2)所代表的旋转变换可以拆分为2步，结合下图   <br />
+首先是从$A$点到$B'$点
 <script type="math/tex; mode=display">
 \begin{equation}
+\begin{bmatrix}
+  x_1' \\
+  y_1'
+\end{bmatrix}=
 \begin{bmatrix}
   1 & -tan \theta\\
   tan \theta & 1
@@ -481,14 +488,10 @@
   x_0 \\
   y_0
 \end{bmatrix}
-=
-\begin{bmatrix}
-  x_1' \\
-  y_1'
-\end{bmatrix}
+\tag{2.1}
 \end{equation}
 </script>
-可以先研究（3）以排除$cos\theta$的干扰，（2）就变为了下式 
+然后是从$B'$到$B$点 <br />
 <script type="math/tex; mode=display">
 \begin{equation}
 \begin{bmatrix}
@@ -499,22 +502,25 @@ cos\theta
 \begin{bmatrix}
   x_1' \\
   y_1'
-\end{bmatrix} 
+\end{bmatrix}
+\tag{2.2} 
 \end{equation}
 </script>
-根据式（4）,易知点$B'$在射线$OB$上,如下图所示<br />
-(4)式表示点$A$旋转到点$B'(x_1',y_1')$<br />
+根据(2.2)，易知点$B'$在射线$OB$上<br />
 <img alt="alt text" src="../img/image-3.png#img50" /><br />
-由于旋转的过程中半径变了，因此称之为<span class="hl warn">伪旋转</span><br />
+&emsp;<br />
+由于从$A$到$B'$旋转的过程中半径变了，因此称之为<span class="hl warn">伪旋转</span>，只是完成了角度$\theta$的变换 <br />
+而$B$到$B'$则是进行了半径的调整 <br />
 &emsp;<br />
 &emsp;     <br />
 &emsp;<br />
-注意伪旋转的公式（4），还是含有$tan\theta$这样的非线性项，这对于硬件底层来讲（门电路）比较难计算<br />
-如果伪旋转角度$\theta$满足<br />
+简单起见，我们先来研究伪旋转<font color=gray>(因为半径变化只是长度的线性变化，是比较简单的)</font> <br />
+注意伪旋转的公式(2.1），还是含有$tan\theta$这样的非线性项，这对于硬件底层来讲（门电路）比较难计算<br />
+如果伪旋转角度$\theta$正好满足<br />
 <script type="math/tex; mode=display">
-\begin{equation}tan\theta = 2^{-i}\end{equation}
+\begin{equation}tan\lvert\theta\rvert = 2^{-i}\end{equation},\theta > 0
 </script>
-那么此时就只需要进行<u>移位操作</u>，而不再需要计算$tan\theta$，极大降低了计算复杂度，（4）就可以变为下面这样<br />
+那么此时就只需要进行<u>移位操作</u>，而不再需要计算$tan\theta$，极大降低了计算复杂度，(2.1)就可以变为下面这样<br />
 <script type="math/tex; mode=display">
 \begin{equation}
 \begin{bmatrix}
@@ -529,7 +535,7 @@ cos\theta
 \begin{bmatrix}
   x_0 \\
   y_0
-\end{bmatrix} ,\theta\geq0\\
+\end{bmatrix} ,\theta>0\\
 \\
 \begin{bmatrix}
   1 & 2^{-i}\\
@@ -542,7 +548,8 @@ cos\theta
 \end{cases}
 \end{equation}
 </script>
-然而满足（5）式的只有特定的角度，可以编写代码如下<br />
+无需讨论$\theta = 0$的情况，因为此情况下未发生旋转 <br />
+然而满足(3)式的只有特定的角度，可以编写代码如下<br />
 <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
@@ -572,7 +579,7 @@ cos\theta
 <p>&emsp;  <br />
 &emsp;
 &emsp; <br />
-这就引出了Cordic算法的精髓： </p>
+这就引出了Cordic算法的精髓：<strong>分解</strong></p>
 <div class="hb tip">
 Cordic算法的核心在于<span class="hl warn">旋转的分解</span>：将从A到B，角度为$\theta$旋转(或伪旋转)，分解为多次旋转的叠加，如下式
 $$
@@ -580,7 +587,7 @@ $$
 $$
 其中$\theta_i=arctan(2^{-i})$,具体数值见上表，<br>       
 $\sigma_i=\pm1$,为旋转方向，具体数值取决于如式（8）和（9）<br> <br> 
-(7) 更直观的写法是
+(5)更直观的写法是
 $$
 \theta = \pm arctan(2^0)
  \pm arctan(2^{-1})
@@ -639,7 +646,7 @@ cos\theta_1
 \prod_{i=0}^{+ \infty} cos\theta_i
 </script>
 从前面的表格product一栏中可以看出，随着i增加，$\theta$减小，cos趋近于1，因此该累乘式是有极限的，对于9次以上的迭代一般都取0.60725 <br />
-因此式(10)可以变成 <br />
+因此式(8)可以变成 <br />
 <script type="math/tex; mode=display">
 \begin{equation}
 \begin{bmatrix}
@@ -668,12 +675,12 @@ cos\theta_1
 </div>
 <p>存疑主要来自于两处：  </p>
 <ol>
-<li>由于(7)式的项是递减的，是否会收敛导致无法逼近到一个较大目标角度？<br />
+<li>由于(5)式的项是递减的，是否会收敛导致无法逼近到一个较大目标角度？<br />
 <img alt="alt text" src="../img/image-1.png#img50" /></li>
 <li>迭代收敛处和目标值之间是否可能存在一个不随着迭代减小的误差？<br />
 <img alt="alt text" src="../img/image-6.png#img50" />  </li>
 </ol>
-<p>对于第一个问题，只需要对（7）求极限
+<p>对于第一个问题，只需要对（5）求极限
 <script type="math/tex; mode=display">
 \Sigma_{i=0}^{+\infty} arctan(2^{-i})
 </script>
@@ -700,7 +707,7 @@ R_{20}&=\Sigma_{i=21}^{+\infty}arctan(2^{-i})\\
 &emsp; <br />
 对于第二个问题，将需要证明的命题转化为数学语言  <br />
 <div class="hb">
-对任意目标角度$\theta\in[-\pi/2,\pi/2]$，第$i$次迭代误差$\varepsilon_i$(<font color=gray>由式(8),(9)确定</font>)，满足：
+对任意目标角度$\theta\in[-\pi/2,\pi/2]$，第$i$次迭代误差$\varepsilon_i$(<font color=gray>由式(6),(7)确定</font>)，满足：
 <script type="math/tex; mode=display">
 |\varepsilon_i|\leq\Sigma_{k=i}^{+\infty}\theta_k 且 \lim_{i \to+\infty}|\varepsilon_i|=0
 </script>
@@ -721,7 +728,14 @@ $(i). \sigma_m = 1$ <br />
 </script>
 根据三角不等式，有
 <script type="math/tex; mode=display">
-|\varepsilon_{m+1}|=|\varepsilon_{m}-\theta_m|\leq|\varepsilon_{m}|-|\theta_m|
+\begin{align*}
+|\varepsilon_{m+1}|&=|\varepsilon_{m}-\theta_m|\\
+&\leq|\varepsilon_{m}|-|\theta_m|\\
+&=|\varepsilon_{m}|-\theta_m\\
+&\leq\Sigma_{k=m}^{+\infty}\theta_k-\theta_m\\
+&=\Sigma_{k=m+1}^{+\infty}\theta_k+\theta_m-\theta_m\\
+&=\Sigma_{k=m+1}^{+\infty}\theta_k
+\end{align*}
 </script>
 $(ii). \sigma_m = -1$   </p>
 

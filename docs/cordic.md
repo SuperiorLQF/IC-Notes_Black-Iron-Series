@@ -78,7 +78,7 @@ $$
 ![alt text](img/image-3.png#img50)  
 &emsp;  
 由于从$A$到$B'$旋转的过程中半径变了，因此称之为<span class="hl warn">伪旋转</span>，只是完成了角度$\theta$的变换   
-而$B$到$B'$则是进行了半径的调整   
+而$B'$到$B$则是进行了半径的调整   
 &emsp;  
 &emsp;       
 &emsp;  
@@ -148,7 +148,7 @@ $$
 \begin{equation}\theta=\Sigma_{i=0}^{+\infty}\sigma_i\theta_i\end{equation}   
 $$
 其中$\theta_i=arctan(2^{-i})$,具体数值见上表，<br>       
-$\sigma_i=\pm1$,为旋转方向，具体数值取决于如式（8）和（9）<br> <br> 
+$\sigma_i=\pm1$,为旋转方向，具体数值取决于如式（6）和（7）<br> <br> 
 (5)更直观的写法是
 $$
 \theta = \pm arctan(2^0)
@@ -166,7 +166,7 @@ $$
 $$
 \begin{equation}\varepsilon_i = \theta - \Sigma_{k=0}^{i-1}\sigma_k\theta_k\end{equation}
 $$
-$\varepsilon_i$是目标角度和已累加角度的误差
+$\varepsilon_i$是目标角度和已累加角度的误差(注意是迭代<b>前</b>误差)
 $$
 \begin{equation}
 \sigma_i =
@@ -234,73 +234,134 @@ $$
 <div class="hb">
 但是，对于 <font color=#000000><b>"多次旋转就能逼近到目标角度"</b></font> 这个命题仍然存疑，需要严格证明一下
 </div>
-存疑主要来自于两处：  
+???+ info "严格证明过程"
+    存疑主要来自于两处：  
 
-1. 由于(5)式的项是递减的，是否会收敛导致无法逼近到一个较大目标角度？  
-![alt text](img/image-1.png#img50)
-1. 迭代收敛处和目标值之间是否可能存在一个不随着迭代减小的误差？  
-![alt text](img/image-6.png#img50)  
+    1. 由于(5)式的项是递减的，是否会收敛导致无法逼近到一个较大目标角度？  
+    ![alt text](img/image-1.png#img50)
+    1. 迭代收敛处和目标值之间是否可能存在一个不随着迭代减小的误差？  
+    ![alt text](img/image-6.png#img50)  
 
-对于第一个问题，只需要对（5）求极限
-$$
-\Sigma_{i=0}^{+\infty} arctan(2^{-i})
-$$
-首先证明极限存在，   
-根据比较判别法，当$x>0$时，$arctan(x)<x$，因此    
-$$
-arctan(2^{-i})<2^{-i},i\geq0
-$$
-由于公比为1/2的几何级数收敛，故所证级数极限也存在   
-&emsp;   
+    对于第一个问题，只需要对（5）求极限
+    $$
+    \Sigma_{i=0}^{+\infty} arctan(2^{-i})
+    $$
+    首先证明极限存在，   
+    根据比较判别法，当$x>0$时，$arctan(x)<x$，因此    
+    $$
+    arctan(2^{-i})<2^{-i},i\geq0
+    $$
+    由于公比为1/2的几何级数收敛，故所证级数极限也存在   
+    &emsp;   
 
-现在对级数$\Sigma_{i=0}^{+\infty} arctan(2^{-i})$进行求和   
-借助计算机，先求前21项的和$S_{20}\approx$1.743   
-然后对余项进行估计，
-$$
-\begin{align*}
-R_{20}&=\Sigma_{i=21}^{+\infty}arctan(2^{-i})\\
-&<\Sigma_{i=21}^{+\infty}2^{-i}\\
-&=2^{-20}\\
-&\approx 9.537 \times 10^{-7}
-\end{align*}
-$$
-因此所求级数可以认为1.743弧度（约为99.88°），第四象限证明完全一致。因此(7)式的最大范围可以覆盖$[-\pi/2,\pi/2]$,对于二三象限的问题，也可以利用对称性转化。因此第一个问题得到解决。   
-&emsp;    
-&emsp;   
-对于第二个问题，将需要证明的命题转化为数学语言    
-<div class="hb">
-对任意目标角度$\theta\in[-\pi/2,\pi/2]$，第$i$次迭代误差$\varepsilon_i$(<font color=gray>由式(6),(7)确定</font>)，满足：
-$$
-|\varepsilon_i|\leq\Sigma_{k=i}^{+\infty}\theta_k 且 \lim_{i \to+\infty}|\varepsilon_i|=0
-$$
-</div>
-使用数学归纳法证明：  
-$i=0$时，$\varepsilon_0=\theta\in[-\pi/2,\pi/2]$,因此$|\varepsilon_0|\leq\Sigma_{k=0}^{+\infty}\theta_k\approx1.743$ 
-</br>  
-假设$i=m$时，$|\varepsilon_m|\leq\Sigma_{k=m}^{+\infty}\theta_k $   
-则当$i=m+1$时，需要求证$|\varepsilon_{m+1}|\leq\Sigma_{k=m+1}^{+\infty}\theta_k $ 
-其中，
-$$
-\varepsilon_{m+1}=\varepsilon_{m}-\sigma_m\cdot\theta_m
-$$
-分类讨论   
-$(i). \sigma_m = 1$   
-$$
-\varepsilon_{m+1}=\varepsilon_{m}-\theta_m
-$$
-根据三角不等式，有
-$$
-\begin{align*}
-|\varepsilon_{m+1}|&=|\varepsilon_{m}-\theta_m|\\
-&\leq|\varepsilon_{m}|-|\theta_m|\\
-&=|\varepsilon_{m}|-\theta_m\\
-&\leq\Sigma_{k=m}^{+\infty}\theta_k-\theta_m\\
-&=\Sigma_{k=m+1}^{+\infty}\theta_k+\theta_m-\theta_m\\
-&=\Sigma_{k=m+1}^{+\infty}\theta_k
-\end{align*}
-$$
-$(ii). \sigma_m = -1$   
+    现在对级数$\Sigma_{i=0}^{+\infty} arctan(2^{-i})$进行求和   
+    借助计算机，先求前21项的和$S_{20}\approx$1.743   
+    然后对余项进行估计，
+    $$
+    \begin{align*}
+    R_{20}&=\Sigma_{i=21}^{+\infty}arctan(2^{-i})\\
+    &<\Sigma_{i=21}^{+\infty}2^{-i}\\
+    &=2^{-20}\\
+    &\approx 9.537 \times 10^{-7}
+    \end{align*}
+    $$
+    因此所求级数可以认为1.743弧度（约为99.88°），第四象限证明完全一致。因此(7)式的最大范围可以覆盖$[-\pi/2,\pi/2]$,对于二三象限的问题，也可以利用对称性转化。因此第一个问题得到解决。   
+    &emsp;    
+    &emsp;   
+    对于第二个问题，将需要证明的命题转化为数学语言    
+    <div class="hb">
+    对任意目标角度$\theta\in[-\pi/2,\pi/2]$，第$i$次迭代误差$\varepsilon_i$(<font color=gray>由式(6),(7)确定</font>)，满足：
+    $$
+    |\varepsilon_i|\leq\Sigma_{k=i}^{+\infty}\theta_k 且 \lim_{i \to+\infty}|\varepsilon_i|=0
+    $$
+    </div>
+    使用数学归纳法证明：  
+    $i=0$时，$\varepsilon_0=\theta\in[-\pi/2,\pi/2]$,因此$|\varepsilon_0|\leq\Sigma_{k=0}^{+\infty}\theta_k\approx1.743$ 
+    </br>  
+    假设$i=m$时，$|\varepsilon_m|\leq\Sigma_{k=m}^{+\infty}\theta_k $   
+    则当$i=m+1$时，需要求证$|\varepsilon_{m+1}|\leq\Sigma_{k=m+1}^{+\infty}\theta_k $ 
 
+    要证
+    $$
+    |\varepsilon_{m+1}|\leq\Sigma_{k=m+1}^{+\infty}\theta_k 
+    $$
+    即证明
+    $$
+    -\Sigma_{k=m+1}^{+\infty}\theta_k \leq\varepsilon_{m+1}\leq\Sigma_{k=m+1}^{+\infty}\theta_k 
+    $$   
+    其中，
+    $$
+    \varepsilon_{m+1}=\varepsilon_{m}-\sigma_m\cdot\theta_m
+    $$
+    分类讨论   
+    $(i). \sigma_m = 1$   
+    $$
+    \begin{align*}
+    \varepsilon_{m+1}
+    &=\varepsilon_{m}-\theta_m\\
+    &\leq\Sigma_{k=m}^{+\infty}\theta_k-\theta_m\\
+    &=\Sigma_{k=m+1}^{+\infty}\theta_k+\theta_m-\theta_m\\
+    &=\Sigma_{k=m+1}^{+\infty}\theta_k
+    \end{align*}
+    $$
+    不等式右侧得证    
+    &emsp;   
+    根据(7)，由于$\sigma_m = 1$，此时$\varepsilon_{m} \geq0$ 
+    $$
+    \begin{align*}
+    \varepsilon_{m+1}
+    &=\varepsilon_{m}-\theta_m\\
+    &\geq-\theta_m\\
+    &\geq-\Sigma_{k=m+1}^{+\infty}\theta_k\quad①
+    \end{align*}
+    $$
+    ①这里需要证明一个前提结论   
+    $$
+    arctan(2^{-i})\leq\Sigma_{j=i+1}^{+\infty}arctan(2^{-j})
+    $$
+    $i=0时，左边=0.7，右边1.743-0.7$，左边小于等于右边，成立    
+    $i\geq1时，2^{-i} \in(0,\frac{1}{2}]，arctan有如下泰勒展开$
+    $$
+    arctan(x)\geq x - \frac{x^3}{3}>\frac{x}{2},当x\in(0,\frac{1}{2}]
+    $$
+    因此
+    $$
+    arctan(2^{-j})>2^{-j-1}
+    $$
+    所以
+    $$
+    \Sigma_{j=i+1}^{+\infty}arctan(2^{-j})>\Sigma_{j=i+1}^{+\infty}2^{-j-1}=\frac{1}{2^i} 
+    $$
+    而根据泰勒展开
+    $$
+    arctan(2^{-i})<2^{-i}
+    $$
+    所以
+    $$
+    \Sigma_{j=i+1}^{+\infty}arctan(2^{-j})>\frac{1}{2^i} >arctan(2^{-i})       
+    $$
+    ①前提结论得证，不等式右侧亦得证    
+    $(ii). \sigma_m = -1$   
+    $$
+    \begin{align*}
+    \varepsilon_{m+1}&=\varepsilon_{m}+\theta_m\\
+    &\geq -\Sigma_{k=m}^{+\infty}\theta_k +\theta_m\\
+    &=-\Sigma_{k=m+1}^{+\infty}\theta_k
+    \end{align*}
+    $$
+    不等式左侧得证  
+    &emsp;  
+    根据前提结论①，$\theta_m\leq\Sigma_{k=m+1}^{+\infty}\theta_k\quad$
+    因为$\sigma_m = -1,则\varepsilon_{m}<0,所以$
+    $$
+    \begin{align*}
+    \varepsilon_{m+1}&=\varepsilon_{m}+\theta_m\\
+    &\leq\Sigma_{k=m+1}^{+\infty}\theta_k\
+    \end{align*}
+    $$
+    不等式右侧得证  
+    &emsp;   
+    至此，关于Cordic的问题得到了证明   
 
 
 
