@@ -1,6 +1,8 @@
 site_name: IC笔记 [黑铁篇] 
 nav:
   - 介绍: index.md
+  - 语法章:
+    - SVA: sva.md
   - 算法章: 
     - Cordic算法: cordic.md
   - 关于: about.md
