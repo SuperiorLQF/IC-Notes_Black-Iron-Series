@@ -47,6 +47,10 @@ markdown_extensions:
   - pymdownx.emoji
   - admonition #new
   - pymdownx.details #new
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+
 extra: 
   fonts:
     - href: https://fonts.googleapis.com/icon?family=Material+Icons
