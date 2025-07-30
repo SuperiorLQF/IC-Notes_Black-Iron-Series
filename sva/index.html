@@ -641,7 +641,9 @@
 </ul>
 </div>
 <h2 id="_1">简介<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p><font color =ff6622 font size=4>SVA断言(<strong>assert</strong>)是用来描述设计属性(<strong>design property</strong>)的一种简洁方式。</font>使用SVA可以检查RTL行为是否符合该属性</p>
+<p><font color =ff6622 font size=4>SVA断言(<strong>assert</strong>)是用来描述设计<span class="btl">预期行为(<strong>intended behavior</strong>)</span>或<span class="btl">属性(<strong>property</strong>)</span>的一种简洁方式。 <br />
+断言是对<span class="btl">复杂时序的简单描述</span></font>   </p>
+<p>利用断言可以检查RTL行为及属性是否符合设计要求</p>
 <div class="hb">
 当然SVA不是描述和检查属性的唯一方式</br>
 仅使用SV也可以实现，但是更加晦涩（写起来难，代码阅读起来也难），很难直接根据代码看出预期的属性
@@ -696,7 +698,29 @@
 <a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="p">[</span><span class="k">else</span><span class="p">]</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">    </span><span class="p">[</span><span class="n">fail_action</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
-从格式上来看，直接区别就是assert后跟上了<span class="btl"><code>property</code></span></p>
+从格式上来看，直接区别就是assert后跟上了<span class="btl"><code>property</code></span>  <br />
+举例如下
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nl">a_concurrent:</span><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="p">(@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">##</span><span class="mi">2</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+</code></pre></div></td></tr></table></div>
+需要引入<span class="hl info">采样时钟</span>的概念 <br />
+由于<strong>并行断言</strong>是持续监控数个周期的信号值，因此需要通过<span class="btl">采样时钟</span>来采样信号值(上面例子中的<code>@(posedge clk)</code>)   <br />
+采样时钟采到的值是<span class="btlr">采样时钟边沿前一刻信号的值</span>    </p>
+<p>上例中代码需要检测如下行为：   </p>
+<blockquote>
+<p>采到a为1，过两个采样时钟，采到b为1   </p>
+</blockquote>
+<p>上面代码的断言仿真波形如下 <span class="hl">verdi</span>  </p>
+<p><img alt="alt text" src="../img/image-7.png#img120" />  </p>
+<p>详细解析如下    </p>
+<blockquote>
+<p>①位置采到a=1,因此启动线程开始监测(图中<code>A_concurrent</code>绿色箭头起点) <br />
+经过两个采样时钟(图中<code>##1</code>和<code>##2</code>)  <br />
+②位置采到b=1，因此持续监测满足断言要求的时序，在匹配成功结束处打上绿色箭头  </p>
+</blockquote>
+<p><img alt="alt text" src="../img/image-8.png#img60" /></p>
+<div class="hb warn">
+有的工具不在匹配结束点，而是在匹配开始点表示匹配的成功/失败
+</div>
 
 
 

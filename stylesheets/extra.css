@@ -10,11 +10,19 @@
     color: black !important;
     background-color: #e1d33e !important; /* 深绿色 */
 }
+.hl.info{
+  color: rgb(255, 255, 255) !important;
+  background-color: #2196f3 !important; /* 深绿色 */  
+}
 
 /********下划线类型**********/
 .btl{
     /* 添加彩色下划线 */
     border-bottom: 3px solid #73ac37; /* 将红色换成你想要的颜色 */
+}
+.btlr{
+  /* 添加彩色下划线 */
+  border-bottom: 3px solid #c53228; /* 将红色换成你想要的颜色 */
 }
 
 /********高亮块类型**********/
@@ -53,3 +61,5 @@ html body img[src*='img60'] { width: 60%;}
 html body img[src*='img70'] { width: 70%;}
 html body img[src*='img80'] { width: 80%;}
 html body img[src*='img90'] { width: 90%;}
+html body img[src*='img120'] { width: 120%;}
+html body img[src*='img150'] { width: 150%;}
