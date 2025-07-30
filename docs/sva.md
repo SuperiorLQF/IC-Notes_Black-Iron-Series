@@ -1,7 +1,10 @@
 # <span class="hl warn">SVA</span>(SystemVerilog Assertion)
 [TOC]
 ## 简介
-<font color =ff6622 font size=4>SVA断言(**assert**)是用来描述设计属性(**design property**)的一种简洁方式。</font>使用SVA可以检查RTL行为是否符合该属性
+<font color =ff6622 font size=4>SVA断言(**assert**)是用来描述设计<span class="btl">预期行为(**intended behavior**)</span>或<span class="btl">属性(**property**)</span>的一种简洁方式。   
+断言是对<span class="btl">复杂时序的简单描述</span></font>   
+
+利用断言可以检查RTL行为及属性是否符合设计要求
 <div class="hb">
 当然SVA不是描述和检查属性的唯一方式</br>
 仅使用SV也可以实现，但是更加晦涩（写起来难，代码阅读起来也难），很难直接根据代码看出预期的属性
@@ -47,5 +50,30 @@ end
 [else]
     [fail_action]
 ```
-从格式上来看，直接区别就是assert后跟上了<span class="btl">`property`</span>
+从格式上来看，直接区别就是assert后跟上了<span class="btl">`property`</span>    
+举例如下
+```sv
+a_concurrent:assert property(@(posedge clk) a ##2 b);
+```
+需要引入<span class="hl info">采样时钟</span>的概念   
+由于**并行断言**是持续监控数个周期的信号值，因此需要通过<span class="btl">采样时钟</span>来采样信号值(上面例子中的`@(posedge clk)`)     
+采样时钟采到的值是<span class="btlr">采样时钟边沿前一刻信号的值</span>    
 
+上例中代码需要检测如下行为：   
+> 采到a为1，过两个采样时钟，采到b为1   
+
+上面代码的断言仿真波形如下 <span class="hl">verdi</span>  
+   
+![alt text](img/image-7.png#img120)  
+
+详细解析如下    
+>①位置采到a=1,因此启动线程开始监测(图中`A_concurrent`绿色箭头起点)   
+>经过两个采样时钟(图中`##1`和`##2`)    
+>②位置采到b=1，因此持续监测满足断言要求的时序，在匹配成功结束处打上绿色箭头  
+
+
+![alt text](img/image-8.png#img60)
+
+<div class="hb warn">
+有的工具不在匹配结束点，而是在匹配开始点表示匹配的成功/失败
+</div>
