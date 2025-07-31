@@ -77,3 +77,31 @@ a_concurrent:assert property(@(posedge clk) a ##2 b);
 <div class="hb warn">
 有的工具不在匹配结束点，而是在匹配开始点表示匹配的成功/失败
 </div>
+
+## 案例分析
+### 001
+如图所示，要求b在a拉起后,至少过1us再拉起    
+要求断言检查出时隙<1us的情况   
+  
+![alt text](img/image-9.png)   
+**思路**：如果是周期要求，那么就很简单只需要用`## n`语法即可。   
+而本例中要求检查的是具体时间，可以用系统函数来计算时隙大小   
+```sv
+`timescale 1ns/1ps
+property p_check_slot1us;
+    real start_time;
+    @(posedge clk) ($rose(a),start_time=$realtime) |-> 
+        first_match(##[0:$] $rose(b)) ##0 (($realtime-start_time)>=1000); 
+endproperty
+```
+<div class="hb warn">
+<font color=purple font size =5><b>##[0,$]</b> 的无限期待feature</font><br>
+特别注意<span class="btl"><b>first_match</b></span>函数在上面代码中的作用<br>    
+如下图所示，如果没有firstmatch，<b>##[0,$]</b>这个特殊的线程就会一直匹配直到匹配成功为止<br>
+这个线程尽管遇到后面条件失败，也不会认为失败，而是会认为在无限远的将来会匹配成功，因此会持续等待。也就是说除非运行时间结束，否则不会失败<br>
+<br>
+这个问题本质上也是<b>[a:b]等价展开</b>的问题，<span class="btl">展开式之间是或逻辑</span>，所以一个子项失败不算整体失败，而是继续期待
+</div>  
+
+
+![alt text](img/image-10.png)  
