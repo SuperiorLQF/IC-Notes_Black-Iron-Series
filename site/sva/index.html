@@ -443,6 +443,30 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      案例分析
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="案例分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#001" class="md-nav__link">
+    <span class="md-ellipsis">
+      001
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -611,6 +635,30 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      案例分析
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="案例分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#001" class="md-nav__link">
+    <span class="md-ellipsis">
+      001
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -634,6 +682,10 @@
 <li><a href="#_1">简介</a><ul>
 <li><a href="#_2">即时断言</a></li>
 <li><a href="#_3">并行断言</a></li>
+</ul>
+</li>
+<li><a href="#_4">案例分析</a><ul>
+<li><a href="#001">001</a></li>
 </ul>
 </li>
 </ul>
@@ -721,6 +773,36 @@
 <div class="hb warn">
 有的工具不在匹配结束点，而是在匹配开始点表示匹配的成功/失败
 </div>
+
+<h2 id="_4">案例分析<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="001">001<a class="headerlink" href="#001" title="Permanent link">&para;</a></h3>
+<p>如图所示，要求b在a拉起后,至少过1us再拉起  <br />
+要求断言检查出时隙&lt;1us的情况   </p>
+<p><img alt="alt text" src="../img/image-9.png" /> <br />
+<strong>思路</strong>：如果是周期要求，那么就很简单只需要用<code>## n</code>语法即可。 <br />
+而本例中要求检查的是具体时间，可以用系统函数来计算时隙大小 <br />
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span>
+<span class="normal"><a href="#__codelineno-4-3">3</a></span>
+<span class="normal"><a href="#__codelineno-4-4">4</a></span>
+<span class="normal"><a href="#__codelineno-4-5">5</a></span>
+<span class="normal"><a href="#__codelineno-4-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="no">`timescale</span><span class="w"> </span><span class="mi">1</span><span class="n">ns</span><span class="o">/</span><span class="mi">1</span><span class="n">ps</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="k">property</span><span class="w"> </span><span class="n">p_check_slot1us</span><span class="p">;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3"></a><span class="w">    </span><span class="kt">real</span><span class="w"> </span><span class="n">start_time</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4"></a><span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="p">($</span><span class="n">rose</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="n">start_time</span><span class="o">=</span><span class="p">$</span><span class="kt">realtime</span><span class="p">)</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span>
+<a id="__codelineno-4-5" name="__codelineno-4-5"></a><span class="w">        </span><span class="k">first_match</span><span class="p">(##[</span><span class="mi">0</span><span class="o">:</span><span class="p">$]</span><span class="w"> </span><span class="p">$</span><span class="n">rose</span><span class="p">(</span><span class="n">b</span><span class="p">))</span><span class="w"> </span><span class="p">##</span><span class="mi">0</span><span class="w"> </span><span class="p">(($</span><span class="kt">realtime</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">1000</span><span class="p">);</span><span class="w"> </span>
+<a id="__codelineno-4-6" name="__codelineno-4-6"></a><span class="k">endproperty</span>
+</code></pre></div></td></tr></table></div></p>
+<div class="hb warn">
+<font color=purple font size =5><b>##[0,$]</b> 的无限期待feature</font><br>
+特别注意<span class="btl"><b>first_match</b></span>函数在上面代码中的作用<br>    
+如下图所示，如果没有firstmatch，<b>##[0,$]</b>这个特殊的线程就会一直匹配直到匹配成功为止<br>
+这个线程尽管遇到后面条件失败，也不会认为失败，而是会认为在无限远的将来会匹配成功，因此会持续等待。也就是说除非运行时间结束，否则不会失败<br>
+<br>
+这个问题本质上也是<b>[a:b]等价展开</b>的问题，<span class="btl">展开式之间是或逻辑</span>，所以一个子项失败不算整体失败，而是继续期待
+</div>
+
+<p><img alt="alt text" src="../img/image-10.png" />  </p>
 
 
 

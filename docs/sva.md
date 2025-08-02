@@ -1,6 +1,6 @@
 # <span class="hl warn">SVA</span>(SystemVerilog Assertion)
 [TOC]
-## 简介
+## 1 简介
 <font color =ff6622 font size=4>SVA断言(**assert**)是用来描述设计<span class="btl">预期行为(**intended behavior**)</span>或<span class="btl">属性(**property**)</span>的一种简洁方式。   
 断言是对<span class="btl">复杂时序的简单描述</span></font>   
 
@@ -11,8 +11,8 @@
 </div>
 
 断言分为<span class="btl">即时(immediate)断言</span>和<span class="btl">并行(concurrent)断言</span>
-### 即时断言
-在代码执行到断言语句是进行立即检查    
+### 1.1 即时断言
+信号发生改变时进行立即检查，信号不变时不进行检查    
 格式如下
 ```systemverilog
 [assert  name]:assert (expr) 
@@ -20,8 +20,10 @@
 [else]
     [fail_action]
 ```
-除了第一行，剩下的称为<span class="btl">action block</span>，可以省略
-<div class="hb warn">
+除了第一行，剩下的称为执行块<span class="btl">action block</span>，可以省略       
+<span class="hl info">执行块</span> action block只能包含一些打印语句，而不能写赋值语句    
+执行块的pass action只会在断言成功时执行（在**空成功**时不执行任何action）
+<div class="hb warn"> 
 <font color=red><b>即时断言只能在程序块中</b></font></br>
 如always_comb、task、function等
 </div>
@@ -41,8 +43,13 @@ end
 2.<span class="btl">`%m`</span>可以得到assert名  
 3.失败的action block还可以用<span class="btl">`$display`或者``uvm_error`</span>等其他log函数
   
-### 并行断言
+### 1.2 并行断言
 检查一段时序关系，可以持续监控数个周期，独立于过程块执行     
+在每个采样时钟都检查（除非是满足disable iff条件时，不进行检查）    
+   
+<span class="hl info">采样时钟</span>由于**并行断言**是持续监控数个周期的信号值，因此需要通过<span class="btl">采样时钟</span>来采样信号值(如`@(posedge clk)`)     
+采样时钟采到的值是<span class="btlr">采样时钟边沿前一刻信号的值</span>(refer to `systemverilog的调度`)  
+  
 格式如下
 ```systemverilog
 [assert  name]:assert property(property_expr) 
@@ -54,15 +61,14 @@ end
 举例如下
 ```sv
 a_concurrent:assert property(@(posedge clk) a ##2 b);
-```
-需要引入<span class="hl info">采样时钟</span>的概念   
-由于**并行断言**是持续监控数个周期的信号值，因此需要通过<span class="btl">采样时钟</span>来采样信号值(上面例子中的`@(posedge clk)`)     
-采样时钟采到的值是<span class="btlr">采样时钟边沿前一刻信号的值</span>    
+```      
 
 上例中代码需要检测如下行为：   
 > 采到a为1，过两个采样时钟，采到b为1   
 
-上面代码的断言仿真波形如下 <span class="hl">verdi</span>  
+上面代码的断言仿真波形如下 <span class="hl warn">vcs</span> <span class="hl">verdi</span>  
+!!! warning "注意"
+    有的工具不在匹配结束点，而是在波形上在匹配开始点用箭头表示匹配的成功/失败
    
 ![alt text](img/image-7.png#img120)  
 
@@ -73,10 +79,41 @@ a_concurrent:assert property(@(posedge clk) a ##2 b);
 
 
 ![alt text](img/image-8.png#img60)
+### 1.3 SVA 层次
+bool表达式只能简单地描述一个采样时钟沿各个信号的逻辑关系，而为了能够描述一段时间内的信号行为，就需要引入<span class="btl">序列(sequence)</span>的概念   
+```sv
+sequence name_of_sequence;
+    <test expression>;
+endsequence
+```
+序列可以合成属性   
+```sv
+property name_of_property;
+    <test expression>;   或
+    <sequence_expression>;
+endproperty
+```
+属性是断言检查的对象
+```sv
+assertion_name:
+assert property (<property_name> 或 <test expression>);
+```
+SVA的层次化如下图所示，<font color = purple>**特别注意各个操作符所在的层级**</font>   
+property层还需要补充一个: <font color=red font size =5>**not**</font>   
+![alt text](img/image-11.png#img#img40)   
+规范起见，**采样时钟**一般在属性中进行声明，<u>这样也可以保证定义的序列更有通用性</u>   
+序列和属性都可以带形参，提高通用性   
+```sv
+sequence s0(a,b);
+    a ##2 b;
+endsequence
 
-<div class="hb warn">
-有的工具不在匹配结束点，而是在匹配开始点表示匹配的成功/失败
-</div>
+//---------------
+
+sequence s1;
+    s0(req,ack) ##1 c;
+endsequence
+```
 
 ## 案例分析
 ### 001
