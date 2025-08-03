@@ -23,10 +23,9 @@
 除了第一行，剩下的称为执行块<span class="btl">action block</span>，可以省略       
 <span class="hl info">执行块</span> action block只能包含一些打印语句，而不能写赋值语句    
 执行块的pass action只会在断言成功时执行（在**空成功**时不执行任何action）
-<div class="hb warn"> 
-<font color=red><b>即时断言只能在程序块中</b></font></br>
-如always_comb、task、function等
-</div>
+!!! warning "即时断言只能在程序块中"
+    程序块如always_comb、task、function等
+
 举例如下
 ```sv
 `ifdef MODULENAME_ASSERT_ON
@@ -67,7 +66,7 @@ a_concurrent:assert property(@(posedge clk) a ##2 b);
 > 采到a为1，过两个采样时钟，采到b为1   
 
 上面代码的断言仿真波形如下 <span class="hl warn">vcs</span> <span class="hl">verdi</span>  
-!!! warning "注意"
+!!! warning "不同工具断言波形表示不同"
     有的工具不在匹配结束点，而是在波形上在匹配开始点用箭头表示匹配的成功/失败
    
 ![alt text](img/image-7.png#img120)  
@@ -102,7 +101,7 @@ SVA的层次化如下图所示，<font color = purple>**特别注意各个操作
 property层还需要补充一个: <font color=red font size =5>**not**</font>   
 ![alt text](img/image-11.png#img#img40)   
 规范起见，**采样时钟**一般在属性中进行声明，<u>这样也可以保证定义的序列更有通用性</u>   
-序列和属性都可以带形参，提高通用性   
+序列和属性都可以带<span class="btl">形参</span>，提高通用性   
 ```sv
 sequence s0(a,b);
     a ##2 b;
@@ -114,6 +113,53 @@ sequence s1;
     s0(req,ack) ##1 c;
 endsequence
 ```
+## 时序窗口
+示例  
+```sv
+property p1;
+    @(posedge clk) a ##[1:3] b;
+endproperty
+```
+示例的属性表示：采样到a为高后,[1:3]个周期内，b至少在一个时钟周期为高   
+时间窗口本质是<span class='btl'>在时钟边沿启动多个线程来检查</span>   
+如示例中，检测到a为高，在该仿真时刻启动三个线程，分别在`##1`/`##2`和`##3`进行检查，如下图绿色箭头所示   
+
+![alt text](img/image-14.png)    
+示例中的时序窗口按线程转换为等价形式为
+```sv
+a ##1 b 或者
+a ##2 b 或者
+a ##3 b
+```
+通常一个线程成功就会让整个时序窗口表达式成功，这是因为线程之间是或的关系
+```sv
+property p0;
+    @(posedge clk_delay) a |-> ##[1:5] (b,$display("%m:property success @%0t",$realtime));
+endproperty
+a0:
+assert property(p0)
+    $display("%m:assert success @%0t",$realtime);
+```
+如下图，尽管在第五个周期b也拉高了，满足时序窗口，但是在波形上在a0时刻就成功了  
+并且第五周期b拉高也没打印出success信息，只有第二周期b拉高的成功打印  
+  
+![alt text](img/image-13.png)  
+  
+![alt text](img/image-15.png#img50)   
+这说明：
+<div class="hb warn">
+<b><font color=purple>时序窗口中，只要有一个线程成功，就会直接结束，使整个属性成功</font></b>  
+</div>
+
+
+<div class="hb warn">
+为了避免仿真消耗过大，应当避免<br>      
+1.在时序窗口前增加一些过滤条件，防止每个时钟上升沿都启动时序窗口多线程<br>   
+2.不使用过大的时序窗口，否则会开启过多线程<br>  
+</div>
+
+
+
 
 ## 案例分析
 ### 001
@@ -125,11 +171,22 @@ endsequence
 而本例中要求检查的是具体时间，可以用系统函数来计算时隙大小   
 ```sv
 `timescale 1ns/1ps
+//错误示例
+property p_check_slot1us_nofirst;
+    real start_time;
+    @(posedge clk_delay) ($rose(a),start_time=$realtime) |-> 
+        ##[0:$] ($rose(b) && (($realtime-start_time)>=1000)); 
+endproperty
+
+//正确示例
 property p_check_slot1us;
     real start_time;
-    @(posedge clk) ($rose(a),start_time=$realtime) |-> 
-        first_match(##[0:$] $rose(b)) ##0 (($realtime-start_time)>=1000); 
+    @(posedge clk_delay) ($rose(a),start_time=$realtime) |-> 
+        first_match(##[0:$] ($rose(b)) && (($realtime-start_time)>=1000)); 
 endproperty
+
+A_slot1us:assert property(p_check_slot1us);
+A_slot1us_nofirst:assert property(p_check_slot1us_nofirst);
 ```
 <div class="hb warn">
 <font color=purple font size =5><b>##[0,$]</b> 的无限期待feature</font><br>
