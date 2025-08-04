@@ -752,7 +752,7 @@
 <a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="p">[</span><span class="n">fail_action</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
 除了第一行，剩下的称为执行块<span class="btl">action block</span>，可以省略     <br />
-<span class="hl info">执行块</span> action block只能包含一些打印语句，而不能写赋值语句  <br />
+<span class="hl info">执行块</span> action block<span class="btlr">只能包含一些打印语句(如<code>$display、$fatal和`uvm_error</code>等)，而不能写赋值语句</span>    <br />
 执行块的pass action只会在断言成功时执行（在<strong>空成功</strong>时不执行任何action）</p>
 <div class="admonition warning">
 <p class="admonition-title">即时断言只能在程序块中</p>
@@ -777,14 +777,13 @@
 </code></pre></div></td></tr></table></div>
 上述代码注意点：  <br />
 1.使用<span class="btl">ASSERT宏开关</span>控制assertion的开启和关闭<br />
-2.<span class="btl"><code>%m</code></span>可以得到assert名<br />
-3.失败的action block还可以用<span class="btl"><code>$display</code>或者<code>`uvm_error</code></span>等其他log函数</p>
+2.<span class="btl"><code>%m</code></span>可以得到assert名  </p>
 <h3 id="12">1.2 并行断言<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
 <p>检查一段时序关系，可以持续监控数个周期，独立于过程块执行   <br />
-在每个采样时钟都检查（除非是满足disable iff条件时，不进行检查）    </p>
+在每个采样时钟都检查（除非是满足disable iff()中的条件时，不进行检查）    </p>
 <p><span class="hl info">采样时钟</span>由于<strong>并行断言</strong>是持续监控数个周期的信号值，因此需要通过<span class="btl">采样时钟</span>来采样信号值(如<code>@(posedge clk)</code>)   <br />
 采样时钟采到的值是<span class="btlr">采样时钟边沿前一刻信号的值</span>(refer to <code>systemverilog的调度</code>)  </p>
-<p>格式如下
+<p>并行断言的格式如下，需要在property_expr中声明采样时钟 <br />
 <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
 <span class="normal"><a href="#__codelineno-2-2">2</a></span>
 <span class="normal"><a href="#__codelineno-2-3">3</a></span>
@@ -815,8 +814,11 @@
 </blockquote>
 <p><img alt="alt text" src="../img/image-8.png#img60" /></p>
 <h3 id="13-sva">1.3 SVA 层次<a class="headerlink" href="#13-sva" title="Permanent link">&para;</a></h3>
-<p>bool表达式只能简单地描述一个采样时钟沿各个信号的逻辑关系，而为了能够描述一段时间内的信号行为，就需要引入<span class="btl">序列(sequence)</span>的概念 <br />
-<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<p>verilog中的bool表达式只能简单地描述一个采样时钟沿各个信号的逻辑关系，而为了能够描述一段时间内的信号行为，就需要引入SVA中<span class="btl">序列(sequence)</span>的概念   </p>
+<blockquote>
+<p>前一节中的<code>a ##2 b</code>就是一个序列表达式    </p>
+</blockquote>
+<p><div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
 <span class="normal"><a href="#__codelineno-4-2">2</a></span>
 <span class="normal"><a href="#__codelineno-4-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a><span class="k">sequence</span><span class="w"> </span><span class="n">name_of_sequence</span><span class="p">;</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2"></a><span class="w">    </span><span class="o">&lt;</span><span class="n">test</span><span class="w"> </span><span class="n">expression</span><span class="o">&gt;</span><span class="p">;</span>
@@ -840,7 +842,7 @@ SVA的层次化如下图所示，<font color = purple><strong>特别注意各个
 property层还需要补充一个: <font color=red font size =5><strong>not</strong></font> <br />
 <img alt="alt text" src="../img/image-11.png#img#img40" /> <br />
 规范起见，<strong>采样时钟</strong>一般在属性中进行声明，<u>这样也可以保证定义的序列更有通用性</u> <br />
-序列和属性都可以带<span class="btl">形参</span>，提高通用性 <br />
+序列和属性都可以带<span class="btl">形参</span>，提高可复用性 <br />
 <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span>
 <span class="normal"><a href="#__codelineno-7-2">2</a></span>
 <span class="normal"><a href="#__codelineno-7-3">3</a></span>
@@ -878,8 +880,13 @@ property层还需要补充一个: <font color=red font size =5><strong>not</stro
 <a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="n">a</span><span class="w"> </span><span class="p">##</span><span class="mi">2</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="err">或者</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="n">a</span><span class="w"> </span><span class="p">##</span><span class="mi">3</span><span class="w"> </span><span class="n">b</span>
 </code></pre></div></td></tr></table></div>
-通常一个线程成功就会让整个时序窗口表达式成功，这是因为线程之间是或的关系
-<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span>
+<span class = "btlr"><font color=purple><strong>最早成功的那个线程就会让整个时序窗口表达式成功(kill其他线程)，这是因为线程之间是或的关系</strong></font></span></p>
+<div class="hb tip">
+<b>补充说明:时序窗口与线程</b><br>
+TODO TODO
+</div>
+
+<p><div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-10-1">1</a></span>
 <span class="normal"><a href="#__codelineno-10-2">2</a></span>
 <span class="normal"><a href="#__codelineno-10-3">3</a></span>
 <span class="normal"><a href="#__codelineno-10-4">4</a></span>
@@ -891,19 +898,14 @@ property层还需要补充一个: <font color=red font size =5><strong>not</stro
 <a id="__codelineno-10-5" name="__codelineno-10-5"></a><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="p">(</span><span class="n">p0</span><span class="p">)</span>
 <a id="__codelineno-10-6" name="__codelineno-10-6"></a><span class="w">    </span><span class="p">$</span><span class="n">display</span><span class="p">(</span><span class="s">&quot;%m:assert success @%0t&quot;</span><span class="p">,$</span><span class="kt">realtime</span><span class="p">);</span>
 </code></pre></div></td></tr></table></div>
-如下图，尽管在第五个周期b也拉高了，满足时序窗口，但是在波形上在a0时刻就成功了<br />
+如下图，尽管在第五个周期b也拉高了，也满足时序窗口，但是在波形上a0在b第一次拉高时就成功了<br />
 并且第五周期b拉高也没打印出success信息，只有第二周期b拉高的成功打印  </p>
 <p><img alt="alt text" src="../img/image-13.png" />  </p>
-<p><img alt="alt text" src="../img/image-15.png#img50" /> <br />
-这说明：</p>
-<div class="hb warn">
-<b><font color=purple>时序窗口中，只要有一个线程成功，就会直接结束，使整个属性成功</font></b>  
-</div>
-
+<p><img alt="alt text" src="../img/image-15.png#img50" />   </p>
 <div class="hb warn">
 为了避免仿真消耗过大，应当避免<br>      
 1.在时序窗口前增加一些过滤条件，防止每个时钟上升沿都启动时序窗口多线程<br>   
-2.不使用过大的时序窗口，否则会开启过多线程<br>  
+2.不使用过大的时序窗口，否则会开启过多线程(可以用intersect对大窗口或无限窗口做约束,后续会提到该方法)<br>  
 </div>
 
 <h2 id="_2">案例分析<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
