@@ -21,7 +21,7 @@
     [fail_action]
 ```
 除了第一行，剩下的称为执行块<span class="btl">action block</span>，可以省略       
-<span class="hl info">执行块</span> action block只能包含一些打印语句，而不能写赋值语句    
+<span class="hl info">执行块</span> action block<span class="btlr">只能包含一些打印语句(如``$display、$fatal和`uvm_error``等)，而不能写赋值语句</span>      
 执行块的pass action只会在断言成功时执行（在**空成功**时不执行任何action）
 !!! warning "即时断言只能在程序块中"
     程序块如always_comb、task、function等
@@ -40,16 +40,15 @@ end
 上述代码注意点：    
 1.使用<span class="btl">ASSERT宏开关</span>控制assertion的开启和关闭  
 2.<span class="btl">`%m`</span>可以得到assert名  
-3.失败的action block还可以用<span class="btl">`$display`或者``uvm_error`</span>等其他log函数
   
 ### 1.2 并行断言
 检查一段时序关系，可以持续监控数个周期，独立于过程块执行     
-在每个采样时钟都检查（除非是满足disable iff条件时，不进行检查）    
+在每个采样时钟都检查（除非是满足disable iff()中的条件时，不进行检查）    
    
 <span class="hl info">采样时钟</span>由于**并行断言**是持续监控数个周期的信号值，因此需要通过<span class="btl">采样时钟</span>来采样信号值(如`@(posedge clk)`)     
 采样时钟采到的值是<span class="btlr">采样时钟边沿前一刻信号的值</span>(refer to `systemverilog的调度`)  
   
-格式如下
+并行断言的格式如下，需要在property_expr中声明采样时钟   
 ```systemverilog
 [assert  name]:assert property(property_expr) 
     [pass_action]
@@ -79,7 +78,9 @@ a_concurrent:assert property(@(posedge clk) a ##2 b);
 
 ![alt text](img/image-8.png#img60)
 ### 1.3 SVA 层次
-bool表达式只能简单地描述一个采样时钟沿各个信号的逻辑关系，而为了能够描述一段时间内的信号行为，就需要引入<span class="btl">序列(sequence)</span>的概念   
+verilog中的bool表达式只能简单地描述一个采样时钟沿各个信号的逻辑关系，而为了能够描述一段时间内的信号行为，就需要引入SVA中<span class="btl">序列(sequence)</span>的概念   
+>前一节中的`a ##2 b`就是一个序列表达式    
+
 ```sv
 sequence name_of_sequence;
     <test expression>;
@@ -101,7 +102,7 @@ SVA的层次化如下图所示，<font color = purple>**特别注意各个操作
 property层还需要补充一个: <font color=red font size =5>**not**</font>   
 ![alt text](img/image-11.png#img#img40)   
 规范起见，**采样时钟**一般在属性中进行声明，<u>这样也可以保证定义的序列更有通用性</u>   
-序列和属性都可以带<span class="btl">形参</span>，提高通用性   
+序列和属性都可以带<span class="btl">形参</span>，提高可复用性   
 ```sv
 sequence s0(a,b);
     a ##2 b;
@@ -131,7 +132,12 @@ a ##1 b 或者
 a ##2 b 或者
 a ##3 b
 ```
-通常一个线程成功就会让整个时序窗口表达式成功，这是因为线程之间是或的关系
+<span class = "btlr"><font color=purple>**最早成功的那个线程就会让整个时序窗口表达式成功(kill其他线程)，这是因为线程之间是或的关系**</font></span>
+<div class="hb tip">
+<b>补充说明:时序窗口与线程</b><br>
+TODO TODO
+</div>
+
 ```sv
 property p0;
     @(posedge clk_delay) a |-> ##[1:5] (b,$display("%m:property success @%0t",$realtime));
@@ -140,22 +146,19 @@ a0:
 assert property(p0)
     $display("%m:assert success @%0t",$realtime);
 ```
-如下图，尽管在第五个周期b也拉高了，满足时序窗口，但是在波形上在a0时刻就成功了  
+如下图，尽管在第五个周期b也拉高了，也满足时序窗口，但是在波形上a0在b第一次拉高时就成功了  
 并且第五周期b拉高也没打印出success信息，只有第二周期b拉高的成功打印  
   
 ![alt text](img/image-13.png)  
   
 ![alt text](img/image-15.png#img50)   
-这说明：
-<div class="hb warn">
-<b><font color=purple>时序窗口中，只要有一个线程成功，就会直接结束，使整个属性成功</font></b>  
-</div>
+
 
 
 <div class="hb warn">
 为了避免仿真消耗过大，应当避免<br>      
 1.在时序窗口前增加一些过滤条件，防止每个时钟上升沿都启动时序窗口多线程<br>   
-2.不使用过大的时序窗口，否则会开启过多线程<br>  
+2.不使用过大的时序窗口，否则会开启过多线程(可以用intersect对大窗口或无限窗口做约束,后续会提到该方法)<br>  
 </div>
 
 
