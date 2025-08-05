@@ -98,8 +98,7 @@ endproperty
 assertion_name:
 assert property (<property_name> 或 <test expression>);
 ```
-SVA的层次化如下图所示，<font color = purple>**特别注意各个操作符所在的层级**</font>   
-property层还需要补充一个: <font color=red font size =5>**not**</font>   
+SVA的层次化如下图所示，<font color = purple>**特别注意各个操作符所在的层级**</font>    
 ![alt text](img/image-11.png#img#img40)   
 规范起见，**采样时钟**一般在属性中进行声明，<u>这样也可以保证定义的序列更有通用性</u>   
 序列和属性都可以带<span class="btl">形参</span>，提高可复用性   
