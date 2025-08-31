@@ -63,3 +63,12 @@ html body img[src*='img80'] { width: 80%;}
 html body img[src*='img90'] { width: 90%;}
 html body img[src*='img120'] { width: 120%;}
 html body img[src*='img150'] { width: 150%;}
+
+/* 覆盖 Material 主题的 strong 样式 */
+.md-typeset strong {
+  font-weight: bold;
+  text-emphasis: triangle;
+  text-emphasis-position: under right;
+  text-emphasis-color: #000000;
+  -webkit-text-emphasis: '⬤';
+}

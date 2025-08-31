@@ -5,6 +5,8 @@ nav:
     - SVA: sva.md
   - 算法章: 
     - Cordic算法: cordic.md
+  - 基础模块章:
+    - LFSR: lfsr.md
   - 关于: about.md
 theme: 
   name: material
