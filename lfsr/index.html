@@ -692,6 +692,7 @@
 <details class="success" open="open">
 <summary>Reference</summary>
 <p>《Verilog高级数字系统设计与实例分析》<br />
+<a href="https://www.youtube.com/watch?v=Ks1pw1X22y4">YouTube:computerphile LFSR</a> <br />
 <a href="https://www.edn.com/tutorial-linear-feedback-shift-registers-lfsrs-part-1/">Tutorial: Linear Feedback Shift Registers (LFSRs)</a> <br />
 <a href="https://www.adiuvoengineering.com/post/microzed-chronicles-linear-feedback-shift-register">MicroZed Chronicles: Linear Feedback Shift Register</a> <br />
 <a href="https://blog.csdn.net/helaisun/article/details/103835889">CSDN:线性反馈移位寄存器(Linear Feedback Shift Register, LFSR)</a></p>
@@ -699,34 +700,35 @@
 <h2 id="_1">引入：衔尾之蛇<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>LSFR全称：<span class="btl">线性反馈移位寄存器</span>，由移位寄存器和异或门逻辑组成，下图是LSFR的一个例子
 <img alt="alt text" src="../img/image-17.png#img50" /><br />
-有Circuit和Symbol两种表示，通常用更简单的Symbol表示（但是要能和真实电路对应起来）<br />
+有Circuit和Symbol两种表示，通常用更简单的Symbol表示<br />
 由于移位寄存器的输出被<strong>反馈</strong>了回去，可以形象地与<span class="hl">衔尾蛇Ouroboros</span>联系起来    </p>
 <p><img alt="alt text" src="../img/image-16.png#img30" /><br />
-如下图所示，给定一个初始值，LSFR就会按照一定周期循环计数   </p>
-<p><img alt="alt text" src="../img/image-18.png" />  </p>
+如下图所示，给定一个初始值，LSFR就会按照一定周期循环计数</p>
+<p><img alt="alt text" src="../img/image-18.png#img30" />  </p>
 <div class = "hb tip">
 
-<font size=5>👉</font>由N个寄存器构成的LSFR，最多可能达到的状态数是<font color =red>$2^N-1$</font>（取决于结构和初始状态）</br>
-<font size=5>👉</font>全0状态无法达到   
+<font size=5>👉</font>由N个寄存器构成的LSFR，可能达到的最大周期是<font color =red>$2^N-1$</font>（只有特定的反馈结构才能达到最大计数周期，不同的<b>抽头(TAP)</b>位置会影响计数周期）</br>
+<font size=5>👉</font>全0状态无法达到，初始值也禁止给全0，因为任意个0互相异或结果仍未0，会导致LFSR锁死     
 </div>
-
+<p>下图给出了不同比特下达到最大计数周期的抽头结构(<b><font color=purple>both适用于下一节中提到的两种结构</b></font>)   </p>
+<div class ="hb warn">
+在固定比特数下，最大周期的结构可能不止一个，表上只写出一种。实际使用考虑逻辑门消耗，以TAP数少的为优
+</div>
+<p><img alt="alt text" src="../img/image-22.png#img40" /><br />
+*Taps [a,b..]表示从寄存器a、b...输出引出抽头  </p>
+<p>当然，非常容易得到，仅由XNOR组成的LFSR和XOR组成的LFSR是完全对偶的，包括XNOR LSFR状态不会出现全1</p>
 <h2 id="_2">基本结构<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <p>LFSR分为两种结构：<span class="btl">斐波那契（Many-to-one）</span>和<span class="btl">伽罗瓦（One-to-Many）</span>，根据其英文名可以很容易分辨出结构的不同  <br />
-<img alt="alt text" src="../img/image-20.png" /><br />
+<img alt="alt text" src="../img/image-20.png#img50" /><br />
 回顾一下异或操作有如下两个特性：<br />
-<img alt="alt text" src="../img/image-19.png" /><br />
+<img alt="alt text" src="../img/image-19.png#img30" /><br />
 因此，上图中的Many-to-one就可以看成1，2，3，7输出全部异或(⊕)在一起再给到0 <br />
-所以有了下图更为简洁的方法来表示LSFR</p>
-<p><img alt="alt text" src="../img/image-21.png#img60" /></p>
-<p>---分割线---
-下面还没完善</p>
-<p>根据STA的基本知识，伽罗瓦的速度更快，因为寄存器前的组合逻辑更少</p>
-<p>优势与应用：产生周期重复的伪随机序列，即相比同样状态数的计数器，逻辑门更少，速度更快</p>
-<p>种子如何确定或如何输入给电路？rst_n赋值</p>
-<p>抽头和反馈多项式的含义：根据书里给的两个例子能写出其多项式</p>
-<p>最大状态是2^n-1,怎样的表达式能出现所有状态呢（算法）本原理论有点复杂，这里直接查表，需要根据表设计一个比如n=18的，两种都设计，然后仿真验证一下周期是否正确
-https://www.cnblogs.com/wzx19970918/p/15728985.html</p>
-<p>附加的可以找一篇论文看看</p>
+所以有了下图更为简洁的表示方法   </p>
+<p><img alt="alt text" src="../img/image-21.png#img60" />  </p>
+<div class = "hb tip">
+<font size=5>👉</font>由于对偶性，Many-to-one和One-to-many在抽头结构相同情况下，计数周期也是相同的  <br>
+<font size=5>❗</font>但是Many-to-one的多个异或门之间是级联而没有被寄存器打断，因此One-to-many的时序更好、频率可以做到更高  
+</div>
 
 
 
