@@ -9,23 +9,25 @@
       
       
       
+        <link rel="prev" href="../cordic/">
       
-        <link rel="next" href="sva/">
+      
+        <link rel="next" href="../about/">
       
       
-      <link rel="icon" href="img/favicon.ico">
+      <link rel="icon" href="../img/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
-        <title>IC笔记 [黑铁篇]</title>
+        <title>LFSR - IC笔记 [黑铁篇]</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -44,9 +46,9 @@
       
     
     
-      <link rel="stylesheet" href="stylesheets/extra.css">
+      <link rel="stylesheet" href="../stylesheets/extra.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -70,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#_1" class="md-skip">
+        <a href="#lfsrlinear-feedback-shift-register" class="md-skip">
           Skip to content
         </a>
       
@@ -84,9 +86,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="IC笔记 [黑铁篇]" class="md-header__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
+    <a href=".." title="IC笔记 [黑铁篇]" class="md-header__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
       
-  <img src="img/home_24dp_E3E3E3.png" alt="logo">
+  <img src="../img/home_24dp_E3E3E3.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -103,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              介绍
+              LFSR
             
           </span>
         </div>
@@ -176,11 +178,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="." class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -201,7 +201,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="sva/" class="md-tabs__link">
+        <a href="../sva/" class="md-tabs__link">
           
   
   
@@ -221,7 +221,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="cordic/" class="md-tabs__link">
+        <a href="../cordic/" class="md-tabs__link">
           
   
   
@@ -237,11 +237,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="lfsr/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -259,7 +261,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="about/" class="md-tabs__link">
+      <a href="../about/" class="md-tabs__link">
         
   
   
@@ -294,9 +296,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="IC笔记 [黑铁篇]" class="md-nav__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
+    <a href=".." title="IC笔记 [黑铁篇]" class="md-nav__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
       
-  <img src="img/home_24dp_E3E3E3.png" alt="logo">
+  <img src="../img/home_24dp_E3E3E3.png" alt="logo">
 
     </a>
     IC笔记 [黑铁篇]
@@ -308,19 +310,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -331,7 +324,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -384,7 +376,7 @@
   
   
     <li class="md-nav__item">
-      <a href="sva/" class="md-nav__link">
+      <a href="../sva/" class="md-nav__link">
         
   
   
@@ -455,7 +447,7 @@
   
   
     <li class="md-nav__item">
-      <a href="cordic/" class="md-nav__link">
+      <a href="../cordic/" class="md-nav__link">
         
   
   
@@ -482,24 +474,29 @@
       
   
   
+    
   
   
+  
     
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -512,7 +509,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             基础模块章
@@ -523,10 +520,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="lfsr/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    LFSR
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -537,6 +556,44 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      引入：衔尾之蛇
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      基本结构
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -556,7 +613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="about/" class="md-nav__link">
+      <a href="../about/" class="md-nav__link">
         
   
   
@@ -591,6 +648,32 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      引入：衔尾之蛇
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      基本结构
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -605,17 +688,45 @@
 
 
 
-<h1 id="_1">介绍<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
-<p><img alt="alt text" src="img/coiled-nail.png#img10" />
-<span class="hl">IC笔记[黑铁篇]</span>是整个<u>数字IC</u>学习的起点，由<strong>算法章、工具章、语言章、架构章、数集基础章</strong>等章节构成，注重基础性、体系性、理论和实践互相结合，知识点以数字IC为主，包括但不限于<strong>设计、验证、FPGA、嵌入式、操作系统、体系结构</strong>等领域知识。</p>
-<div class="hb">
-    本笔记适合集成电路、计算机科班大三、大四，以及非科班研一、研二参考，也适用于工作之余翻看复习<br>
-    非常惭愧的是，本人写这篇笔记的时候已经是研三毕业之际<br>
-    <br>
-    <div style="text-align: right;">
-    <span class="btl">于2025年summer </span>
-    </div>
+<h1 id="lfsrlinear-feedback-shift-register"><span class="hl info">LFSR</span>(Linear Feedback Shift Register)<a class="headerlink" href="#lfsrlinear-feedback-shift-register" title="Permanent link">&para;</a></h1>
+<details class="success" open="open">
+<summary>Reference</summary>
+<p>《Verilog高级数字系统设计与实例分析》<br />
+<a href="https://www.edn.com/tutorial-linear-feedback-shift-registers-lfsrs-part-1/">Tutorial: Linear Feedback Shift Registers (LFSRs)</a> <br />
+<a href="https://www.adiuvoengineering.com/post/microzed-chronicles-linear-feedback-shift-register">MicroZed Chronicles: Linear Feedback Shift Register</a> <br />
+<a href="https://blog.csdn.net/helaisun/article/details/103835889">CSDN:线性反馈移位寄存器(Linear Feedback Shift Register, LFSR)</a></p>
+</details>
+<h2 id="_1">引入：衔尾之蛇<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>LSFR全称：<span class="btl">线性反馈移位寄存器</span>，由移位寄存器和异或门逻辑组成，下图是LSFR的一个例子
+<img alt="alt text" src="../img/image-17.png#img50" /><br />
+有Circuit和Symbol两种表示，通常用更简单的Symbol表示（但是要能和真实电路对应起来）<br />
+由于移位寄存器的输出被<strong>反馈</strong>了回去，可以形象地与<span class="hl">衔尾蛇Ouroboros</span>联系起来    </p>
+<p><img alt="alt text" src="../img/image-16.png#img30" /><br />
+如下图所示，给定一个初始值，LSFR就会按照一定周期循环计数   </p>
+<p><img alt="alt text" src="../img/image-18.png" />  </p>
+<div class = "hb tip">
+
+<font size=5>👉</font>由N个寄存器构成的LSFR，最多可能达到的状态数是<font color =red>$2^N-1$</font>（取决于结构和初始状态）</br>
+<font size=5>👉</font>全0状态无法达到   
 </div>
+
+<h2 id="_2">基本结构<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>LFSR分为两种结构：<span class="btl">斐波那契（Many-to-one）</span>和<span class="btl">伽罗瓦（One-to-Many）</span>，根据其英文名可以很容易分辨出结构的不同  <br />
+<img alt="alt text" src="../img/image-20.png" /><br />
+回顾一下异或操作有如下两个特性：<br />
+<img alt="alt text" src="../img/image-19.png" /><br />
+因此，上图中的Many-to-one就可以看成1，2，3，7输出全部异或(⊕)在一起再给到0 <br />
+所以有了下图更为简洁的方法来表示LSFR</p>
+<p><img alt="alt text" src="../img/image-21.png#img60" /></p>
+<p>---分割线---
+下面还没完善</p>
+<p>根据STA的基本知识，伽罗瓦的速度更快，因为寄存器前的组合逻辑更少</p>
+<p>优势与应用：产生周期重复的伪随机序列，即相比同样状态数的计数器，逻辑门更少，速度更快</p>
+<p>种子如何确定或如何输入给电路？rst_n赋值</p>
+<p>抽头和反馈多项式的含义：根据书里给的两个例子能写出其多项式</p>
+<p>最大状态是2^n-1,怎样的表达式能出现所有状态呢（算法）本原理论有点复杂，这里直接查表，需要根据表设计一个比如n=18的，两种都设计，然后仿真验证一下周期是否正确
+https://www.cnblogs.com/wzx19970918/p/15728985.html</p>
+<p>附加的可以找一篇论文看看</p>
 
 
 
@@ -670,12 +781,12 @@
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": ["header.autohide", "navigation.top", "navigation.tabs", "content.code.copy", "content.code.annotate", "codehilite", "search.suggest", "search.highlight"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["header.autohide", "navigation.top", "navigation.tabs", "content.code.copy", "content.code.annotate", "codehilite", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.56ea9cef.min.js"></script>
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
-        <script src="javascripts/mathjax-config.js"></script>
+        <script src="../javascripts/mathjax-config.js"></script>
       
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
       

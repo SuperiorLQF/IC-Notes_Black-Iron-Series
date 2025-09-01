@@ -1,7 +1,7 @@
 # <span class="hl warn">SVA</span>(SystemVerilog Assertion)
 [TOC]
 ## 1 简介
-<font color =ff6622 font size=4>SVA断言(**assert**)是用来描述设计<span class="btl">预期行为(**intended behavior**)</span>或<span class="btl">属性(**property**)</span>的一种简洁方式。   
+<font color =ff6622 font size=4>SVA断言(assert)是用来描述设计<span class="btl">预期行为(intended behavior)</span>或<span class="btl">属性(property)</span>的一种简洁方式。   
 断言是对<span class="btl">复杂时序的简单描述</span></font>   
 
 利用断言可以检查RTL行为及属性是否符合设计要求
@@ -98,7 +98,7 @@ endproperty
 assertion_name:
 assert property (<property_name> 或 <test expression>);
 ```
-SVA的层次化如下图所示，<font color = purple>**特别注意各个操作符所在的层级**</font>    
+SVA的层次化如下图所示，<font color = purple><b>特别注意各个操作符所在的层级</b></font>    
 ![alt text](img/image-11.png#img#img40)   
 规范起见，**采样时钟**一般在属性中进行声明，<u>这样也可以保证定义的序列更有通用性</u>   
 序列和属性都可以带<span class="btl">形参</span>，提高可复用性   
@@ -131,7 +131,7 @@ a ##1 b 或者
 a ##2 b 或者
 a ##3 b
 ```
-<span class = "btlr"><font color=purple>**最早成功的那个线程就会让整个时序窗口表达式成功(kill其他线程)，这是因为线程之间是或的关系**</font></span>
+<span class = "btlr"><font color=purple><b>最早成功的那个线程就会让整个时序窗口表达式成功(kill其他线程)，这是因为线程之间是或的关系</b></font></span>
 <div class="hb tip">
 <b>补充说明:时序窗口与线程</b><br>
 TODO TODO
