@@ -590,6 +590,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      应用
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -672,6 +681,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      应用
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -691,11 +709,11 @@
 <h1 id="lfsrlinear-feedback-shift-register"><span class="hl info">LFSR</span>(Linear Feedback Shift Register)<a class="headerlink" href="#lfsrlinear-feedback-shift-register" title="Permanent link">&para;</a></h1>
 <details class="success" open="open">
 <summary>Reference</summary>
-<p>《Verilog高级数字系统设计与实例分析》<br />
-<a href="https://www.youtube.com/watch?v=Ks1pw1X22y4">YouTube:computerphile LFSR</a> <br />
-<a href="https://www.edn.com/tutorial-linear-feedback-shift-registers-lfsrs-part-1/">Tutorial: Linear Feedback Shift Registers (LFSRs)</a> <br />
-<a href="https://www.adiuvoengineering.com/post/microzed-chronicles-linear-feedback-shift-register">MicroZed Chronicles: Linear Feedback Shift Register</a> <br />
-<a href="https://blog.csdn.net/helaisun/article/details/103835889">CSDN:线性反馈移位寄存器(Linear Feedback Shift Register, LFSR)</a></p>
+<p>[1]《Verilog高级数字系统设计与实例分析》<br />
+[2] <a href="https://www.youtube.com/watch?v=Ks1pw1X22y4">YouTube:computerphile LFSR</a> <br />
+[3] <a href="https://www.edn.com/tutorial-linear-feedback-shift-registers-lfsrs-part-1/">Tutorial: Linear Feedback Shift Registers (LFSRs)</a> <br />
+[4] <a href="https://www.adiuvoengineering.com/post/microzed-chronicles-linear-feedback-shift-register">MicroZed Chronicles: Linear Feedback Shift Register</a> <br />
+[5] <a href="https://blog.csdn.net/helaisun/article/details/103835889">CSDN:线性反馈移位寄存器(Linear Feedback Shift Register, LFSR)</a></p>
 </details>
 <h2 id="_1">引入：衔尾之蛇<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>LSFR全称：<span class="btl">线性反馈移位寄存器</span>，由移位寄存器和异或门逻辑组成，下图是LSFR的一个例子
@@ -729,6 +747,22 @@
 <font size=5>👉</font>由于对偶性，Many-to-one和One-to-many在抽头结构相同情况下，计数周期也是相同的  <br>
 <font size=5>❗</font>但是Many-to-one的多个异或门之间是级联而没有被寄存器打断，因此One-to-many的时序更好、频率可以做到更高  
 </div>
+
+<h2 id="_3">应用<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<ul>
+<li>LFSR计数器：相比传统计数器，LFSR<span class="btl">速度快，消耗逻辑门更少</span>  </li>
+<li>产生伪随机序列：初始值称为seed   </li>
+<li>扰码与解扰器（扰码使重复数据与图案频谱被展宽，数据被随机化，降低电磁干扰）  </li>
+<li>密码系统  </li>
+</ul>
+<details class="question" open="open">
+<summary>并行扰码器</summary>
+<p><font size=3>对于需要LFSR输出8bit进行扰码的情况（如PCIe），可以假想一个虚拟时钟让寄存器链右移了8次    </p>
+<p><img alt="alt text" src="../img/image-24.png#img80" />  </p>
+<p>只要提前算出右移8bit后每个寄存器的值是什么，实现时就可以在一拍完成，如下图</font>  <br />
+<img alt="alt text" src="../img/image-23.png#img80" /> <br />
+<font size=3>相关代码参考[1]</font>    </p>
+</details>
 
 
 
