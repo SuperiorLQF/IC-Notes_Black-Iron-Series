@@ -1,10 +1,10 @@
 # <span class="hl info">LFSR</span>(Linear Feedback Shift Register)
 ???+success "Reference"    
-    《Verilog高级数字系统设计与实例分析》  
-    [YouTube:computerphile LFSR](https://www.youtube.com/watch?v=Ks1pw1X22y4)   
-    [Tutorial: Linear Feedback Shift Registers (LFSRs)](https://www.edn.com/tutorial-linear-feedback-shift-registers-lfsrs-part-1/)   
-    [MicroZed Chronicles: Linear Feedback Shift Register](https://www.adiuvoengineering.com/post/microzed-chronicles-linear-feedback-shift-register)   
-    [CSDN:线性反馈移位寄存器(Linear Feedback Shift Register, LFSR)](https://blog.csdn.net/helaisun/article/details/103835889)
+    [1]《Verilog高级数字系统设计与实例分析》  
+    [2] [YouTube:computerphile LFSR](https://www.youtube.com/watch?v=Ks1pw1X22y4)   
+    [3] [Tutorial: Linear Feedback Shift Registers (LFSRs)](https://www.edn.com/tutorial-linear-feedback-shift-registers-lfsrs-part-1/)   
+    [4] [MicroZed Chronicles: Linear Feedback Shift Register](https://www.adiuvoengineering.com/post/microzed-chronicles-linear-feedback-shift-register)   
+    [5] [CSDN:线性反馈移位寄存器(Linear Feedback Shift Register, LFSR)](https://blog.csdn.net/helaisun/article/details/103835889)
 
 ## 引入：衔尾之蛇
 LSFR全称：<span class="btl">线性反馈移位寄存器</span>，由移位寄存器和异或门逻辑组成，下图是LSFR的一个例子
@@ -42,3 +42,20 @@ LFSR分为两种结构：<span class="btl">斐波那契（Many-to-one）</span>�
 <font size=5>👉</font>由于对偶性，Many-to-one和One-to-many在抽头结构相同情况下，计数周期也是相同的  <br>
 <font size=5>❗</font>但是Many-to-one的多个异或门之间是级联而没有被寄存器打断，因此One-to-many的时序更好、频率可以做到更高  
 </div>
+
+## 应用
+- LFSR计数器：相比传统计数器，LFSR<span class="btl">速度快，消耗逻辑门更少</span>  
+- 产生伪随机序列：初始值称为seed   
+- 扰码与解扰器（扰码使重复数据与图案频谱被展宽，数据被随机化，降低电磁干扰）  
+- 密码系统  
+
+???+ question "并行扰码器"
+    <font size=3>对于需要LFSR输出8bit进行扰码的情况（如PCIe），可以假想一个虚拟时钟让寄存器链右移了8次    
+
+    ![alt text](img/image-24.png#img80)  
+    
+    只要提前算出右移8bit后每个寄存器的值是什么，实现时就可以在一拍完成，如下图</font>    
+    ![alt text](img/image-23.png#img80)   
+    <font size=3>相关代码参考[1]</font>    
+
+

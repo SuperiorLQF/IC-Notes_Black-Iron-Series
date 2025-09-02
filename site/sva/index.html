@@ -822,7 +822,7 @@
 </ul>
 </div>
 <h2 id="1">1 简介<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
-<p><font color =ff6622 font size=4>SVA断言(<strong>assert</strong>)是用来描述设计<span class="btl">预期行为(<strong>intended behavior</strong>)</span>或<span class="btl">属性(<strong>property</strong>)</span>的一种简洁方式。 <br />
+<p><font color =ff6622 font size=4>SVA断言(assert)是用来描述设计<span class="btl">预期行为(intended behavior)</span>或<span class="btl">属性(property)</span>的一种简洁方式。 <br />
 断言是对<span class="btl">复杂时序的简单描述</span></font>   </p>
 <p>利用断言可以检查RTL行为及属性是否符合设计要求</p>
 <div class="hb">
@@ -929,7 +929,7 @@
 <span class="normal"><a href="#__codelineno-6-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1"></a><span class="nl">assertion_name:</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2"></a><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="w"> </span><span class="p">(</span><span class="o">&lt;</span><span class="n">property_name</span><span class="o">&gt;</span><span class="w"> </span><span class="err">或</span><span class="w"> </span><span class="o">&lt;</span><span class="n">test</span><span class="w"> </span><span class="n">expression</span><span class="o">&gt;</span><span class="p">);</span>
 </code></pre></div></td></tr></table></div>
-SVA的层次化如下图所示，<font color = purple><strong>特别注意各个操作符所在的层级</strong></font>  <br />
+SVA的层次化如下图所示，<font color = purple><b>特别注意各个操作符所在的层级</b></font>  <br />
 <img alt="alt text" src="../img/image-11.png#img#img40" /> <br />
 规范起见，<strong>采样时钟</strong>一般在属性中进行声明，<u>这样也可以保证定义的序列更有通用性</u> <br />
 序列和属性都可以带<span class="btl">形参</span>，提高可复用性 <br />
@@ -970,7 +970,7 @@ SVA的层次化如下图所示，<font color = purple><strong>特别注意各个
 <a id="__codelineno-9-2" name="__codelineno-9-2"></a><span class="n">a</span><span class="w"> </span><span class="p">##</span><span class="mi">2</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="err">或者</span>
 <a id="__codelineno-9-3" name="__codelineno-9-3"></a><span class="n">a</span><span class="w"> </span><span class="p">##</span><span class="mi">3</span><span class="w"> </span><span class="n">b</span>
 </code></pre></div></td></tr></table></div>
-<span class = "btlr"><font color=purple><strong>最早成功的那个线程就会让整个时序窗口表达式成功(kill其他线程)，这是因为线程之间是或的关系</strong></font></span></p>
+<span class = "btlr"><font color=purple><b>最早成功的那个线程就会让整个时序窗口表达式成功(kill其他线程)，这是因为线程之间是或的关系</b></font></span></p>
 <div class="hb tip">
 <b>补充说明:时序窗口与线程</b><br>
 TODO TODO
