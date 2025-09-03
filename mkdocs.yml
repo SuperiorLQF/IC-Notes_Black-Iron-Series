@@ -7,6 +7,8 @@ nav:
     - Cordic算法: cordic.md
   - 基础模块章:
     - LFSR: lfsr.md
+  - EDA工具章:
+    - TimingDesigner: TimingDesigner.md
   - 关于: about.md
 theme: 
   name: material
