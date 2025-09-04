@@ -1,5 +1,14 @@
 # <span class="hl warn">SVA</span>(SystemVerilog Assertion)
 [TOC]
+<div class="hb info">
+<b>写在前面<br></b>
+看了一些SVA参考资料，但是发现资料对于很多细节还是无法面面俱到<br>     
+毕竟写代码还是一门实践的艺术，对于一些未定的结论可以通过实验来看结果，仅供参考
+</div>
+???+ success "<font size=3>reference</font>" 
+    [1] [easy formal官网](https://easyformal.com/)  
+    [2] 《SystemVerilog Assertion应用指南》     
+
 ## 1 简介
 <font color =ff6622 font size=4>SVA断言(assert)是用来描述设计<span class="btl">预期行为(intended behavior)</span>或<span class="btl">属性(property)</span>的一种简洁方式。   
 断言是对<span class="btl">复杂时序的简单描述</span></font>   
@@ -151,7 +160,23 @@ assert property(p0)
 ![alt text](img/image-13.png)  
   
 ![alt text](img/image-15.png#img50)   
-
+TODO时序窗口的参数可以是非静态吗，比如可以是信号吗，本质上这个问题就是，时序窗口的检查是有限变化还是无限变化的，因为我们可以在多个sequence中使用不同长度的时序窗口，再把它们and起来，通过选通信号选通选通每个sequence开头的蕴含符，可以完成在仿真的不同时刻根据选通信号激活不同的时序窗口，举例如下
+```sv
+sequence s1;
+    flag1 |-> ##[1:2] b
+endsequence
+sequence s2;
+    flag2 |-> ##[1:3] b
+endsequence
+sequence s3;
+    flag3 |-> ##[1:4] b
+endsequence
+property p0;
+    @(posedge clk) s1 and s2 and s3;
+endproperty
+```
+每次检查选通flag1/2/3之一，就可以激活一个s,其他s都是空成功，不会影响and，就实现了检查参数[1:x]在仿真中动态有限可变:x可选2,3,4
+那么，我便好奇，x可否直接由动态变化Signal来担当呢，这本质上是静态和动态的区分  
 
 
 <div class="hb warn">
@@ -160,15 +185,57 @@ assert property(p0)
 2.不使用过大的时序窗口，否则会开启过多线程(可以用intersect对大窗口或无限窗口做约束,后续会提到该方法)<br>  
 </div>
 
+## <font face="Courier">disable iff</font>：比你想象的更强大
+在一些情况下，满足某些条件时，我们不想执行检查。   
+一方面可能是为了减少无效检查的频率，提高仿真速度；   
+另一方面是为了**规避一些情况**，而这些情况直接作为条件写在SVA主体里实现起来很复杂。  
 
+有如下例子
+```sv
+property p1;
+    @(posedge clk)
+    a ##3 b ##1 c;
+endproperty
+```
+现在新增一个flag信号，flag信号含义是：
+> 在序列检查过程中，如果flag拉高过，那么本次检查a,b,c都不准确了，不进行检查，以免误报fail     
 
+![alt text](img/image-25.png#img80)   
+如上图所示，b和c在这里同拍出现，断言应该fail了，但因为检查过程中flag拉高过，所以这时候不希望拉起SVA fail   
+如果在SVA主逻辑里实现，代码如下
+```sv
+property p1;
+    @(posedge clk)
+    (!flag) |-> a ##3 (!flag) |->
+    b ##1 (!flag) |-> c;
+endproperty
+```
+需要在序列每个转折点都检查一下flag，这样很麻烦，而且不严谨(严谨的写法应该在每一拍检查)   
+如果序列很长，那根本不现实  
+<div class="hb tip">
+因此有了<span class='btlor'><font size =4><b>disable iff( <font color=grey>disable_conditions</font>)</b></span></font>，粗浅的理解认为disable iff只是不进入检查这么简单，但其实<span class='btlor'>disbale iff最强大的功能在于停止正在运行的检测</span>，即上述的情况（因为如果只是不进入检查，那完全可以使用蕴含实现）
+</div>
+因此对于上述问题，可以使用如下代码实现，在flag成立时中断正在进行的检查，也不发起新的检查   
+```sv
+property p1;
+    disbale iff(flag) @(posedge clk)
+    a ##3 b ##1 c;
+endproperty
+```
+
+## <font face="Courier">throughout</font> 
+```sv
+a throughout s1
+```
+资料中没有提到，当s1不成立时，到底返回失败还是空成功，需要验证一下  
+TODO
 
 ## 案例分析
 ### 001
 如图所示，要求b在a拉起后,至少过1us再拉起    
 要求断言检查出时隙<1us的情况   
   
-![alt text](img/image-9.png)   
+![alt text](img/image-9.png#img80)   
 **思路**：如果是周期要求，那么就很简单只需要用`## n`语法即可。   
 而本例中要求检查的是具体时间，可以用系统函数来计算时隙大小   
 ```sv
