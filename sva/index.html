@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../img/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -502,6 +502,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#disable-iff" class="md-nav__link">
+    <span class="md-ellipsis">
+      disable iff：比你想象的更强大
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#throughout" class="md-nav__link">
+    <span class="md-ellipsis">
+      throughout
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       案例分析
@@ -854,6 +872,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#disable-iff" class="md-nav__link">
+    <span class="md-ellipsis">
+      disable iff：比你想象的更强大
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#throughout" class="md-nav__link">
+    <span class="md-ellipsis">
+      throughout
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       案例分析
@@ -904,6 +940,8 @@
 </ul>
 </li>
 <li><a href="#_1">时序窗口</a></li>
+<li><a href="#disable-iff">disable iff：比你想象的更强大</a></li>
+<li><a href="#throughout">throughout</a></li>
 <li><a href="#_2">案例分析</a><ul>
 <li><a href="#001">001</a></li>
 </ul>
@@ -912,6 +950,16 @@
 </li>
 </ul>
 </div>
+<div class="hb info">
+<b>写在前面<br></b>
+看了一些SVA参考资料，但是发现资料对于很多细节还是无法面面俱到<br>     
+毕竟写代码还是一门实践的艺术，对于一些未定的结论可以通过实验来看结果，仅供参考
+</div>
+<details class="success" open="open">
+<summary><font size=3>reference</font></summary>
+<p>[1] <a href="https://easyformal.com/">easy formal官网</a><br />
+[2] 《SystemVerilog Assertion应用指南》     </p>
+</details>
 <h2 id="1">1 简介<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <p><font color =ff6622 font size=4>SVA断言(assert)是用来描述设计<span class="btl">预期行为(intended behavior)</span>或<span class="btl">属性(property)</span>的一种简洁方式。 <br />
 断言是对<span class="btl">复杂时序的简单描述</span></font>   </p>
@@ -1082,20 +1130,8 @@ TODO TODO
 如下图，尽管在第五个周期b也拉高了，也满足时序窗口，但是在波形上a0在b第一次拉高时就成功了<br />
 并且第五周期b拉高也没打印出success信息，只有第二周期b拉高的成功打印  </p>
 <p><img alt="alt text" src="../img/image-13.png" />  </p>
-<p><img alt="alt text" src="../img/image-15.png#img50" />   </p>
-<div class="hb warn">
-为了避免仿真消耗过大，应当避免<br>      
-1.在时序窗口前增加一些过滤条件，防止每个时钟上升沿都启动时序窗口多线程<br>   
-2.不使用过大的时序窗口，否则会开启过多线程(可以用intersect对大窗口或无限窗口做约束,后续会提到该方法)<br>  
-</div>
-
-<h2 id="_2">案例分析<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<h3 id="001">001<a class="headerlink" href="#001" title="Permanent link">&para;</a></h3>
-<p>如图所示，要求b在a拉起后,至少过1us再拉起  <br />
-要求断言检查出时隙&lt;1us的情况   </p>
-<p><img alt="alt text" src="../img/image-9.png" /> <br />
-<strong>思路</strong>：如果是周期要求，那么就很简单只需要用<code>## n</code>语法即可。 <br />
-而本例中要求检查的是具体时间，可以用系统函数来计算时隙大小 <br />
+<p><img alt="alt text" src="../img/image-15.png#img50" /> <br />
+TODO时序窗口的参数可以是非静态吗，比如可以是信号吗，本质上这个问题就是，时序窗口的检查是有限变化还是无限变化的，因为我们可以在多个sequence中使用不同长度的时序窗口，再把它们and起来，通过选通信号选通选通每个sequence开头的蕴含符，可以完成在仿真的不同时刻根据选通信号激活不同的时序窗口，举例如下
 <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-11-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-11-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-11-3"> 3</a></span>
@@ -1107,28 +1143,116 @@ TODO TODO
 <span class="normal"><a href="#__codelineno-11-9"> 9</a></span>
 <span class="normal"><a href="#__codelineno-11-10">10</a></span>
 <span class="normal"><a href="#__codelineno-11-11">11</a></span>
-<span class="normal"><a href="#__codelineno-11-12">12</a></span>
-<span class="normal"><a href="#__codelineno-11-13">13</a></span>
-<span class="normal"><a href="#__codelineno-11-14">14</a></span>
-<span class="normal"><a href="#__codelineno-11-15">15</a></span>
-<span class="normal"><a href="#__codelineno-11-16">16</a></span>
-<span class="normal"><a href="#__codelineno-11-17">17</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="no">`timescale</span><span class="w"> </span><span class="mi">1</span><span class="n">ns</span><span class="o">/</span><span class="mi">1</span><span class="n">ps</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="c1">//错误示例</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="k">property</span><span class="w"> </span><span class="n">p_check_slot1us_nofirst</span><span class="p">;</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="w">    </span><span class="kt">real</span><span class="w"> </span><span class="n">start_time</span><span class="p">;</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk_delay</span><span class="p">)</span><span class="w"> </span><span class="p">($</span><span class="n">rose</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="n">start_time</span><span class="o">=</span><span class="p">$</span><span class="kt">realtime</span><span class="p">)</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span>
-<a id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="w">        </span><span class="p">##[</span><span class="mi">0</span><span class="o">:</span><span class="p">$]</span><span class="w"> </span><span class="p">($</span><span class="n">rose</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(($</span><span class="kt">realtime</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">1000</span><span class="p">));</span><span class="w"> </span>
-<a id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="k">endproperty</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8"></a>
-<a id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="c1">//正确示例</span>
-<a id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="k">property</span><span class="w"> </span><span class="n">p_check_slot1us</span><span class="p">;</span>
-<a id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="w">    </span><span class="kt">real</span><span class="w"> </span><span class="n">start_time</span><span class="p">;</span>
-<a id="__codelineno-11-12" name="__codelineno-11-12"></a><span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk_delay</span><span class="p">)</span><span class="w"> </span><span class="p">($</span><span class="n">rose</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="n">start_time</span><span class="o">=</span><span class="p">$</span><span class="kt">realtime</span><span class="p">)</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span>
-<a id="__codelineno-11-13" name="__codelineno-11-13"></a><span class="w">        </span><span class="k">first_match</span><span class="p">(##[</span><span class="mi">0</span><span class="o">:</span><span class="p">$]</span><span class="w"> </span><span class="p">($</span><span class="n">rose</span><span class="p">(</span><span class="n">b</span><span class="p">))</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(($</span><span class="kt">realtime</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">1000</span><span class="p">));</span><span class="w"> </span>
-<a id="__codelineno-11-14" name="__codelineno-11-14"></a><span class="k">endproperty</span>
-<a id="__codelineno-11-15" name="__codelineno-11-15"></a>
-<a id="__codelineno-11-16" name="__codelineno-11-16"></a><span class="nl">A_slot1us:</span><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="p">(</span><span class="n">p_check_slot1us</span><span class="p">);</span>
-<a id="__codelineno-11-17" name="__codelineno-11-17"></a><span class="nl">A_slot1us_nofirst:</span><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="p">(</span><span class="n">p_check_slot1us_nofirst</span><span class="p">);</span>
+<span class="normal"><a href="#__codelineno-11-12">12</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1"></a><span class="k">sequence</span><span class="w"> </span><span class="n">s1</span><span class="p">;</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2"></a><span class="w">    </span><span class="n">flag1</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span><span class="p">##[</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="n">b</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3"></a><span class="k">endsequence</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4"></a><span class="k">sequence</span><span class="w"> </span><span class="n">s2</span><span class="p">;</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5"></a><span class="w">    </span><span class="n">flag2</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span><span class="p">##[</span><span class="mi">1</span><span class="o">:</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="n">b</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6"></a><span class="k">endsequence</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7"></a><span class="k">sequence</span><span class="w"> </span><span class="n">s3</span><span class="p">;</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8"></a><span class="w">    </span><span class="n">flag3</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span><span class="p">##[</span><span class="mi">1</span><span class="o">:</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="n">b</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9"></a><span class="k">endsequence</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10"></a><span class="k">property</span><span class="w"> </span><span class="n">p0</span><span class="p">;</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11"></a><span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="n">s1</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">s2</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">s3</span><span class="p">;</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12"></a><span class="k">endproperty</span>
+</code></pre></div></td></tr></table></div>
+每次检查选通flag1/2/3之一，就可以激活一个s,其他s都是空成功，不会影响and，就实现了检查参数[1:x]在仿真中动态有限可变:x可选2,3,4
+那么，我便好奇，x可否直接由动态变化Signal来担当呢，这本质上是静态和动态的区分  </p>
+<div class="hb warn">
+为了避免仿真消耗过大，应当避免<br>      
+1.在时序窗口前增加一些过滤条件，防止每个时钟上升沿都启动时序窗口多线程<br>   
+2.不使用过大的时序窗口，否则会开启过多线程(可以用intersect对大窗口或无限窗口做约束,后续会提到该方法)<br>  
+</div>
+
+<h2 id="disable-iff"><font face="Courier">disable iff</font>：比你想象的更强大<a class="headerlink" href="#disable-iff" title="Permanent link">&para;</a></h2>
+<p>在一些情况下，满足某些条件时，我们不想执行检查。 <br />
+一方面可能是为了减少无效检查的频率，提高仿真速度； <br />
+另一方面是为了<strong>规避一些情况</strong>，而这些情况直接作为条件写在SVA主体里实现起来很复杂。  </p>
+<p>有如下例子
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-12-1">1</a></span>
+<span class="normal"><a href="#__codelineno-12-2">2</a></span>
+<span class="normal"><a href="#__codelineno-12-3">3</a></span>
+<span class="normal"><a href="#__codelineno-12-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1"></a><span class="k">property</span><span class="w"> </span><span class="n">p1</span><span class="p">;</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2"></a><span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3"></a><span class="w">    </span><span class="n">a</span><span class="w"> </span><span class="p">##</span><span class="mi">3</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">##</span><span class="mi">1</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4"></a><span class="k">endproperty</span>
+</code></pre></div></td></tr></table></div>
+现在新增一个flag信号，flag信号含义是：</p>
+<blockquote>
+<p>在序列检查过程中，如果flag拉高过，那么本次检查a,b,c都不准确了，不进行检查，以免误报fail     </p>
+</blockquote>
+<p><img alt="alt text" src="../img/image-25.png#img80" /> <br />
+如上图所示，b和c在这里同拍出现，断言应该fail了，但因为检查过程中flag拉高过，所以这时候不希望拉起SVA fail <br />
+如果在SVA主逻辑里实现，代码如下
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-13-1">1</a></span>
+<span class="normal"><a href="#__codelineno-13-2">2</a></span>
+<span class="normal"><a href="#__codelineno-13-3">3</a></span>
+<span class="normal"><a href="#__codelineno-13-4">4</a></span>
+<span class="normal"><a href="#__codelineno-13-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1"></a><span class="k">property</span><span class="w"> </span><span class="n">p1</span><span class="p">;</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2"></a><span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3"></a><span class="w">    </span><span class="p">(</span><span class="o">!</span><span class="n">flag</span><span class="p">)</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="p">##</span><span class="mi">3</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">flag</span><span class="p">)</span><span class="w"> </span><span class="o">|-&gt;</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4"></a><span class="w">    </span><span class="n">b</span><span class="w"> </span><span class="p">##</span><span class="mi">1</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">flag</span><span class="p">)</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5"></a><span class="k">endproperty</span>
+</code></pre></div></td></tr></table></div>
+需要在序列每个转折点都检查一下flag，这样很麻烦，而且不严谨(严谨的写法应该在每一拍检查) <br />
+如果序列很长，那根本不现实  </p>
+<div class="hb tip">
+因此有了<span class='btlor'><font size =4><b>disable iff( <font color=grey>disable_conditions</font>)</b></span></font>，粗浅的理解认为disable iff只是不进入检查这么简单，但其实<span class='btlor'>disbale iff最强大的功能在于停止正在运行的检测</span>，即上述的情况（因为如果只是不进入检查，那完全可以使用蕴含实现）
+</div>
+<p>因此对于上述问题，可以使用如下代码实现，在flag成立时中断正在进行的检查，也不发起新的检查 <br />
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-14-1">1</a></span>
+<span class="normal"><a href="#__codelineno-14-2">2</a></span>
+<span class="normal"><a href="#__codelineno-14-3">3</a></span>
+<span class="normal"><a href="#__codelineno-14-4">4</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1"></a><span class="k">property</span><span class="w"> </span><span class="n">p1</span><span class="p">;</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2"></a><span class="w">    </span><span class="n">disbale</span><span class="w"> </span><span class="k">iff</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3"></a><span class="w">    </span><span class="n">a</span><span class="w"> </span><span class="p">##</span><span class="mi">3</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="p">##</span><span class="mi">1</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4"></a><span class="k">endproperty</span>
+</code></pre></div></td></tr></table></div></p>
+<h2 id="throughout"><font face="Courier">throughout</font><a class="headerlink" href="#throughout" title="Permanent link">&para;</a></h2>
+<p><div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-15-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1"></a><span class="n">a</span><span class="w"> </span><span class="k">throughout</span><span class="w"> </span><span class="n">s1</span>
+</code></pre></div></td></tr></table></div>
+资料中没有提到，当s1不成立时，到底返回失败还是空成功，需要验证一下<br />
+TODO</p>
+<h2 id="_2">案例分析<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="001">001<a class="headerlink" href="#001" title="Permanent link">&para;</a></h3>
+<p>如图所示，要求b在a拉起后,至少过1us再拉起  <br />
+要求断言检查出时隙&lt;1us的情况   </p>
+<p><img alt="alt text" src="../img/image-9.png#img80" /> <br />
+<strong>思路</strong>：如果是周期要求，那么就很简单只需要用<code>## n</code>语法即可。 <br />
+而本例中要求检查的是具体时间，可以用系统函数来计算时隙大小 <br />
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-16-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-16-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-16-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-16-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-16-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-16-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-16-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-16-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-16-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-16-10">10</a></span>
+<span class="normal"><a href="#__codelineno-16-11">11</a></span>
+<span class="normal"><a href="#__codelineno-16-12">12</a></span>
+<span class="normal"><a href="#__codelineno-16-13">13</a></span>
+<span class="normal"><a href="#__codelineno-16-14">14</a></span>
+<span class="normal"><a href="#__codelineno-16-15">15</a></span>
+<span class="normal"><a href="#__codelineno-16-16">16</a></span>
+<span class="normal"><a href="#__codelineno-16-17">17</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1"></a><span class="no">`timescale</span><span class="w"> </span><span class="mi">1</span><span class="n">ns</span><span class="o">/</span><span class="mi">1</span><span class="n">ps</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2"></a><span class="c1">//错误示例</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3"></a><span class="k">property</span><span class="w"> </span><span class="n">p_check_slot1us_nofirst</span><span class="p">;</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4"></a><span class="w">    </span><span class="kt">real</span><span class="w"> </span><span class="n">start_time</span><span class="p">;</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5"></a><span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk_delay</span><span class="p">)</span><span class="w"> </span><span class="p">($</span><span class="n">rose</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="n">start_time</span><span class="o">=</span><span class="p">$</span><span class="kt">realtime</span><span class="p">)</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span>
+<a id="__codelineno-16-6" name="__codelineno-16-6"></a><span class="w">        </span><span class="p">##[</span><span class="mi">0</span><span class="o">:</span><span class="p">$]</span><span class="w"> </span><span class="p">($</span><span class="n">rose</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(($</span><span class="kt">realtime</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">1000</span><span class="p">));</span><span class="w"> </span>
+<a id="__codelineno-16-7" name="__codelineno-16-7"></a><span class="k">endproperty</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8"></a>
+<a id="__codelineno-16-9" name="__codelineno-16-9"></a><span class="c1">//正确示例</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10"></a><span class="k">property</span><span class="w"> </span><span class="n">p_check_slot1us</span><span class="p">;</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11"></a><span class="w">    </span><span class="kt">real</span><span class="w"> </span><span class="n">start_time</span><span class="p">;</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12"></a><span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk_delay</span><span class="p">)</span><span class="w"> </span><span class="p">($</span><span class="n">rose</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="n">start_time</span><span class="o">=</span><span class="p">$</span><span class="kt">realtime</span><span class="p">)</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span>
+<a id="__codelineno-16-13" name="__codelineno-16-13"></a><span class="w">        </span><span class="k">first_match</span><span class="p">(##[</span><span class="mi">0</span><span class="o">:</span><span class="p">$]</span><span class="w"> </span><span class="p">($</span><span class="n">rose</span><span class="p">(</span><span class="n">b</span><span class="p">))</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(($</span><span class="kt">realtime</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">1000</span><span class="p">));</span><span class="w"> </span>
+<a id="__codelineno-16-14" name="__codelineno-16-14"></a><span class="k">endproperty</span>
+<a id="__codelineno-16-15" name="__codelineno-16-15"></a>
+<a id="__codelineno-16-16" name="__codelineno-16-16"></a><span class="nl">A_slot1us:</span><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="p">(</span><span class="n">p_check_slot1us</span><span class="p">);</span>
+<a id="__codelineno-16-17" name="__codelineno-16-17"></a><span class="nl">A_slot1us_nofirst:</span><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="p">(</span><span class="n">p_check_slot1us_nofirst</span><span class="p">);</span>
 </code></pre></div></td></tr></table></div></p>
 <div class="hb warn">
 <font color=purple font size =5><b>##[0,$]</b> 的无限期待feature</font><br>
@@ -1197,7 +1321,7 @@ TODO TODO
       <script id="__config" type="application/json">{"base": "..", "features": ["header.autohide", "navigation.top", "navigation.tabs", "content.code.copy", "content.code.annotate", "codehilite", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
         <script src="../javascripts/mathjax-config.js"></script>
       
