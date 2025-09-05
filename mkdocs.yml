@@ -2,6 +2,7 @@ site_name: IC笔记 [黑铁篇]
 nav:
   - 介绍: index.md
   - 语法章:
+    - SystemVerilog:  sv.md
     - SVA: sva.md
   - 算法章: 
     - Cordic算法: cordic.md
