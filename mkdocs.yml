@@ -6,6 +6,8 @@ nav:
     - SVA: sva.md
   - 算法章: 
     - Cordic算法: cordic.md
+  - 体系结构章:
+    - 片上网络NOC: noc.md 
   - 基础模块章:
     - LFSR: lfsr.md
   - EDA工具章:
