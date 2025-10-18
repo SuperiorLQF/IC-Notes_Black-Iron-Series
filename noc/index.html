@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../nvim/">
+        <link rel="prev" href="../cordic/">
       
       
-        <link rel="next" href="../about/">
+        <link rel="next" href="../lfsr/">
       
       
       <link rel="icon" href="../img/favicon.ico">
@@ -20,7 +20,7 @@
     
     
       
-        <title>TimingDesigner - IC笔记 [黑铁篇]</title>
+        <title>片上网络NOC - IC笔记 [黑铁篇]</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#timingdesigner" class="md-skip">
+        <a href="#noc" class="md-skip">
           Skip to content
         </a>
       
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              TimingDesigner
+              片上网络NOC
             
           </span>
         </div>
@@ -237,11 +237,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../noc/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -277,12 +279,10 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../nvim/" class="md-tabs__link">
           
   
@@ -537,24 +537,29 @@
       
   
   
+    
   
   
+  
     
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -567,7 +572,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             体系结构章
@@ -578,10 +583,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../noc/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    片上网络NOC
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -592,6 +619,35 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Topology
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -679,29 +735,24 @@
       
   
   
-    
   
   
-  
     
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
@@ -714,7 +765,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             EDA工具章
@@ -748,19 +799,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../TimingDesigner/" class="md-nav__link">
         
   
   
@@ -771,7 +813,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -826,6 +867,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Topology
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -840,24 +898,50 @@
 
 
 
-<h1 id="timingdesigner"><span class="hl info">TimingDesigner</span><a class="headerlink" href="#timingdesigner" title="Permanent link">&para;</a></h1>
-<p>学习资料下载地址：<span class="hl">EEtop</span>搜索User Guide，然后喂给<span class="hl">KIMI</span>  </p>
-<div class = "hb warn">
-<b><font color=9933bb>WARN</b></font>：工具及资料仅学习使用，商用请诉诸官方正版软件     
-</div>
-<p>一些绘制wavedrom过程中的重点问题罗列（以<span class="btlor">8.x和9.2版本</span>为例）： </p>
+<div class="toc">
 <ul>
-<li><font color=447733><b>grid如何开启？</font></b>   <blockquote>
-<p>在创建时钟后右键可以看到打开grid选项   </p>
-</blockquote>
-</li>
-<li><font color=447733><b>如何让信号对齐到时钟？</font></b>  <blockquote>
-<p>A.选中时钟信号后，选择菜单option &gt; snap to clk，全局的所有信号都会对其到时钟 <br />
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;或<br />
-B.打开grid后调整拖动边沿位置，让其尽量对其时钟（软件不会自动吸附）</p>
-</blockquote>
+<li><a href="#noc">NOC概述</a><ul>
+<li><a href="#topology">Topology</a></li>
+</ul>
 </li>
 </ul>
+</div>
+<h1 id="noc">NOC概述<a class="headerlink" href="#noc" title="Permanent link">&para;</a></h1>
+<p>可扩展性
+性能
+功耗
+可靠性（出现坏点）
+安全性（share domain访问攻击）
+principles and practices of interconnection nets</p>
+<p>3个important basics
+Topology，如何硬连接
+Rounting Algo，选什么路线（躲避拥堵），依赖拓扑
+Buffer &amp; FlowControl：如何传包，用flit，可以限制网络注入速率</p>
+<p>NI,LINKS/CHANNEL(high level),ROUTER Node Flit</p>
+<p>Message&gt;Packet</p>
+<h2 id="topology">Topology<a class="headerlink" href="#topology" title="Permanent link">&para;</a></h2>
+<p>属性有如下几个
+Regular（更理想的，路由更简单） 、 Irregular
+Routing Distance：number of hops
+Average ddistance
+<em>Bisection Bandwidth</em>:描述网络的性能</p>
+<p>Blocking 、Non-Blocking
+Network是Blocking的，但是希望大部分时间工作在Non-Blocking状态</p>
+<p>评估网络拓扑的矩阵（很多时候需要考虑物理情况，例如torus从t首到尾不可能真的只需要一跳，中间要插buffer）
+Cost Latency Contention</p>
+<p><b>Bus</b>是最差的，因为是single link</p>
+<p><b>Point to Point</b> (每个Node之间都有一个独立连接)，延时最短，每个node需要N个端口，link复杂度是N2</p>
+<p><b>Cross Bar</b>所有的Node都可以连接到目标节点上，但是它们只能给目标节点一次给一个包，因此需要arbiter
+<img alt="alt text" src="../img/image-29.png" /></p>
+<p>Circuit不如Packest Switch <br />
+Circuit好处是保证hop不会被人干扰 <br />
+Packet Switch需要rounter有   buffer，因为下一跳可能不 <br />
+available，所以需要等待   </p>
+<p>大数据流是Circuit switch可能效率更高</p>
+<p>Ring有单向和双向，ring可以做成多层次的</p>
+<p>Array</p>
+<p>Mesh</p>
+<p>问题:但是考题中的link拓扑仅仅是简单的打拍，会造成很大的资源浪费吗？所以在拓扑中禁止使用buf，那么需要考虑多一个链接的意义和代价（可以看成是一个bypass，但是这个通路很容易就满了，由于反压，由于不存在很多buf，那么什么时候用它，就显得很宝贵。但从另一个角度来看，因为link cost很小，我是否可以例化非常多，以在拥堵时获得逃生。</p>
 
 
 
