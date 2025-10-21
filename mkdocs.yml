@@ -10,6 +10,7 @@ nav:
     - 片上网络NOC: noc.md 
   - 基础模块章:
     - LFSR: lfsr.md
+    - 波前分配器: wavefront_allocator.md
   - EDA工具章:
     - NeoVim: nvim.md
     - TimingDesigner: TimingDesigner.md
