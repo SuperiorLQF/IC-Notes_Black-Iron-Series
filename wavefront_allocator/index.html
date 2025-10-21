@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../nvim/">
+        <link rel="prev" href="../lfsr/">
       
       
-        <link rel="next" href="../about/">
+        <link rel="next" href="../nvim/">
       
       
       <link rel="icon" href="../img/favicon.ico">
@@ -20,7 +20,7 @@
     
     
       
-        <title>TimingDesigner - IC笔记 [黑铁篇]</title>
+        <title>波前分配器 - IC笔记 [黑铁篇]</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#timingdesigner" class="md-skip">
+        <a href="#wavefront-allocator" class="md-skip">
           Skip to content
         </a>
       
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              TimingDesigner
+              波前分配器
             
           </span>
         </div>
@@ -257,10 +257,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../lfsr/" class="md-tabs__link">
           
   
@@ -277,12 +279,10 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../nvim/" class="md-tabs__link">
           
   
@@ -608,24 +608,29 @@
       
   
   
+    
   
   
+  
     
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -638,7 +643,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             基础模块章
@@ -672,10 +677,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../wavefront_allocator/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -686,6 +700,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -702,29 +717,24 @@
       
   
   
-    
   
   
-  
     
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
@@ -737,7 +747,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             EDA工具章
@@ -771,19 +781,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../TimingDesigner/" class="md-nav__link">
         
   
   
@@ -794,7 +795,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -863,24 +863,32 @@
 
 
 
-<h1 id="timingdesigner"><span class="hl info">TimingDesigner</span><a class="headerlink" href="#timingdesigner" title="Permanent link">&para;</a></h1>
-<p>学习资料下载地址：<span class="hl">EEtop</span>搜索User Guide，然后喂给<span class="hl">KIMI</span>  </p>
-<div class = "hb warn">
-<b><font color=9933bb>WARN</b></font>：工具及资料仅学习使用，商用请诉诸官方正版软件     
+<h1 id="wavefront-allocator"><span class="hl info">波前分配器</span>(Wavefront Allocator)<a class="headerlink" href="#wavefront-allocator" title="Permanent link">&para;</a></h1>
+<details class="success" open="open">
+<summary>Reference</summary>
+<p>[1]《片上互联网络》：路由器微架构章  </p>
+</details>
+<p><span class="btlr">分配器</span>，定义为<span class="btl">将N个请求匹配到M个资源的模块</span>（当然，这些请求不一定会同时满足，可能允许一部分，再阻塞一部分） <br />
+分配器常用于Interconnect、Rounter等互联设计中。  <br />
+分配器有2个常用术语和仲裁器相同，<b>req和gnt</b>    </p>
+<div class = "hb tip">
+req代表分配器的输入，二维矩阵，$N\times M$或者$M\times N$，代表N个请求者分别对M个资源的请求情况<br>   
+gnt代表分配器决策后的输出，二维矩阵，$N\times M$或者$M\times N$，代表N个请求者分别对M个资源的请求的回应情况<br>   
 </div>
-<p>一些绘制wavedrom过程中的重点问题罗列（以<span class="btlor">8.x和9.2版本</span>为例）： </p>
-<ul>
-<li><font color=447733><b>grid如何开启？</font></b>   <blockquote>
-<p>在创建时钟后右键可以看到打开grid选项   </p>
-</blockquote>
-</li>
-<li><font color=447733><b>如何让信号对齐到时钟？</font></b>  <blockquote>
-<p>A.选中时钟信号后，选择菜单option &gt; snap to clk，全局的所有信号都会对其到时钟 <br />
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;或<br />
-B.打开grid后调整拖动边沿位置，让其尽量对其时钟（软件不会自动吸附）</p>
-</blockquote>
-</li>
-</ul>
+<div class = "hb warn">
+注意，在此问题背景下，<span class="btlr">一个请求者最多只能申请到一个资源，但是它在请求中可以声明其想要的所有资源</span>。<br> 
+表现为请求者的gnt向量是one-hot或全0<br> 
+</div>
+
+<p>下面给出典型场景。 <br />
+有3个请求者，4个资源的分配场景，每个请求者可以申请最多4个资源，但是最多只能得到1个资源。  </p>
+<p>在简单设计中最常见的分配实现办法就是2级仲裁，如下图。 <br />
+先在每个请求者局部完成一级仲裁（图中每个红圈代表参与仲裁，需要从中选出一个1），仲裁结束后，每个请求者只输出对一个资源的请求 <br />
+再经过crossbar完成二级仲裁，在多个请求者对统一资源请求时进行仲裁决策 <br />
+显而易见，这样做匹配效率低下，资源容易空闲。（如果换个顺序，先crossbar再仲裁，结果也相似，参考书本124页的例子）<br />
+<img alt="alt text" src="../img/image-32.png#img80" />   </p>
+<p>为了提高资源分配效率，提出了波前分配器 
+TODO</p>
 
 
 
