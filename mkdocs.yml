@@ -4,6 +4,7 @@ nav:
   - 语法章:
     - SystemVerilog:  sv.md
     - SVA: sva.md
+    - SystemC: sc.md
   - 算法章: 
     - Cordic算法: cordic.md
   - 体系结构章:
