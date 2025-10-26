@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="..">
+        <link rel="prev" href="../sva/">
       
       
-        <link rel="next" href="../sva/">
+        <link rel="next" href="../cordic/">
       
       
       <link rel="icon" href="../img/favicon.ico">
@@ -20,7 +20,7 @@
     
     
       
-        <title>SystemVerilog - IC笔记 [黑铁篇]</title>
+        <title>SystemC - IC笔记 [黑铁篇]</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#systemverilog" class="md-skip">
+        <a href="#systemc" class="md-skip">
           Skip to content
         </a>
       
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              SystemVerilog
+              SystemC
             
           </span>
         </div>
@@ -203,7 +203,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+        <a href="../sv/" class="md-tabs__link">
           
   
   
@@ -418,32 +418,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    SystemVerilog
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../sv/" class="md-nav__link">
         
   
   
@@ -454,71 +432,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      数据类型与数据结构
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      面向对象
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      随机化与约束
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      线程
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      interface
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -551,10 +464,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../sc/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    SystemC
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -565,6 +500,77 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、环境搭建
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、环境搭建">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.下载官方库并解压
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2cmake" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.配置CMake选项并安装
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.在工程中调用
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#delta" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、仿真调度原理delta
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -958,43 +964,49 @@
         <li class="md-nav__item">
   <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
-      数据类型与数据结构
+      一、环境搭建
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、环境搭建">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.下载官方库并解压
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#2cmake" class="md-nav__link">
     <span class="md-ellipsis">
-      面向对象
+      2.配置CMake选项并安装
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
     <span class="md-ellipsis">
-      随机化与约束
+      3.在工程中调用
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      线程
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#interface" class="md-nav__link">
+  <a href="#delta" class="md-nav__link">
     <span class="md-ellipsis">
-      interface
+      二、仿真调度原理delta
     </span>
   </a>
   
@@ -1016,30 +1028,138 @@
 
 
 
-<h1 id="systemverilog"><span class="hl info">SystemVerilog</span><a class="headerlink" href="#systemverilog" title="Permanent link">&para;</a></h1>
+<h1 id="systemc"><span class="hl">SystemC</span><a class="headerlink" href="#systemc" title="Permanent link">&para;</a></h1>
 <div class="toc">
 <ul>
-<li><a href="#systemverilog">SystemVerilog</a><ul>
-<li><a href="#_1">数据类型与数据结构</a></li>
-<li><a href="#_2">面向对象</a></li>
-<li><a href="#_3">随机化与约束</a></li>
-<li><a href="#_4">线程</a></li>
-<li><a href="#interface">interface</a></li>
+<li><a href="#systemc">SystemC</a><ul>
+<li><a href="#_1">一、环境搭建</a><ul>
+<li><a href="#1">1.下载官方库并解压</a></li>
+<li><a href="#2cmake">2.配置CMake选项并安装</a></li>
+<li><a href="#3">3.在工程中调用</a></li>
+</ul>
+</li>
+<li><a href="#delta">二、仿真调度原理delta</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <details class="success" open="open">
 <summary><font size=3>reference</font></summary>
-<p>[1] <a href="https://easyformal.com/">easy formal官网</a><br />
-[2] 《SystemVerilog绿皮书》</p>
+<p>[1]  <a href="https://www.learnsystemc.com/">https://www.learnsystemc.com/</a> <br />
+[2] 《SystemC Prime(夏宇闻 译)》<br />
+[3] 《SystemC 电子系统级设计》 <br />
+[4]  <a href="https://www.bilibili.com/video/BV1P54y1z77U/?spm_id_from=333.337.search-card.all.click&amp;vd_source=be3fd08fda4ebae5d312804342bfa60d">Bilibili SC视频短课</a>  </p>
 </details>
-<h2 id="_1">数据类型与数据结构<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<h2 id="_2">面向对象<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<h2 id="_3">随机化与约束<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<p>定向测试编写用例覆盖场景优先，效率也不高，因此随机化应运而生。</p>
-<h2 id="_4">线程<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<h2 id="interface">interface<a class="headerlink" href="#interface" title="Permanent link">&para;</a></h2>
+<h2 id="_1">一、环境搭建<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>系统：Linux（Ubuntu 22.04）<br />
+<a href="https://www.accellera.org/downloads/standards/systemc">SystemC库官网下载地址</a><br />
+SystemC库版本：3.0.1  </p>
+<h3 id="1">1.下载官方库并解压<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Bash</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a>tar<span class="w"> </span>-zxvf<span class="w"> </span>systemc-3.0.1.tar.gz
+</code></pre></div></td></tr></table></div>
+<h3 id="2cmake">2.配置CMake选项并安装<a class="headerlink" href="#2cmake" title="Permanent link">&para;</a></h3>
+<p>新的SystemC版本是基于CMake构建的，但是doc里缺少一些文件，所以先去CMakeLists里注释掉doc的编译，只编译核心库即可 <br />
+<img alt="alt text" src="../img/image-33.png#img70" />  </p>
+<p>新建编译文件夹，在systemc-3.0.1的根目录下
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Bash</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a>mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build
+</code></pre></div></td></tr></table></div>
+接着抽取外部的CMkeLists, <span class="btlor">用命令行参数进行配置，选择合适的安装路径</span>（即吐出编译完的SystemC的库的位置）
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Bash</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1"></a>cmake<span class="w"> </span>..<span class="w"> </span>-DCMAKE_INSTALL_PREFIX<span class="o">=</span>/path/to/install<span class="w"> </span><span class="c1"># 替换 /path/to/install 为安装路径</span>
+</code></pre></div></td></tr></table></div>
+随后进行编译、安装
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Bash</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span>
+<span class="normal"><a href="#__codelineno-3-2">2</a></span>
+<span class="normal"><a href="#__codelineno-3-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1"></a>make<span class="w"> </span>clean
+<a id="__codelineno-3-2" name="__codelineno-3-2"></a>sudo<span class="w"> </span>make<span class="w"> </span>-j10
+<a id="__codelineno-3-3" name="__codelineno-3-3"></a>make<span class="w"> </span>install
+</code></pre></div></td></tr></table></div>
+到前面命令行参数给出的路径位置，输出了可以直接在工程中掉用的SystemC静态链接库文件夹（因为它是可移植的，所以叫安装也比较容易产生误导）</p>
+<h3 id="3">3.在工程中调用<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<p>我的SystemC仿真工程也采用<code>CMake</code>构建，文件层次如下图 <br />
+其中libs下的<code>systemc-3.0.1即</code>前面安装后生成的静态链接库，<code>cp</code>过来<br />
+<img alt="alt text" src="../img/image-34.png#img40" /><br />
+在<code>build</code>文件夹内进行构建工程，使用如下命令
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Bash</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
+<span class="normal"><a href="#__codelineno-4-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1"></a>cmake<span class="w"> </span>..<span class="w"> </span><span class="c1">#读取CMakeLists</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2"></a>make<span class="w"> </span><span class="c1">#编译并运行仿真，dump波形</span>
+</code></pre></div></td></tr></table></div>
+运行结果如下<br />
+<img alt="alt text" src="../img/image-35.png#img70" />  </p>
+<p>CMakeLists内容如下，可供参考(AI生成的)
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">CMake</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-5-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-5-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-5-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-5-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-5-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-5-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-5-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-5-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-5-10">10</a></span>
+<span class="normal"><a href="#__codelineno-5-11">11</a></span>
+<span class="normal"><a href="#__codelineno-5-12">12</a></span>
+<span class="normal"><a href="#__codelineno-5-13">13</a></span>
+<span class="normal"><a href="#__codelineno-5-14">14</a></span>
+<span class="normal"><a href="#__codelineno-5-15">15</a></span>
+<span class="normal"><a href="#__codelineno-5-16">16</a></span>
+<span class="normal"><a href="#__codelineno-5-17">17</a></span>
+<span class="normal"><a href="#__codelineno-5-18">18</a></span>
+<span class="normal"><a href="#__codelineno-5-19">19</a></span>
+<span class="normal"><a href="#__codelineno-5-20">20</a></span>
+<span class="normal"><a href="#__codelineno-5-21">21</a></span>
+<span class="normal"><a href="#__codelineno-5-22">22</a></span>
+<span class="normal"><a href="#__codelineno-5-23">23</a></span>
+<span class="normal"><a href="#__codelineno-5-24">24</a></span>
+<span class="normal"><a href="#__codelineno-5-25">25</a></span>
+<span class="normal"><a href="#__codelineno-5-26">26</a></span>
+<span class="normal"><a href="#__codelineno-5-27">27</a></span>
+<span class="normal"><a href="#__codelineno-5-28">28</a></span>
+<span class="normal"><a href="#__codelineno-5-29">29</a></span>
+<span class="normal"><a href="#__codelineno-5-30">30</a></span>
+<span class="normal"><a href="#__codelineno-5-31">31</a></span>
+<span class="normal"><a href="#__codelineno-5-32">32</a></span>
+<span class="normal"><a href="#__codelineno-5-33">33</a></span>
+<span class="normal"><a href="#__codelineno-5-34">34</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1"></a><span class="nb">cmake_minimum_required</span><span class="p">(</span><span class="s">VERSION</span><span class="w"> </span><span class="s">3.10</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2"></a><span class="nb">project</span><span class="p">(</span><span class="s">NocSim</span><span class="w"> </span><span class="s">LANGUAGES</span><span class="w"> </span><span class="s">CXX</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4"></a><span class="c"># 设定 C++ 标准（SystemC 3.0.1 需要至少 C++17）</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5"></a><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_STANDARD</span><span class="w"> </span><span class="s">17</span><span class="p">)</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6"></a><span class="nb">set</span><span class="p">(</span><span class="s">CMAKE_CXX_STANDARD_REQUIRED</span><span class="w"> </span><span class="s">ON</span><span class="p">)</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8"></a><span class="c"># 源文件所在路径</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9"></a><span class="nb">set</span><span class="p">(</span><span class="s">SRC_DIR</span><span class="w"> </span><span class="s2">&quot;${CMAKE_CURRENT_SOURCE_DIR}/../src&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10"></a>
+<a id="__codelineno-5-11" name="__codelineno-5-11"></a><span class="c"># 自动收集所有 .cpp 源文件</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12"></a><span class="nb">file</span><span class="p">(</span><span class="s">GLOB_RECURSE</span><span class="w"> </span><span class="s">SRC_FILES</span><span class="w"> </span><span class="s2">&quot;${SRC_DIR}/*.cpp&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13"></a>
+<a id="__codelineno-5-14" name="__codelineno-5-14"></a><span class="c"># SystemC 安装路径</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15"></a><span class="nb">set</span><span class="p">(</span><span class="s">SYSTEMC_DIR</span><span class="w"> </span><span class="s2">&quot;${CMAKE_CURRENT_SOURCE_DIR}/libs/systemc-3.0.1&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16"></a>
+<a id="__codelineno-5-17" name="__codelineno-5-17"></a><span class="c"># 头文件和库路径</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18"></a><span class="nb">include_directories</span><span class="p">(</span><span class="s2">&quot;${SRC_DIR}&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19"></a><span class="nb">include_directories</span><span class="p">(</span><span class="s2">&quot;${SYSTEMC_DIR}/include&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20"></a>
+<a id="__codelineno-5-21" name="__codelineno-5-21"></a><span class="nb">link_directories</span><span class="p">(</span><span class="s2">&quot;${SYSTEMC_DIR}/lib&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22"></a>
+<a id="__codelineno-5-23" name="__codelineno-5-23"></a><span class="c"># 生成可执行文件</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24"></a><span class="nb">add_executable</span><span class="p">(</span><span class="s">test</span><span class="w"> </span><span class="o">${</span><span class="nv">SRC_FILES</span><span class="o">}</span><span class="p">)</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25"></a>
+<a id="__codelineno-5-26" name="__codelineno-5-26"></a><span class="c"># 链接 SystemC</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27"></a><span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">test</span><span class="w"> </span><span class="s">systemc</span><span class="w"> </span><span class="s">m</span><span class="p">)</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28"></a>
+<a id="__codelineno-5-29" name="__codelineno-5-29"></a><span class="c"># 编译完成后自动执行可执行文件</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30"></a><span class="nb">add_custom_command</span><span class="p">(</span><span class="s">TARGET</span><span class="w"> </span><span class="s">test</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31"></a><span class="w">    </span><span class="s">POST_BUILD</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32"></a><span class="w">    </span><span class="s">COMMAND</span><span class="w"> </span><span class="o">${</span><span class="nv">CMAKE_CURRENT_BINARY_DIR</span><span class="o">}</span><span class="s">/test</span>
+<a id="__codelineno-5-33" name="__codelineno-5-33"></a><span class="w">    </span><span class="s">COMMENT</span><span class="w"> </span><span class="s2">&quot;✅ 编译完成，正在自动运行 test...&quot;</span>
+<a id="__codelineno-5-34" name="__codelineno-5-34"></a><span class="p">)</span>
+</code></pre></div></td></tr></table></div></p>
+<h2 id="delta">二、仿真调度原理delta<a class="headerlink" href="#delta" title="Permanent link">&para;</a></h2>
+<div class =hb>
+如果你用`verdi`比较6，就会知道里面有个expand delta功能,可以分析组合逻辑竞争冒险等问题（前提是VCS得开glitch记录等功能）<br>   
+或者你对SystemC的调度Region比较熟悉，你就会知道delta $\Delta$这个概念   
+</div>
+<p>这里以SystemC为例，介绍一下SystemC中的仿真调度原理及$\Delta$</p>
 
 
 
