@@ -1156,10 +1156,24 @@ SystemC库版本：3.0.1  </p>
 </code></pre></div></td></tr></table></div></p>
 <h2 id="delta">二、仿真调度原理delta<a class="headerlink" href="#delta" title="Permanent link">&para;</a></h2>
 <div class =hb>
-如果你用`verdi`比较6，就会知道里面有个expand delta功能,可以分析组合逻辑竞争冒险等问题（前提是VCS得开glitch记录等功能）<br>   
+如果你用verdi比较6，就会知道里面有个expand delta功能,可以分析组合逻辑竞争冒险等问题（前提是VCS得开glitch记录等功能）<br>   
 或者你对SystemC的调度Region比较熟悉，你就会知道delta $\Delta$这个概念   
 </div>
-<p>这里以SystemC为例，介绍一下SystemC中的仿真调度原理及$\Delta$</p>
+<p>这里以SystemC为例，介绍一下SystemC中的仿真调度原理及$\Delta$  </p>
+<p>SystemC中有<strong>进程</strong>的概念，进程只有被<strong>触发</strong>才会执行。有的进程(<b>SC_CTHREAD</b>)在时钟沿触发(时序逻辑)，有的进程(<b>SC_METHOD</b>)是根据敏感信号触发（组合逻辑）。</p>
+<p>进程除了被触发，还可以被挂起。  </p>
+<ul>
+<li>在时钟触发线程中，使用wait()来挂起，等待下次时钟触发。  </li>
+<li>而组合逻辑的线程中，程序被执行完就自动挂起，等待下次敏感信号变化触发。  </li>
+</ul>
+<p>进程的程序通过<code>a.write()</code>向信号写入值，该值并不会随着<code>write()</code>的调用立即写入，而是在进程挂起后，在后台<strong>自动</strong>等待$\Delta$时间完成更新(自动，即这是仿真内核自动完成的)       </p>
+<p>很容易理解，从进程触发（或者叫被调度）到进程被挂起，是不需要消耗仿真时间的（连$\Delta$也不需要），所以评估（Evaluate，图上的E）发生在进程触发时刻，而更新（Update，图上的U）发生在进程挂起后$\Delta$</p>
+<p>例子中信号A是时序信号，在时钟上升沿驱动。B是组合逻辑，敏感信号是A。<br />
+A信号相关逻辑的进程在T0时刻被时钟上升沿触发，进入调度(<b>黄色的E</b>)，在评估中判断值为1，然后执行到wait()语句挂起。在$T_0+\Delta$时刻被自动更新为1. <br />
+而B信号在$T_0+\Delta$被A信号的变化触发，进入调度(<b>粉色的E</b>)，评估值为<code>!1</code>，即0，执行完毕挂起，在$T_0+2\Delta$时刻被自动更新为0.</p>
+<p><img alt="alt text" src="../img/image-36.png#img90" /> <br />
+对应的波形示意图如下 <br />
+<img alt="alt text" src="../img/image-37.png#img50" />   </p>
 
 
 
