@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../nvim/">
+        <link rel="prev" href="../wavefront_allocator/">
       
       
-        <link rel="next" href="../about/">
+        <link rel="next" href="../nvim/">
       
       
       <link rel="icon" href="../img/favicon.ico">
@@ -20,7 +20,7 @@
     
     
       
-        <title>TimingDesigner - IC笔记 [黑铁篇]</title>
+        <title>Verdi-TCL - IC笔记 [黑铁篇]</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#timingdesigner" class="md-skip">
+        <a href="#verdi-tcl" class="md-skip">
           Skip to content
         </a>
       
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              TimingDesigner
+              Verdi-TCL
             
           </span>
         </div>
@@ -283,7 +283,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../verdi_tcl/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -771,10 +771,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../verdi_tcl/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Verdi-TCL
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -785,6 +807,44 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#verdi-tcl_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、verdi tcl交互界面开启
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、将脚本加入到菜单栏中
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -817,19 +877,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../TimingDesigner/" class="md-nav__link">
         
   
   
@@ -840,7 +891,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -895,6 +945,32 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#verdi-tcl_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、verdi tcl交互界面开启
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、将脚本加入到菜单栏中
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -909,24 +985,33 @@
 
 
 
-<h1 id="timingdesigner"><span class="hl info">TimingDesigner</span><a class="headerlink" href="#timingdesigner" title="Permanent link">&para;</a></h1>
-<p>学习资料下载地址：<span class="hl">EEtop</span>搜索User Guide，然后喂给<span class="hl">KIMI</span>  </p>
-<div class = "hb warn">
-<b><font color=9933bb>WARN</b></font>：工具及资料仅学习使用，商用请诉诸官方正版软件     
-</div>
-<p>一些绘制wavedrom过程中的重点问题罗列（以<span class="btlor">8.x和9.2版本</span>为例）： </p>
+<h1 id="verdi-tcl"><span class="hl">Verdi-TCL</span><a class="headerlink" href="#verdi-tcl" title="Permanent link">&para;</a></h1>
+<div class="toc">
 <ul>
-<li><font color=447733><b>grid如何开启？</font></b>   <blockquote>
-<p>在创建时钟后右键可以看到打开grid选项   </p>
-</blockquote>
-</li>
-<li><font color=447733><b>如何让信号对齐到时钟？</font></b>  <blockquote>
-<p>A.选中时钟信号后，选择菜单option &gt; snap to clk，全局的所有信号都会对其到时钟 <br />
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;或<br />
-B.打开grid后调整拖动边沿位置，让其尽量对其时钟（软件不会自动吸附）</p>
-</blockquote>
+<li><a href="#verdi-tcl">Verdi-TCL</a><ul>
+<li><a href="#verdi-tcl_1">一、verdi tcl交互界面开启</a></li>
+<li><a href="#_1">二、将脚本加入到菜单栏中</a></li>
+</ul>
 </li>
 </ul>
+</div>
+<details class="success" open="open">
+<summary><font size=3>reference</font></summary>
+<p>[1]  <a href="https://iccircle.com/static/upload/img20241018151618.pdf">verdi tcl reference</a> </p>
+</details>
+<h2 id="verdi-tcl_1">一、verdi tcl交互界面开启<a class="headerlink" href="#verdi-tcl_1" title="Permanent link">&para;</a></h2>
+<p><img alt="alt text" src="../img/image-39.png#img70" />  </p>
+<h2 id="_1">二、将脚本加入到菜单栏中<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>如果我开发了几个tcl脚本，但每次要使用都要source一下再用，可以考虑将脚本加入到verdi菜单中，点击使用 <br />
+例如我有一个脚本<code>hello.tcl</code><br />
+现在编写一个<code>user_init.tcl</code>用于将<code>hello.tcl</code>以及后续开发的更多的脚本都加入到verdi菜单栏中<br />
+<img alt="alt text" src="../img/image-40.png#img80" /> <br />
+然后在每次打开verdi时只需要source一次 <br />
+<img alt="alt text" src="../img/image-41.png#img40" /> <br />
+之后开任何一个波形都在菜单可以看到开发的脚本对应的按钮 <br />
+<img alt="alt text" src="../img/image-42.png#img70" /><br />
+点击之后，成功执行hello脚本并打印   <br />
+<img alt="alt text" src="../img/image-43.png#img20" /></p>
 
 
 
