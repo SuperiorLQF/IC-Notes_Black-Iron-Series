@@ -1111,10 +1111,12 @@ SystemC库版本：3.0.1  </p>
 <a id="__codelineno-3-2" name="__codelineno-3-2"></a>sudo<span class="w"> </span>make<span class="w"> </span>-j10
 <a id="__codelineno-3-3" name="__codelineno-3-3"></a>make<span class="w"> </span>install
 </code></pre></div></td></tr></table></div>
-到前面命令行参数给出的路径位置，输出了可以直接在工程中掉用的SystemC静态链接库文件夹（因为它是可移植的，所以叫安装也比较容易产生误导）</p>
+在前面<code>DCMAKE_INSTALL_PREFIX</code>给出的路径下，输出可以直接在工程中调用的SystemC静态链接库文件夹<br />
+<img alt="alt text" src="../img/image-38.png#img60" /><br />
+它是可移植的，下次可以直接将库复制到新的工程文件夹中，不用再重复上述的配置、编译过程，所以叫安装install其实比较容易产生误导</p>
 <h3 id="3">3.在工程中调用<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
 <p>我的SystemC仿真工程也采用<code>CMake</code>构建，文件层次如下图 <br />
-其中libs下的<code>systemc-3.0.1即</code>前面安装后生成的静态链接库，<code>cp</code>过来<br />
+其中libs下的<code>systemc-3.0.1</code>即前面安装后生成的静态链接库，<code>cp</code>过来或者link过来  <br />
 <img alt="alt text" src="../img/image-34.png#img40" /><br />
 在<code>build</code>文件夹内进行构建工程，使用如下命令
 <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Bash</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span>
