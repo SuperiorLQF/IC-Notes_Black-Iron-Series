@@ -13,6 +13,7 @@ nav:
     - LFSR: lfsr.md
     - 波前分配器: wavefront_allocator.md
   - EDA工具章:
+    - Verdi-TCL: verdi_tcl.md 
     - NeoVim: nvim.md
     - TimingDesigner: TimingDesigner.md
   - 关于: about.md
