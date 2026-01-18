@@ -111,3 +111,52 @@ A信号相关逻辑的进程在T0时刻被时钟上升沿触发，进入调度(<
 ![alt text](img/image-36.png#img90)   
 对应的波形示意图如下   
 ![alt text](img/image-37.png#img50)   
+
+## 三、TODO
+
+## 四、抽象接口:sc_port和sc_interface
+用户自定义接口类是一个**虚基类**，需要继承自sc_interface,并在里面声明虚函数(抽象函数，声明各种行为)，定义通道需要的服务，但不实现。
+```C++
+class mst_if : public sc_interface {
+public:
+    virtual void send(int data) = 0; // 发送数据
+    virtual bool is_ready() = 0;     // 查询从设备是否就绪
+};
+```
+
+实现接口是在module里面实现的，module除了继承自sc_module外，还需要继承刚才实现的用户接口类,并overrride的方式实现接口中的虚函数
+```C++
+SC_MODULE(Master) {
+    sc_port<mst_if> mst_port;  // 通过端口访问接口
+    void process() {
+        if (mst_port->is_ready()) {      // 调用接口方法
+            mst_port->send(42);
+        }
+    }
+    SC_CTOR(Master) { SC_THREAD(process); }
+};
+```
+通道,是接口的具体实现，继承自接口，用于在模块间传输数据，也管理底层信号逻辑
+```C++
+class my_channel : public sc_channel, public my_interface {
+private:
+    int data;
+public:
+    void write(int val) override { data = val; }
+    int read() override { return data; }
+};
+```
+端口sc_port<InterfaceType>是一个模板类，模板可以填任何sc_interface的派生类，端口是模块访问接口的入口
+端口分为port和export两种，其中export是模块将自身实现暴露给外部
+端口，和常用的sc_in,sc_out这些普通port类似，sc_port也是模块与外部通信的媒介。**将接口调用方法转发到对应通道。**
+sc_port通过->调用通道方法。
+
+端口的连接，在顶层连接
+```C++
+my_channel channel("bus");  // 通道实例
+Master mst("mst");
+Slave slv("slv");
+mst.port(channel);  // 端口绑定到通道
+slv.port(channel);
+```
+简单概括就是，通过sc_port调用方法，如send；在通道里实现方法。
