@@ -34,11 +34,13 @@ make clean
 sudo make -j10
 make install
 ```
-到前面命令行参数给出的路径位置，输出了可以直接在工程中掉用的SystemC静态链接库文件夹（因为它是可移植的，所以叫安装也比较容易产生误导）
+在前面`DCMAKE_INSTALL_PREFIX`给出的路径下，输出可以直接在工程中调用的SystemC静态链接库文件夹  
+![alt text](img/image-38.png#img60)  
+它是可移植的，下次可以直接将库复制到新的工程文件夹中，不用再重复上述的配置、编译过程，所以叫安装install其实比较容易产生误导
 
 ### 3.在工程中调用
 我的SystemC仿真工程也采用`CMake`构建，文件层次如下图   
-其中libs下的`systemc-3.0.1即`前面安装后生成的静态链接库，`cp`过来  
+其中libs下的`systemc-3.0.1`即前面安装后生成的静态链接库，`cp`过来或者link过来    
 ![alt text](img/image-34.png#img40)  
 在`build`文件夹内进行构建工程，使用如下命令
 ```bash
