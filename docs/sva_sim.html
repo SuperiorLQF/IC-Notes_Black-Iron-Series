@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>SVA 全功能 Web 仿真器 (VCS 对标版)</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1100px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-family: monospace; letter-spacing: 1px;}
+        
+        .control-panel { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; align-items: center; background: #ecf0f1; padding: 15px; border-radius: 8px; border-left: 4px solid #3498db;}
+        input[type="text"] { padding: 8px; font-size: 15px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; }
+        .sva-input { flex: 1; min-width: 450px; font-weight: bold; color: #2c3e50;}
+        .sig-input { width: 120px; }
+        button { padding: 8px 15px; font-size: 14px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; white-space: nowrap; font-family: monospace;}
+        button:hover { background-color: #2980b9; }
+        .btn-add { background-color: #8e44ad; }
+        .btn-add:hover { background-color: #732d91; }
+        .btn-del { background-color: #e74c3c; padding: 4px 8px; font-size: 12px; margin-right: 10px; border-radius: 2px;}
+        .btn-del:hover { background-color: #c0392b; }
+
+        .wave-container { margin-bottom: 20px; padding: 15px 15px 5px 15px; background: #1e1e1e; border-radius: 8px; overflow-x: auto; color: #ecf0f1; position: relative;}
+        .wave-container::-webkit-scrollbar { height: 12px; }
+        .wave-container::-webkit-scrollbar-track { background: #2c3e50; border-radius: 0 0 8px 8px; }
+        .wave-container::-webkit-scrollbar-thumb { background: #7f8c8d; border-radius: 6px; border: 2px solid #2c3e50;}
+        .wave-container::-webkit-scrollbar-thumb:hover { background: #95a5a6; }
+
+        .wave-row { display: flex; flex-direction: row; align-items: center; margin-bottom: 5px; height: 50px; }
+        .sig-header { width: 100px; display: flex; align-items: center; font-weight: bold; font-size: 16px; color: #f39c12; flex-shrink: 0; font-family: monospace;}
+        .cells { display: flex; flex-direction: row; position: relative; } 
+        
+        .tick-cell { width: 40px; height: 40px; border-right: 1px dashed #34495e; position: relative; cursor: pointer; transition: background 0.1s; flex-shrink: 0;}
+        .tick-cell:hover { background-color: #2c3e50; }
+        
+        .line-high { position: absolute; top: 8px; left: 0; right: 0; height: 2px; background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+        .line-low { position: absolute; bottom: 8px; left: 0; right: 0; height: 2px; background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+        .edge-vert { position: absolute; top: 8px; bottom: 8px; left: 0; width: 2px; background-color: #2ecc71; box-shadow: 0 0 5px #2ecc71; }
+        .val-text { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; color: #7f8c8d; user-select: none; font-family: monospace;}
+
+        .tick-header { display: flex; flex-direction: row; margin-left: 100px; margin-bottom: 10px; border-bottom: 1px solid #555; padding-bottom: 5px; align-items: center;}
+        .tick-label { width: 41px; text-align: right; padding-right: 5px; box-sizing: border-box; font-size: 12px; color: #bdc3c7; flex-shrink: 0; font-family: monospace;}
+
+        .expand-btn { width: 90px; text-align: center; cursor: pointer; color: #ecf0f1; background: #2980b9; border-radius: 4px; padding: 2px 0; margin-left: 10px; font-weight: bold; font-size: 12px; transition: 0.2s; font-family: monospace;}
+        .expand-btn:hover { background: #3498db; }
+
+        .sva-track { border-top: 2px solid #34495e; margin-top: 15px; padding-top: 10px; height: 120px; margin-bottom: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
+        .sva-arrow-group { transition: opacity 0.2s ease, filter 0.2s ease; }
+
+        .result-box { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; height: 250px; overflow-y: auto; font-family: monospace; font-size: 13px; line-height: 1.6; border-left: 4px solid #f39c12;}
+        .result-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #34495e; padding-bottom: 10px; margin-bottom: 10px; }
+        .toggle-container { display: flex; align-items: center; gap: 10px; }
+        .toggle-label { font-size: 13px; font-weight: bold; color: #bdc3c7; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #7f8c8d; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);}
+        input:checked + .slider { background-color: #2ecc71; }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .log-container { display: flex; flex-direction: column; gap: 2px; }
+        .log-line { padding: 4px 8px; border-radius: 4px; transition: background 0.2s; cursor: pointer;}
+        .log-line:hover { background-color: #34495e; border-left: 3px solid #3498db; padding-left: 5px;}
+        
+        .pass { color: #2ecc71; font-weight: bold;}
+        .fail { color: #e74c3c; font-weight: bold;}
+        .vacuous { color: #95a5a6;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SVA Visual Sandbox (VCS Mode)</h1>
+    
+    <div class="control-panel">
+        <label><b>Signal:</b></label>
+        <input type="text" id="newSigName" class="sig-input" placeholder="e.g. rsp">
+        <button class="btn-add" onclick="addSignal()">[+] Add Wave</button>
+        <div style="border-left: 2px solid #bdc3c7; height: 30px; margin: 0 10px;"></div>
+        <label><b>Assertion:</b></label>
+        <input type="text" id="svaCode" class="sva-input" value="$rose(req) |-> ##[1:3] $fell(ack) |=> rsp">
+        <button onclick="runSimulation()" style="background-color: #e67e22;">[>] Run Analysis</button>
+    </div>
+
+    <div class="wave-container" id="waveContainer">
+        </div>
+
+    <div class="result-box">
+        <div class="result-header">
+            <span style="color: #f1c40f; font-weight: bold;">[Analysis Logs] Aggregated per Attempt (VCS Behavior)</span>
+            <div class="toggle-container">
+                <span class="toggle-label">打印空成功 (Vacuous)</span>
+                <label class="switch">
+                    <input type="checkbox" id="vacuousToggle" onchange="runSimulation()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <div class="log-container" id="resultLogs">
+            [System Ready] Engine upgraded to "For All" Attempt evaluation logic.
+        </div>
+    </div>
+</div>
+
+<script>
+    let NUM_TICKS = 32; 
+    let signals = ['req', 'ack', 'rsp']; 
+    let waveform = {};
+
+    function initData() {
+        signals.forEach(sig => {
+            if(!waveform[sig]) waveform[sig] = Array(NUM_TICKS).fill(0);
+        });
+        renderAll();
+    }
+
+    function renderAll() {
+        const container = document.getElementById('waveContainer');
+        container.innerHTML = ''; 
+
+        let headerDiv = document.createElement('div');
+        headerDiv.className = 'tick-header';
+        for (let i = 0; i < NUM_TICKS; i++) {
+            let label = document.createElement('div');
+            label.className = 'tick-label';
+            label.innerText = 'T' + i;
+            headerDiv.appendChild(label);
+        }
+        
+        let expandBtn = document.createElement('div');
+        expandBtn.className = 'tick-label expand-btn';
+        expandBtn.innerText = '[+16 Ticks]';
+        expandBtn.onclick = () => expandWaveform(16);
+        headerDiv.appendChild(expandBtn);
+
+        container.appendChild(headerDiv);
+
+        signals.forEach(sig => { container.appendChild(createWaveRow(sig)); });
+        container.appendChild(createSvaTrack());
+    }
+
+    function expandWaveform(addCount) {
+        NUM_TICKS += addCount;
+        signals.forEach(sig => {
+            for(let i = 0; i < addCount; i++) {
+                waveform[sig].push(0);
+            }
+        });
+        renderAll();
+        let container = document.getElementById('waveContainer');
+        setTimeout(() => { container.scrollLeft = container.scrollWidth; }, 50);
+    }
+
+    function createWaveRow(sig) {
+        let row = document.createElement('div');
+        row.className = 'wave-row';
+        row.id = 'row_' + sig;
+
+        let header = document.createElement('div');
+        header.className = 'sig-header';
+        
+        let delBtn = document.createElement('button');
+        delBtn.className = 'btn-del';
+        delBtn.innerText = 'X';
+        delBtn.onclick = () => removeSignal(sig);
+        
+        let sigName = document.createElement('span');
+        sigName.innerText = sig;
+
+        header.appendChild(delBtn);
+        header.appendChild(sigName);
+        row.appendChild(header);
+
+        let cellsDiv = document.createElement('div');
+        cellsDiv.className = 'cells';
+        cellsDiv.id = 'cells_' + sig;
+
+        for (let t = 0; t < NUM_TICKS; t++) {
+            cellsDiv.appendChild(createTickCell(sig, t));
+        }
+        row.appendChild(cellsDiv);
+        return row;
+    }
+
+    function createTickCell(sig, t) {
+        let cell = document.createElement('div');
+        cell.className = 'tick-cell';
+        cell.onclick = () => {
+            waveform[sig][t] = waveform[sig][t] === 0 ? 1 : 0;
+            renderAll(); 
+        };
+
+        let val = waveform[sig][t];
+        let prevVal = (t > 0) ? waveform[sig][t-1] : val;
+
+        let hLine = document.createElement('div');
+        hLine.className = val === 1 ? 'line-high' : 'line-low';
+        cell.appendChild(hLine);
+
+        if (val !== prevVal) {
+            let vLine = document.createElement('div');
+            vLine.className = 'edge-vert';
+            cell.appendChild(vLine);
+        }
+
+        let txt = document.createElement('div');
+        txt.className = 'val-text';
+        txt.innerText = val;
+        cell.appendChild(txt);
+        return cell;
+    }
+
+    function addSignal() {
+        let nameInput = document.getElementById('newSigName');
+        let name = nameInput.value.trim();
+        if (!name || !/^[a-zA-Z_]\w*$/.test(name) || signals.includes(name)) return;
+        signals.push(name);
+        waveform[name] = Array(NUM_TICKS).fill(0);
+        nameInput.value = ''; 
+        renderAll();
+    }
+
+    function removeSignal(sig) {
+        if (signals.length <= 1) return;
+        signals = signals.filter(s => s !== sig);
+        delete waveform[sig];
+        renderAll();
+    }
+
+    function createSvaTrack() {
+        let row = document.createElement('div');
+        row.className = 'wave-row sva-track';
+        
+        let header = document.createElement('div');
+        header.className = 'sig-header';
+        row.appendChild(header);
+
+        let svgContainer = document.createElement('div');
+        svgContainer.className = 'cells';
+        svgContainer.style.width = (NUM_TICKS * 41 + 100) + 'px';
+
+        svgContainer.innerHTML = `
+            <svg id="sva_svg" width="100%" height="100%">
+                <defs>
+                    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                        <path d="M 0 1 L 10 5 L 0 9 L 2 5 Z" fill="#2ecc71" />
+                    </marker>
+                    <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                        <path d="M 0 1 L 10 5 L 0 9 L 2 5 Z" fill="#e74c3c" />
+                    </marker>
+                </defs>
+            </svg>
+        `;
+        row.appendChild(svgContainer);
+        return row;
+    }
+
+    function highlightArrow(id) {
+        document.querySelectorAll('.sva-arrow-group').forEach(group => {
+            if (group.id === 'arrow_' + id) {
+                group.style.opacity = '1';
+                let strokeColor = group.querySelector('path').getAttribute('stroke');
+                group.style.filter = `drop-shadow(0px 0px 6px ${strokeColor})`;
+            } else {
+                group.style.opacity = '0.1';
+                group.style.filter = 'none';
+            }
+        });
+    }
+
+    function resetArrows() {
+        document.querySelectorAll('.sva-arrow-group').forEach(group => {
+            group.style.opacity = '1';
+            group.style.filter = 'none';
+        });
+    }
+
+    function getBaseSignal(expr) {
+        if (!expr) return "";
+        let match = expr.trim().match(/^\$(rose|fell|stable)\(\s*(\w+)\s*\)$/);
+        return match ? match[2] : expr.trim();
+    }
+
+    function evaluateExpr(expr, t, wave) {
+        expr = expr.trim();
+        let match = expr.match(/^\$(rose|fell|stable)\(\s*(\w+)\s*\)$/);
+        
+        if (match) {
+            let func = match[1];
+            let sig = match[2];
+            let current = wave[sig][t];
+            let prev = (t > 0) ? wave[sig][t-1] : 'Z'; 
+
+            if (func === 'rose') return (current === 1 && prev !== 1) ? 1 : 0;
+            if (func === 'fell') return (current === 0 && prev !== 0) ? 1 : 0;
+            if (func === 'stable') return (current === prev) ? 1 : 0;
+        } else {
+            return wave[expr][t];
+        }
+        return 0;
+    }
+
+    function evaluateSVA(property, wave) {
+        let results = { logs: [], arrows: [] };
+        let showVacuous = document.getElementById('vacuousToggle').checked; 
+        let globalThreadId = 0;
+        
+        let parts = property.split(/(\|\->|\|=>|\|\|->)/);
+        if (parts.length < 3) {
+            results.logs.push(`<div class="log-line"><span class="fail">[ERROR]</span> Parse failed. Missing |-> or |=>.</div>`);
+            return results;
+        }
+
+        let stages = [];
+        stages.push({ minD: 0, maxD: 0, expr: parts[0].trim() });
+
+        for (let i = 1; i < parts.length; i += 2) {
+            let op = parts[i];
+            let rawStr = parts[i+1].trim();
+
+            let baseDelay = (op === '|=>' || op === '||->') ? 1 : 0;
+            let minD = baseDelay, maxD = baseDelay;
+            let expr = rawStr;
+
+            let delayMatch = rawStr.match(/^(?:##(?:(\d+)|\[(\d+)\s*:\s*(\d+)\])\s+)(.+)$/);
+            if (delayMatch) {
+                if (delayMatch[1] !== undefined) {
+                    minD += parseInt(delayMatch[1]);
+                    maxD += parseInt(delayMatch[1]);
+                } else {
+                    minD += parseInt(delayMatch[2]);
+                    maxD += parseInt(delayMatch[3]);
+                }
+                expr = delayMatch[4].trim();
+            }
+            stages.push({ minD: minD, maxD: maxD, expr: expr });
+        }
+
+        let hasTrigger = false; 
+
+        for (let t = 0; t < NUM_TICKS; t++) {
+            if (evaluateExpr(stages[0].expr, t, wave) === 1) {
+                hasTrigger = true;
+                
+                // ★ VCS 行为模拟：聚合整个 Attempt 的所有子线程结果 ★
+                let attemptFails = [];
+                let attemptPasses = [];
+                let attemptVacuous = 0;
+
+                function exploreThread(stageIdx, currentT, pathLog) {
+                    let stage = stages[stageIdx];
+                    let isLastStage = (stageIdx === stages.length - 1);
+                    
+                    let winStart = currentT + stage.minD;
+                    let winEnd = Math.min(currentT + stage.maxD, NUM_TICKS - 1);
+                    let matchedAny = false;
+
+                    for (let checkT = winStart; checkT <= winEnd; checkT++) {
+                        if (evaluateExpr(stage.expr, checkT, wave) === 1) {
+                            matchedAny = true;
+                            let newLog = pathLog + ` -> T${checkT}(${stage.expr})`;
+                            
+                            if (isLastStage) {
+                                // 记录通过的分支
+                                attemptPasses.push({ end: checkT, log: newLog });
+                            } else {
+                                exploreThread(stageIdx + 1, checkT, newLog);
+                            }
+                        }
+                    }
+
+                    if (!matchedAny) {
+                        if (isLastStage) {
+                            // 记录失败的分支
+                            let failTick = Math.min(currentT + stage.maxD, NUM_TICKS - 1);
+                            attemptFails.push({ end: failTick, log: pathLog + ` -> Failed at (${stage.expr})` });
+                        } else {
+                            attemptVacuous++;
+                        }
+                    }
+                }
+
+                // 启动当前 Attempt 的所有线程探索
+                exploreThread(1, t, `Trig T${t}(${stages[0].expr})`);
+
+                let tid = globalThreadId++;
+
+                // ★ 一票否决逻辑：只要有任何一条分支 Fail，整个 Attempt 判定为 Fail ★
+                if (attemptFails.length > 0) {
+                    // 像 VCS 一样，只报出第一个遇到的失败分支，不再关心后续成功的
+                    let firstFail = attemptFails[0];
+                    results.logs.push(`<div class="log-line" onmouseenter="highlightArrow(${tid})" onmouseleave="resetArrows()"><span class="fail">[FAIL]</span> Attempt T${t}: ${firstFail.log}</div>`);
+                    results.arrows.push({ start: t, end: firstFail.end, status: 'fail', id: tid });
+                } 
+                // 只有所有的可能分支都成功了，整个 Attempt 才算 Pass
+                else if (attemptPasses.length > 0) {
+                    results.logs.push(`<div class="log-line" onmouseenter="highlightArrow(${tid})" onmouseleave="resetArrows()"><span class="pass">[PASS]</span> Attempt T${t}: All ${attemptPasses.length} threaded paths succeeded!</div>`);
+                    // 在画布上把属于这一个 Attempt 的所有成功分支路线都画出来
+                    attemptPasses.forEach((p, idx) => {
+                        // 使用相同的 tid，悬停时会一起高亮
+                        results.arrows.push({ start: t, end: p.end, status: 'pass', id: tid });
+                    });
+                } 
+                // 前提没走完的空成功
+                else {
+                    if (showVacuous) {
+                        results.logs.push(`<div class="log-line" style="color:#7f8c8d;"><span class="vacuous">[VACUOUS]</span> Attempt T${t}: Antecedent not fulfilled, aborted.</div>`);
+                    }
+                }
+            }
+        }
+        
+        if (!hasTrigger) {
+            results.logs.push(`<div class="log-line" style="color:#7f8c8d;">[INFO] No trigger events found on the timeline.</div>`);
+        }
+
+        return results;
+    }
+
+    function drawArrows(arrows) {
+        const svgns = "http://www.w3.org/2000/svg";
+        const svg = document.getElementById('sva_svg');
+        
+        const defs = svg.querySelector('defs').outerHTML;
+        svg.innerHTML = defs;
+
+        arrows.forEach((arrow) => {
+            let isPass = arrow.status === 'pass';
+            let color = isPass ? '#2ecc71' : '#e74c3c';
+            let marker = isPass ? 'url(#arrow-green)' : 'url(#arrow-red)';
+
+            let startX = arrow.start * 41 + 41;
+            let endX = arrow.end * 41 + 41;
+            if (startX >= endX) { endX = startX; }
+
+            let yLine = 45 + (arrow.id % 6) * 10; 
+            let yEnd = isPass ? yLine - 20 : yLine + 20;
+
+            let g = document.createElementNS(svgns, "g");
+            g.setAttribute("id", "arrow_" + arrow.id);
+            g.setAttribute("class", "sva-arrow-group");
+
+            let path = document.createElementNS(svgns, "path");
+            let d = `M ${startX} ${yLine} L ${endX} ${yLine} L ${endX} ${yEnd}`;
+            path.setAttribute("d", d);
+            path.setAttribute("stroke", color);
+            path.setAttribute("stroke-width", "2");
+            path.setAttribute("fill", "none");
+            path.setAttribute("marker-end", marker);
+            g.appendChild(path);
+
+            let circle = document.createElementNS(svgns, "circle");
+            circle.setAttribute("cx", startX);
+            circle.setAttribute("cy", yLine);
+            circle.setAttribute("r", "3");
+            circle.setAttribute("fill", color);
+            g.appendChild(circle);
+
+            svg.appendChild(g);
+        });
+    }
+
+    function runSimulation() {
+        const svaCode = document.getElementById('svaCode').value;
+        const outLogs = document.getElementById('resultLogs');
+        
+        const results = evaluateSVA(svaCode, waveform);
+        
+        outLogs.innerHTML = ''; 
+        results.logs.forEach(log => outLogs.innerHTML += log);
+        outLogs.scrollTop = outLogs.scrollHeight;
+
+        drawArrows(results.arrows);
+    }
+
+    window.onload = initData;
+</script>
+
+</body>
+</html>
