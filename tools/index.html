@@ -1021,11 +1021,11 @@ function openTool() {
   var value = select.value;
 
   if (value === 'sva-sim') {
-    // 假设 sva_sim.html 和当前 md 文件在同一个目录下
-    window.open('sva_sim.html', '_blank'); 
+    // 使用 _blank 属性强制在新标签页打开
+    window.open('../sva_sim.html', '_blank');
   } else if (value === 'digiwave') {
-    // 指向 digwave 文件夹下的 index.html
-    window.open('digwave/index.html', '_blank');
+    // 假设你将波形引擎代码保存为了 digiwave.html，请确保路径正确
+    window.open('../digiwave/index.html', '_blank');
   } else {
     alert('⚠️ 请先在下拉菜单中选择一个工具！');
   }
