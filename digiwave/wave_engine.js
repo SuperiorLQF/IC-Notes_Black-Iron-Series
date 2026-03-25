@@ -1,204 +1,16 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <title>GeekWave Master - 工业级本地波形引擎</title>
-    <style>
-        :root {
-            --bg-color: #1e1e1e;
-            --panel-bg: #252526;
-            --border-color: #3e3e42;
-            --text-color: #d4d4d4;
-            --grid-color: #333333;
-            --track-active: #37373d;
-            --track-height: 40px;
-            --toolbar-bg: #2d2d30;
-            --btn-bg: #333337;
-            --btn-border: #454545;
-            --btn-hover: #094771;
-            --btn-hover-border: #007acc;
-        }
-
-        body.print-theme {
-            --bg-color: #ffffff;
-            --panel-bg: #f3f3f3;
-            --border-color: #cccccc;
-            --text-color: #000000;
-            --grid-color: #dddddd;
-            --track-active: #e5e5e5;
-            --toolbar-bg: #e1e1e1;
-            --btn-bg: #ffffff;
-            --btn-border: #bbbbbb;
-            --btn-hover: #e6f7ff;
-            --btn-hover-border: #1890ff;
-        }
-
-        body { margin: 0; font-family: 'Consolas', sans-serif; background: var(--bg-color); color: var(--text-color); overflow: hidden; display: flex; flex-direction: column; height: 100vh; user-select: none; transition: background 0.3s, color 0.3s;}
-        
-        .toolbar { padding: 8px 20px; background: var(--toolbar-bg); border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10; transition: background 0.3s;}
-        .tool-btn {
-            background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--btn-border);
-            padding: 5px 14px; border-radius: 4px; font-family: inherit; font-size: 13px; font-weight: 500;
-            cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
-        }
-        .tool-btn:hover { background: var(--btn-hover); border-color: var(--btn-hover-border); color: #fff;}
-        .tool-btn .icon { font-size: 14px; opacity: 0.8; font-weight: bold; color: #3498db; display: flex; align-items: center; justify-content: center;}
-        body.print-theme .tool-btn:hover { color: #000; }
-        
-        .main-container { display: flex; flex: 1; overflow: hidden; position: relative; }
-        
-        .signal-list { width: 280px; background: var(--panel-bg); border-right: 1px solid var(--border-color); overflow-y: hidden; z-index: 5; transition: background 0.3s;}
-        .signal-row { height: var(--track-height); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; padding: 0 10px; box-sizing: border-box; cursor: pointer; transition: background 0.1s;}
-        
-        .signal-row.selected { background-color: rgba(52, 152, 219, 0.2); border-left: 3px solid #3498db; padding-left: 7px;}
-        .signal-row.active { background-color: var(--track-active); border-left: 3px solid #007acc; padding-left: 7px;}
-        .signal-row.selected.active { background-color: rgba(52, 152, 219, 0.3); }
-        
-        /* 强化的拖拽交互反馈 */
-        .signal-row.drag-over-top { box-shadow: inset 0 2px 0 0 #3498db !important; }
-        .signal-row.drag-over-bottom { box-shadow: inset 0 -2px 0 0 #3498db !important; }
-
-        .signal-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold; margin-left: 6px; font-size: 13px;}
-        .group-toggle { width: 16px; height: 16px; text-align: center; line-height: 16px; margin-right: 4px; color: #888; font-size: 10px; cursor: pointer; }
-        .group-toggle:hover { color: #fff; }
-        
-        .ungroup-btn { background: #c0392b; border: none; color: white; border-radius: 3px; padding: 2px 6px; font-size: 11px; cursor: pointer; display: none; margin-left: 5px;}
-        .signal-row:hover .ungroup-btn { display: block; }
-        .ungroup-btn:hover { background: #e74c3c; }
-
-        .wave-container { flex: 1; overflow: hidden; position: relative; outline: none; cursor: crosshair;}
-        canvas { display: block; }
-        
-        #textInputOverlay { display: none; position: absolute; background: transparent; color: var(--text-color); border: 1px dashed #007acc; outline: none; font-family: 'Consolas', sans-serif; z-index: 30; padding: 2px;}
-
-        /* --- 恢复为经典的高级感尺寸 --- */
-        .statusbar { background: #007acc; color: white; padding: 0 15px; height: 26px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; z-index: 20; transition: background 0.3s;}
-        body.print-theme .statusbar { background: #333333; }
-        .status-left { display: flex; gap: 20px; align-items: center;}
-        
-        .mode-btn { background: #f39c12; color: #000; padding: 2px 8px; border-radius: 3px; font-weight: bold; cursor: pointer; border: 1px solid #e67e22; transition: 0.2s;}
-        .mode-btn:hover { background: #f1c40f; }
-        .mode-btn.text-mode { background: #9b59b6; border-color: #8e44ad; color: white;}
-        .mode-btn.print-mode { background: #ecf0f1; border-color: #bdc3c7; color: #2c3e50;}
-        .mode-btn.print-mode.active { background: #2c3e50; color: #fff; border-color: #1a252f;}
-
-        .cmd-mode { display: none; width: 100%; align-items: center; gap: 10px;}
-        .cmd-label { font-weight: bold; color: #f1c40f; }
-        #busInput { background: #1e1e1e; color: #fff; border: 1px solid #555; padding: 2px 8px; font-family: 'Consolas', sans-serif; font-size: 13px; width: 400px; outline: none; border-radius: 2px;}
-        #busInput:focus { border-color: #f1c40f; }
-
-        .modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #252526; border: 1px solid #454545; box-shadow: 0 5px 25px rgba(0,0,0,0.8); border-radius: 6px; padding: 20px; width: 320px; z-index: 100; flex-direction: column; gap: 15px; color: #d4d4d4;}
-        body.print-theme .modal { background: #ffffff; border-color: #ccc; color: #000; box-shadow: 0 5px 25px rgba(0,0,0,0.2);}
-        .modal h3 { margin: 0; font-size: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
-        .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;}
-        .modal-btns button { padding: 4px 12px; border-radius: 3px; border: none; cursor: pointer; font-family: inherit; font-size: 13px;}
-        .modal-btns button.primary { background: #007acc; color: white;}
-        .modal-btns button.cancel { background: #555; color: white;}
-        body.print-theme .modal-btns button.cancel { background: #ccc; color: black;}
-
-        .attr-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px;}
-        .attr-row input[type="text"], .attr-row select, .attr-row input[type="color"] { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 4px; border-radius: 3px; outline: none; width: 140px;}
-        .attr-row input[type="color"] { width: 40px; }
-        
-        #helpModal { width: 460px; line-height: 1.8; font-size: 13px;}
-        #helpModal kbd { background: #333; color: #fff; padding: 2px 5px; border-radius: 3px; font-family: monospace; font-size: 11px;}
-        body.print-theme #helpModal kbd { background: #eee; color: #000; border: 1px solid #ccc;}
-    </style>
-</head>
-<body>
-
-<div class="toolbar">
-    <button class="tool-btn" onclick="addSignal('single')">
-        <span class="icon"><svg viewBox="0 0 24 12" width="16" height="12"><path d="M0,10 L8,10 L8,2 L16,2 L16,10 L24,10" fill="none" stroke="currentColor" stroke-width="2"/></svg></span> Signal
-    </button>
-    <button class="tool-btn" onclick="addSignal('multi')">
-        <span class="icon"><svg viewBox="0 0 24 12" width="18" height="12"><polygon points="3,2 21,2 24,6 21,10 3,10 0,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></span> Bus
-    </button>
-    <button class="tool-btn" onclick="addSignal('clock')">
-        <span class="icon"><svg viewBox="0 0 24 16" width="16" height="16"><path d="M0,12 L4,12 L4,4 L10,4 L10,12 L16,12 L16,4 L22,4 L22,12 L24,12" fill="none" stroke="currentColor" stroke-width="2"/></svg></span> Clock
-    </button>
-</div>
-
-<div class="main-container">
-    <div class="signal-list" id="signalList"></div>
-    <div class="wave-container" id="waveContainer" tabindex="0">
-        <canvas id="waveCanvas"></canvas>
-        <input type="text" id="textInputOverlay" autocomplete="off" placeholder="输入注释...">
-    </div>
-</div>
-
-<div class="statusbar" id="statusBar">
-    <div class="status-left" id="statusInfo">
-        <div class="mode-btn" id="modeToggle" onclick="toggleMode()">LAYER: WAVE</div>
-        <div class="mode-btn print-mode" id="printToggle" onclick="togglePrintMode()">PRINT: OFF</div>
-        <span id="statusCursor">Track 0, Cycle 0</span>
-        <span id="statusZoom">Scale: 50 px/cycle</span>
-    </div>
-    <div class="cmd-mode" id="statusCmd">
-        <span class="cmd-label" id="cmdLabel">:EDIT</span>
-        <input type="text" id="busInput" autocomplete="off" placeholder="...">
-    </div>
-</div>
-
-<div id="attrModal" class="modal">
-    <h3 id="modalTitle">Properties</h3>
-    <div class="attr-row" id="nameRow">
-        <label>Name:</label>
-        <input type="text" id="modalName">
-    </div>
-    <div class="attr-row" id="colorRow">
-        <label>Color:</label>
-        <input type="color" id="modalColor">
-    </div>
-    <div class="attr-row" id="radixRow">
-        <label>Radix:</label>
-        <select id="modalRadix">
-            <option value="hex">Hexadecimal</option>
-            <option value="dec">Decimal</option>
-        </select>
-    </div>
-    <div class="modal-btns">
-        <button class="cancel" onclick="closeAttrModal()">Cancel</button>
-        <button class="primary" onclick="applyAttrModal()">Apply</button>
-    </div>
-</div>
-
-<div id="helpModal" class="modal">
-    <h3>Verdi-Like Shortcuts</h3>
-    <div>
-        <b>Selection & Grouping:</b><br>
-        <kbd>Ctrl + Click</kbd> : 多选信号<br>
-        <kbd>Ctrl + G</kbd> : 将选中的信号建组<br>
-        <kbd>Delete</kbd> / <kbd>dd</kbd> : 删除选中的信号/组<br>
-        <kbd>c</kbd> : 重命名 / 修改属性<br><br>
-
-        <b>Wave Editing:</b><br>
-        <kbd>s</kbd> : 编辑 Bus 的值<br>
-        <kbd>x</kbd> / <kbd>z</kbd> : 设置为 Unknown/High-Z<br>
-        <kbd>Space</kbd> : 保持并延续前一个状态<br>
-        <kbd>i</kbd> : 插入/移除 Omitted Time Gap (虚线间隔)<br><br>
-
-        <b>Text Annotation Layer:</b><br>
-        <kbd>:text</kbd> : 进入文本编辑模式<br>
-        <kbd>Wheel</kbd> : 在文本上滚动滑轮以缩放字体<br>
-    </div>
-    <div class="modal-btns">
-        <button class="primary" onclick="closeHelpModal()">Got it</button>
-    </div>
-</div>
-
-<script>
-    let state = {
+let state = {
         cycles: 100,
         scaleX: 50,
         offsetX: 0,
         offsetY: 0,
-        trackHeight: 40,
+        topMargin: 40, 
         
         cursorX: 0, 
         cursorY: 0, 
         
         mode: 'wave', 
+        boundTrackId: null, 
+
         printMode: false, 
         cmdType: '',  
         isModalOpen: false, 
@@ -211,6 +23,13 @@
         selectedTextId: null, 
         
         selectedIds: new Set(),
+
+        measurements: [], 
+        selectedMeasureId: null,
+        measureMode: 'IDLE', 
+        tempMeasurePoint: null,
+
+        totalTracksHeight: 0, 
 
         tree: [
             { id: 'c1', name: 'clk', type: 'clock', color: '#ffffff', data: [] },
@@ -233,6 +52,7 @@
     const textInputOverlay = document.getElementById('textInputOverlay');
     const modeToggle = document.getElementById('modeToggle');
     const printToggle = document.getElementById('printToggle');
+    const btnMeasure = document.getElementById('btnMeasure');
 
     let lastKey = '';
     let lastKeyTime = 0;
@@ -273,6 +93,14 @@
     const m2Info = findNodeInfo(state.tree, 'm2');
     for(let i=10; i<15; i++) m2Info.node.data[i] = '0xFF';
     rebuildFlatTracks();
+
+    function toggleMeasureMode() {
+        state.measureMode = state.measureMode === 'IDLE' ? 'MEASURE_P1' : 'IDLE';
+        state.tempMeasurePoint = null;
+        if (state.measureMode !== 'IDLE') btnMeasure.classList.add('active');
+        else btnMeasure.classList.remove('active');
+        render();
+    }
 
     function toggleGroup(id, e) {
         if(e) e.stopPropagation();
@@ -331,14 +159,14 @@
                 bg: '#ffffff', grid: '#dddddd', text: '#000000',
                 cursorBg: 'rgba(0,0,0,0.05)', cursorLine: '#000000',
                 xState: '#666666', zState: '#aaaaaa', gapBg: '#ffffff', gapLine: '#555555',
-                getSigColor: (c) => '#000000' 
+                measureBase: '#000000', tempMeasure: '#333333', getSigColor: (c) => '#000000' 
             };
         } else {
             return {
                 bg: '#000000', grid: '#333333', text: '#666666',
                 cursorBg: 'rgba(52, 152, 219, 0.3)', cursorLine: '#3498db',
                 xState: '#e74c3c', zState: '#7f8c8d', gapBg: '#080808', gapLine: '#555555',
-                getSigColor: (c) => c
+                measureBase: null, tempMeasure: '#ffff00', getSigColor: (c) => c
             };
         }
     }
@@ -365,9 +193,18 @@
     function toggleMode(targetMode) {
         state.mode = targetMode || (state.mode === 'wave' ? 'text' : 'wave');
         if (state.mode === 'text') {
-            modeToggle.innerText = 'LAYER: TEXT'; modeToggle.className = 'mode-btn text-mode'; waveContainer.style.cursor = 'default';
+            const boundId = Array.from(state.selectedIds)[0] || (state.flatTracks[0] ? state.flatTracks[0].node.id : null);
+            state.boundTrackId = boundId;
+            const boundNode = findNodeInfo(state.tree, boundId)?.node;
+            modeToggle.innerText = `LAYER: TEXT [Bound: ${boundNode ? boundNode.name : 'None'}]`;
+            modeToggle.className = 'mode-btn text-mode';
+            waveContainer.style.cursor = 'default';
         } else {
-            modeToggle.innerText = 'LAYER: WAVE'; modeToggle.className = 'mode-btn'; waveContainer.style.cursor = 'crosshair'; state.selectedTextId = null;
+            state.boundTrackId = null;
+            modeToggle.innerText = 'LAYER: WAVE';
+            modeToggle.className = 'mode-btn';
+            waveContainer.style.cursor = 'crosshair';
+            state.selectedTextId = null;
         }
         render();
     }
@@ -406,6 +243,14 @@
         return state.cycles;
     }
 
+    function getTrackIdxAtY(yPx) {
+        for (let i = 0; i < state.flatTracks.length; i++) {
+            let t = state.flatTracks[i];
+            if (yPx >= t.yOffset && yPx < t.yOffset + t.height) return i;
+        }
+        return Math.max(0, state.flatTracks.length - 1);
+    }
+
     function ensureCursorVisible() {
         if(state.mode !== 'wave') return;
         const rect = waveContainer.getBoundingClientRect();
@@ -415,13 +260,18 @@
         if (curPxX < state.offsetX) state.offsetX = curPxX;
         if (curPxX + state.scaleX > state.offsetX + rect.width) state.offsetX = curPxX + state.scaleX - rect.width;
 
-        const curPxY = state.cursorY * state.trackHeight;
+        const track = state.flatTracks[state.cursorY];
+        if (!track) return;
+        const curPxY = track.yOffset;
         if (curPxY < state.offsetY) state.offsetY = curPxY;
-        if (curPxY + state.trackHeight > state.offsetY + rect.height) {
-            state.offsetY = curPxY + state.trackHeight - rect.height;
+        if (curPxY + track.height > state.offsetY + rect.height - state.topMargin) {
+            state.offsetY = curPxY + track.height - rect.height + state.topMargin;
         }
         
-        renderSignalList(); render();
+        const maxScrollY = Math.max(0, state.totalTracksHeight + state.topMargin - rect.height);
+        state.offsetY = Math.min(state.offsetY, maxScrollY); 
+        
+        render();
     }
 
     function renderSignalList() {
@@ -432,40 +282,26 @@
             const sig = track.node;
             const row = document.createElement('div');
             
-            const isSelected = state.selectedIds.has(sig.id);
-            const isActive = (idx === state.cursorY && state.mode === 'wave');
-            row.className = `signal-row ${isSelected ? 'selected' : ''} ${isActive ? 'active' : ''}`;
+            row.style.height = track.height + 'px';
             row.style.transform = `translateY(${-state.offsetY}px)`;
             row.style.paddingLeft = `${10 + track.depth * 15}px`;
             
             row.draggable = true;
-            row.ondragstart = (e) => { 
-                e.dataTransfer.setData('text/plain', sig.id); 
-            };
-            
-            // --- 重写拖拽覆盖逻辑，判断上半部分还是下半部分 ---
+            row.ondragstart = (e) => { e.dataTransfer.setData('text/plain', sig.id); };
             row.ondragover = (e) => { 
                 e.preventDefault(); 
                 const rect = row.getBoundingClientRect();
                 const y = e.clientY - rect.top;
                 if (y < rect.height / 2) {
-                    row.classList.add('drag-over-top');
-                    row.classList.remove('drag-over-bottom');
+                    row.classList.add('drag-over-top'); row.classList.remove('drag-over-bottom');
                 } else {
-                    row.classList.add('drag-over-bottom');
-                    row.classList.remove('drag-over-top');
+                    row.classList.add('drag-over-bottom'); row.classList.remove('drag-over-top');
                 }
             };
-            
-            row.ondragleave = (e) => { 
-                row.classList.remove('drag-over-top', 'drag-over-bottom'); 
-            };
-            
-            // --- 强化拖拽放置逻辑，精准插入 ---
+            row.ondragleave = (e) => { row.classList.remove('drag-over-top', 'drag-over-bottom'); };
             row.ondrop = (e) => {
                 const isTopHalf = row.classList.contains('drag-over-top');
                 row.classList.remove('drag-over-top', 'drag-over-bottom');
-                
                 const sourceId = e.dataTransfer.getData('text/plain');
                 if (sourceId === sig.id) return;
                 
@@ -478,19 +314,14 @@
                 check(sourceInfo.node);
                 if (isDescendant) return;
 
-                // 1. 先将源节点从原位置移除
                 const srcNode = sourceInfo.node;
                 sourceInfo.array.splice(sourceInfo.index, 1);
                 
-                // 2. 重新查找目标节点（因为上一步的 splice 可能会导致目标节点的索引偏移）
                 const newTargetInfo = findNodeInfo(state.tree, sig.id);
                 if (!newTargetInfo) { refreshAll(); return; }
                 
-                // 3. 根据拖拽的上/下半区决定插入位置
                 let insertIdx = newTargetInfo.index;
-                if (!isTopHalf) {
-                    insertIdx++; // 如果丢在下半区，则插入到它后面
-                }
+                if (!isTopHalf) insertIdx++; 
                 
                 newTargetInfo.array.splice(insertIdx, 0, srcNode);
                 refreshAll();
@@ -520,11 +351,9 @@
             
             innerHTML += `<div style="width:12px; height:12px; background:${boxColor}; border-radius:2px; margin-right:5px; flex-shrink:0;"></div>`;
             innerHTML += `<span class="signal-name" title="${sig.name}">${sig.name}${radixLabel}</span>`;
-            
             if (sig.type === 'group') {
                 innerHTML += `<button class="ungroup-btn" onclick="ungroup('${sig.id}', event)">Ungroup</button>`;
             }
-
             row.innerHTML = innerHTML;
             signalListEl.appendChild(row);
         });
@@ -540,10 +369,7 @@
         
         const newSig = { id: 's_'+Date.now(), name: name, type: type, color: colors[type], radix: 'hex', data: [] };
         state.tree.push(newSig);
-        
-        state.selectedIds.clear();
-        state.selectedIds.add(newSig.id);
-
+        state.selectedIds.clear(); state.selectedIds.add(newSig.id);
         refreshAll();
         state.cursorY = state.flatTracks.length - 1;
         ensureCursorVisible();
@@ -567,11 +393,168 @@
         return { str: val, isX: false, isZ: false };
     }
 
+    function computeTrackLayout() {
+        state.flatTracks.forEach(t => {
+            t.topSpace = 0;
+            t.bottomSpace = 0;
+            t.height = 40; 
+        });
+
+        let trackIntervals = {};
+        let activeMeasurements = [];
+        state.measurements.forEach(m => m.absoluteRenderY = undefined);
+        state.measurements.forEach(m => {
+            const tIdx1 = state.flatTracks.findIndex(t => t.node.id === m.sigId1);
+            const tIdx2 = state.flatTracks.findIndex(t => t.node.id === m.sigId2);
+            if (tIdx1 === -1 || tIdx2 === -1) return; 
+            
+            m._currentTIdx1 = tIdx1;
+            m._currentTIdx2 = tIdx2;
+            activeMeasurements.push(m);
+        });
+        
+        activeMeasurements.forEach(m => {
+            const minTrackIdx = Math.min(m._currentTIdx1, m._currentTIdx2);
+            if (!trackIntervals[minTrackIdx]) trackIntervals[minTrackIdx] = [];
+            ctx.font = (state.selectedMeasureId === m.id ? "bold " : "") + "14px Consolas, sans-serif";
+            const textW = ctx.measureText(m.text || 'Δt').width;
+            const absX1 = cycleToPx(m.c1);
+            const absX2 = cycleToPx(m.c2);
+            const centerX = (absX1 + absX2) / 2;
+            trackIntervals[minTrackIdx].push({ m, min: Math.min(absX1, absX2) - textW/2 - 10, max: Math.max(absX1, absX2) + textW/2 + 10 });
+        });
+
+        for (let tIdx in trackIntervals) {
+            let placed = [];
+            let maxL = 0;
+            trackIntervals[tIdx].sort((a,b) => a.min - b.min);
+            trackIntervals[tIdx].forEach(inv => {
+                let lane = 0;
+                let collision = true;
+                while(collision) {
+                    collision = false;
+                    for(let p of placed) {
+                        if (p.lane === lane && inv.min < p.max && inv.max > p.min) {
+                            collision = true; break;
+                        }
+                    }
+                    if (!collision) break;
+                    lane++;
+                }
+                placed.push({ ...inv, lane });
+                inv.m.assignedLane = lane; 
+                maxL = Math.max(maxL, lane);
+            });
+            let topNeed = 42 + maxL * 20; 
+            state.flatTracks[tIdx].topSpace = Math.max(state.flatTracks[tIdx].topSpace, topNeed - 20);
+        }
+
+        let textsByTrack = {};
+        state.texts.forEach(t => {
+            if (t.trackId) {
+                if (!textsByTrack[t.trackId]) textsByTrack[t.trackId] = [];
+                textsByTrack[t.trackId].push(t);
+            }
+            
+            ctx.font = `${t.size}px Consolas, sans-serif`;
+            let maxW = ctx.measureText(t.text || 'Note').width + (t.isSticky ? 24 : 0);
+            let totalH = t.size;
+            if (t.isSticky) {
+                let lines = t.collapsed ? [] : (t.content || '').split('\n');
+                if (!t.collapsed) {
+                    ctx.font = `${t.size * 0.85}px Consolas, sans-serif`;
+                    lines.forEach(l => { maxW = Math.max(maxW, ctx.measureText(l).width + 12); });
+                }
+                totalH = t.size + 8 + (lines.length > 0 ? lines.length * t.size + 4 : 0); 
+            }
+            t.boxWidthCycles = maxW / state.scaleX;
+            t.renderedHeight = totalH;
+            t.renderY = t.y; 
+        });
+
+        for (let trkId in textsByTrack) {
+            const track = state.flatTracks.find(tr => tr.node.id === trkId);
+            if (!track) continue;
+
+            let tList = textsByTrack[trkId];
+            tList.sort((a,b) => a.y - b.y); 
+            let placedTexts = [];
+
+            tList.forEach(t => {
+                let currentY = t.y; 
+                let collision = true;
+                while (collision) {
+                    collision = false;
+                    for (let p of placedTexts) {
+                        let tMinX = cycleToPx(t.cycle);
+                        let tMaxX = tMinX + Math.max(20, t.boxWidthCycles * state.scaleX);
+                        let pMinX = cycleToPx(p.cycle);
+                        let pMaxX = pMinX + Math.max(20, p.boxWidthCycles * state.scaleX);
+                        
+                        if (tMinX < pMaxX && tMaxX > pMinX) { 
+                            let tTop = currentY - t.size - 4;
+                            let tBot = tTop + t.renderedHeight;
+                            let pTop = p.renderY - p.size - 4;
+                            let pBot = pTop + p.renderedHeight;
+                            
+                            if (tTop < pBot + 4 && tBot > pTop - 4) { 
+                                currentY = p.renderY - p.size - 4 + p.renderedHeight + t.size + 8; 
+                                collision = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                t.renderY = currentY;
+                placedTexts.push(t);
+
+                let topEdge = t.renderY - t.size - 4; 
+                let bottomEdge = t.renderY - t.size - 4 + t.renderedHeight;
+                
+                if (topEdge < -20) track.topSpace = Math.max(track.topSpace, -(topEdge + 20));
+                if (bottomEdge > 20) track.bottomSpace = Math.max(track.bottomSpace, bottomEdge - 20);
+            });
+        }
+
+        let currentY = 0;
+        state.flatTracks.forEach(t => {
+            t.height = 40 + t.topSpace + t.bottomSpace;
+            t.yOffset = currentY;
+            t.centerY = currentY + 20 + t.topSpace; 
+            currentY += t.height;
+        });
+        state.totalTracksHeight = currentY; 
+    }
+
     function render() {
         const rect = waveContainer.getBoundingClientRect();
         const width = rect.width;
         const height = rect.height;
         const theme = getTheme();
+
+        computeTrackLayout();
+        
+        // 【关键修复 1】渲染侧边栏同步状态时，动态加入 text-bound 紫色结界类！
+        const signalRows = document.getElementById('signalList').children;
+        state.flatTracks.forEach((track, idx) => {
+            if (signalRows[idx]) {
+                signalRows[idx].style.height = track.height + 'px';
+                signalRows[idx].style.transform = `translateY(${-state.offsetY}px)`;
+                
+                let isSelected = false;
+                let isActive = false;
+                let isTextBound = false;
+
+                if (state.mode === 'wave') {
+                    isSelected = state.selectedIds.has(track.node.id);
+                    isActive = (idx === state.cursorY);
+                } else if (state.mode === 'text') {
+                    isTextBound = (state.boundTrackId === track.node.id);
+                }
+                
+                signalRows[idx].className = `signal-row ${isSelected ? 'selected' : ''} ${isActive ? 'active' : ''} ${isTextBound ? 'text-bound' : ''}`;
+            }
+        });
         
         ctx.fillStyle = theme.bg;
         ctx.fillRect(0, 0, width, height);
@@ -586,22 +569,36 @@
         }
         ctx.stroke(); ctx.setLineDash([]); 
 
+        // 【关键修复 2】在画布上绘制轨道背景：同时支持 Wave 蓝 和 Text 紫
+        state.flatTracks.forEach((track, idx) => {
+            const absTop = track.yOffset - state.offsetY + state.topMargin;
+            if (state.mode === 'text' && state.boundTrackId === track.node.id) {
+                // Text 层的紫光结界
+                ctx.fillStyle = state.printMode ? 'rgba(0,0,0,0.05)' : 'rgba(155, 89, 182, 0.25)';
+                ctx.fillRect(0, absTop, width, track.height);
+            } 
+            else if (state.mode === 'wave' && state.selectedIds.has(track.node.id)) {
+                // Wave 层的蓝色选中
+                ctx.fillStyle = state.printMode ? 'rgba(0,0,0,0.03)' : 'rgba(52, 152, 219, 0.15)';
+                ctx.fillRect(0, absTop, width, track.height);
+            }
+        });
+
+        // 单独把光标方块仅限 Wave 模式绘制
         if (state.mode === 'wave') {
-            state.flatTracks.forEach((track, idx) => {
-                if(state.selectedIds.has(track.node.id)) {
-                    ctx.fillStyle = state.printMode ? 'rgba(0,0,0,0.03)' : 'rgba(52, 152, 219, 0.15)';
-                    ctx.fillRect(0, idx * state.trackHeight - state.offsetY, width, state.trackHeight);
+            if (state.flatTracks[state.cursorY]) {
+                const t = state.flatTracks[state.cursorY];
+                const activeY = t.yOffset - state.offsetY + state.topMargin;
+                ctx.fillStyle = theme.cursorBg;
+                ctx.fillRect(0, activeY, width, t.height);
+
+                if (t.node.type !== 'group') {
+                    const cursorPxX = cycleX[state.cursorX] - state.offsetX;
+                    ctx.fillRect(cursorPxX, activeY, state.scaleX, t.height);
+                    ctx.strokeStyle = theme.cursorLine; ctx.lineWidth = 1;
+                    ctx.strokeRect(cursorPxX, activeY, state.scaleX, t.height);
                 }
-            });
-
-            const activeY = state.cursorY * state.trackHeight - state.offsetY;
-            ctx.fillStyle = theme.cursorBg;
-            ctx.fillRect(0, activeY, width, state.trackHeight);
-
-            const cursorPxX = cycleX[state.cursorX] - state.offsetX;
-            ctx.fillRect(cursorPxX, activeY, state.scaleX, state.trackHeight);
-            ctx.strokeStyle = theme.cursorLine; ctx.lineWidth = 1;
-            ctx.strokeRect(cursorPxX, activeY, state.scaleX, state.trackHeight);
+            }
         }
 
         ctx.save();
@@ -623,20 +620,21 @@
         });
         ctx.restore();
 
+        // 绘制波形线
         state.flatTracks.forEach((track, idx) => {
             const sig = track.node;
-            const yOffset = idx * state.trackHeight - state.offsetY;
-            if (yOffset > height || yOffset + state.trackHeight < 0) return;
+            const absTop = track.yOffset - state.offsetY + state.topMargin;
+            if (absTop > height || absTop + track.height < 0) return;
 
             if (sig.type === 'group') {
                 ctx.fillStyle = state.printMode ? '#f9f9f9' : '#1a1a1c';
-                ctx.fillRect(0, yOffset + 2, width, state.trackHeight - 4);
+                ctx.fillRect(0, absTop + 2, width, track.height - 4);
                 return;
             }
 
-            const yMid = yOffset + state.trackHeight / 2;
-            const yHigh = yOffset + 8;
-            const yLow = yOffset + state.trackHeight - 8;
+            const yMid = track.centerY - state.offsetY + state.topMargin;
+            const yHigh = yMid - 12; 
+            const yLow = yMid + 12;  
             const drawColor = theme.getSigColor(sig.color);
 
             ctx.strokeStyle = drawColor; ctx.fillStyle = drawColor; ctx.lineWidth = 2;
@@ -654,7 +652,6 @@
                 }
                 ctx.stroke();
             }
-
             else if (sig.type === 'single') {
                 ctx.beginPath();
                 let lastVal = null;
@@ -681,7 +678,6 @@
                 }
                 ctx.stroke();
             }
-
             else if (sig.type === 'multi') {
                 let startIdx = 0;
                 while (startIdx < state.cycles) {
@@ -694,7 +690,7 @@
                     const xStart = cycleX[startIdx] - state.offsetX;
                     const xEnd = cycleX[endIdx] + state.scaleX - state.offsetX;
                     const boxWidth = xEnd - xStart;
-                    const boxHeight = yLow - yHigh;
+                    const boxHeight = yLow - yHigh; 
                     
                     if (xEnd > 0 && xStart < width) {
                         const parsed = parseDisplayStr(val, sig);
@@ -737,32 +733,162 @@
             }
         });
 
-        state.texts.forEach(t => {
-            ctx.font = `${t.size}px Consolas, sans-serif`;
-            ctx.fillStyle = state.printMode ? '#000000' : t.color;
-            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+        if (state.measureMode === 'MEASURE_P2' && state.tempMeasurePoint) {
+            const px = cycleToPx(state.tempMeasurePoint.c) - state.offsetX;
+            ctx.strokeStyle = theme.tempMeasure; 
+            ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+            ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, height); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        state.measurements.forEach(m => {
+            if (m._currentTIdx1 === undefined || m._currentTIdx2 === undefined) return;
+            const track1 = state.flatTracks[m._currentTIdx1];
+            const track2 = state.flatTracks[m._currentTIdx2];
+            const minTrack = m._currentTIdx1 < m._currentTIdx2 ? track1 : track2;
             
-            const screenX = cycleToPx(t.cycle) - state.offsetX;
-            const screenY = t.y - state.offsetY;
-            
-            const boxPx = t.boxWidthCycles * state.scaleX;
-            let displayStr = t.text;
-            
-            if (ctx.measureText(displayStr).width > boxPx) {
-                if (boxPx < 20) displayStr = '...';
-                else {
-                    while (displayStr.length > 0 && ctx.measureText(displayStr + '...').width > boxPx) {
-                        displayStr = displayStr.slice(0, -1);
-                    }
-                    displayStr += '...';
-                }
+            m.absoluteRenderY = minTrack.centerY - 26 - (m.assignedLane * 20);
+
+            const px1 = cycleToPx(m.c1) - state.offsetX;
+            const px2 = cycleToPx(m.c2) - state.offsetX;
+            const py1 = track1.centerY - state.offsetY + state.topMargin;
+            const py2 = track2.centerY - state.offsetY + state.topMargin;
+            const isSelected = (state.selectedMeasureId === m.id);
+
+            const drawColor = theme.measureBase || m.color; 
+            ctx.strokeStyle = drawColor;
+            ctx.fillStyle = drawColor;
+            ctx.lineWidth = isSelected ? m.thickness + 1 : m.thickness;
+
+            if (isSelected && !state.printMode) {
+                ctx.shadowColor = drawColor;
+                ctx.shadowBlur = 8;
+            } else {
+                ctx.shadowBlur = 0; 
             }
 
-            ctx.fillText(displayStr, screenX, screenY);
+            const midY = m.absoluteRenderY - state.offsetY + state.topMargin; 
+
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(px1, py1); ctx.lineTo(px1, midY);
+            ctx.moveTo(px2, py2); ctx.lineTo(px2, midY);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.moveTo(px1, midY); ctx.lineTo(px2, midY);
+            
+            const head = 10;
+            const dir1 = px1 < px2 ? 1 : -1;
+            ctx.moveTo(px1, midY); ctx.lineTo(px1 + dir1*head, midY - 3);
+            ctx.moveTo(px1, midY); ctx.lineTo(px1 + dir1*head, midY + 3);
+            const dir2 = px2 < px1 ? 1 : -1;
+            ctx.moveTo(px2, midY); ctx.lineTo(px2 + dir2*head, midY - 3);
+            ctx.moveTo(px2, midY); ctx.lineTo(px2 + dir2*head, midY + 3);
+            ctx.stroke();
+
+            ctx.font = (isSelected ? "bold " : "") + "14px Consolas, sans-serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            const dtText = m.text || 'Δt';
+            
+            ctx.fillText(dtText, (px1 + px2) / 2, midY - 2);
+            ctx.shadowBlur = 0; 
+        });
+
+        state.texts.forEach(t => {
+            const track = state.flatTracks.find(tr => tr.node.id === t.trackId);
+            if (!track) return; 
+
+            const screenX = cycleToPx(t.cycle) - state.offsetX;
+            const screenY = track.centerY + t.renderY - state.offsetY + state.topMargin;
+            const boxPx = Math.max(20, t.boxWidthCycles * state.scaleX); 
+            let displayStr = t.text || 'Note';
+            
+            if (t.isSticky) {
+                let lines = t.collapsed ? [] : (t.content || '').split('\n');
+                const contentLineHeight = t.size;
+                const totalH = t.size + 8 + (lines.length > 0 ? lines.length * contentLineHeight + 4 : 0);
+
+                ctx.fillStyle = state.printMode ? '#ffffff' : (t.bgColor || '#2d2d30');
+                ctx.strokeStyle = state.printMode ? '#000000' : (t.color || '#f1c40f');
+                ctx.lineWidth = 1;
+                ctx.fillRect(screenX, screenY - t.size - 4, boxPx, totalH);
+                ctx.strokeRect(screenX, screenY - t.size - 4, boxPx, totalH);
+
+                ctx.fillStyle = state.printMode ? '#000000' : (t.color || '#f1c40f');
+                ctx.beginPath();
+                if (t.collapsed) {
+                    ctx.moveTo(screenX + 6, screenY - t.size/2 - 4);
+                    ctx.lineTo(screenX + 6, screenY - t.size/2 + 4);
+                    ctx.lineTo(screenX + 12, screenY - t.size/2);
+                } else {
+                    ctx.moveTo(screenX + 4, screenY - t.size/2 - 2);
+                    ctx.lineTo(screenX + 14, screenY - t.size/2 - 2);
+                    ctx.lineTo(screenX + 9, screenY - t.size/2 + 4);
+                }
+                ctx.fill();
+
+                ctx.font = `${t.size}px Consolas, sans-serif`;
+                let titleStr = displayStr;
+                let availableTitleW = boxPx - 24; 
+                if (availableTitleW > 0) {
+                    if (ctx.measureText(titleStr).width > availableTitleW) {
+                        if (availableTitleW < 20) titleStr = '...';
+                        else {
+                            while (titleStr.length > 0 && ctx.measureText(titleStr + '...').width > availableTitleW) {
+                                titleStr = titleStr.slice(0, -1);
+                            }
+                            titleStr += '...';
+                        }
+                    }
+                    ctx.fillStyle = state.printMode ? '#000000' : (t.color || '#f1c40f');
+                    ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+                    ctx.fillText(titleStr, screenX + 18, screenY);
+                }
+
+                if (!t.collapsed) {
+                    ctx.fillStyle = state.printMode ? '#333333' : theme.text;
+                    ctx.font = `${t.size * 0.85}px Consolas, sans-serif`;
+                    let availableContentW = boxPx - 12; 
+                    if (availableContentW > 0) {
+                        lines.forEach((l, i) => {
+                            let lineStr = l;
+                            if (ctx.measureText(lineStr).width > availableContentW) {
+                                if (availableContentW < 15) lineStr = '...';
+                                else {
+                                    while (lineStr.length > 0 && ctx.measureText(lineStr + '...').width > availableContentW) {
+                                        lineStr = lineStr.slice(0, -1);
+                                    }
+                                    lineStr += '...';
+                                }
+                            }
+                            ctx.fillText(lineStr, screenX + 6, screenY + t.size + 4 + i * contentLineHeight);
+                        });
+                    }
+                }
+            } else {
+                ctx.font = `${t.size}px Consolas, sans-serif`;
+                ctx.fillStyle = state.printMode ? '#000000' : t.color;
+                ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+                
+                if (ctx.measureText(displayStr).width > boxPx) {
+                    if (boxPx < 20) displayStr = '...';
+                    else {
+                        while (displayStr.length > 0 && ctx.measureText(displayStr + '...').width > boxPx) {
+                            displayStr = displayStr.slice(0, -1);
+                        }
+                        displayStr += '...';
+                    }
+                }
+                ctx.fillText(displayStr, screenX, screenY);
+            }
             
             if (state.mode === 'text' && state.selectedTextId === t.id) {
                 ctx.strokeStyle = theme.cursorLine; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
-                ctx.strokeRect(screenX - 2, screenY - t.size - 2, boxPx + 4, t.size + 4);
+                const rH = t.renderedHeight || t.size;
+                ctx.strokeRect(screenX - 2, screenY - t.size - 6, boxPx + 4, rH + 8);
                 ctx.setLineDash([]);
             }
         });
@@ -777,35 +903,121 @@
         if (state.isModalOpen || state.cmdType) return;
         waveContainer.focus();
         const rect = waveContainer.getBoundingClientRect();
+        
         const mx = e.clientX - rect.left + state.offsetX;
-        const my = e.clientY - rect.top + state.offsetY;
+        const my = e.clientY - rect.top + state.offsetY - state.topMargin; 
 
-        if (state.mode === 'text') {
-            let hit = null;
-            for (let i = state.texts.length - 1; i >= 0; i--) {
-                const t = state.texts[i];
-                ctx.font = `${t.size}px Consolas, sans-serif`;
-                const boxPx = t.boxWidthCycles * state.scaleX;
-                const tX = cycleToPx(t.cycle);
-                if (mx >= tX && mx <= tX + boxPx && my <= t.y && my >= t.y - t.size) { hit = t; break; }
+        if (state.measureMode !== 'IDLE') {
+            const snappedC = Math.round(pxToCycle(mx)); 
+            const hitTrackIdx = getTrackIdxAtY(my); 
+            
+            if (hitTrackIdx < 0 || hitTrackIdx >= state.flatTracks.length) return;
+            const hitTrack = state.flatTracks[hitTrackIdx];
+            if (!hitTrack) return; 
+            const hitSigId = hitTrack.node.id;
+            
+            if (state.measureMode === 'MEASURE_P1') {
+                state.tempMeasurePoint = { c: snappedC, sigId: hitSigId }; 
+                state.measureMode = 'MEASURE_P2';
+                btnMeasure.classList.add('active'); 
+            } else if (state.measureMode === 'MEASURE_P2') {
+                if (snappedC !== state.tempMeasurePoint.c) {
+                    const newM = {
+                        id: 'm_' + Date.now(),
+                        c1: state.tempMeasurePoint.c, sigId1: state.tempMeasurePoint.sigId, 
+                        c2: snappedC, sigId2: hitSigId, 
+                        text: 'Δt',
+                        color: '#00FF00', 
+                        thickness: 1
+                    };
+                    state.measurements.push(newM);
+                }
+                state.measureMode = 'IDLE';
+                state.tempMeasurePoint = null;
+                btnMeasure.classList.remove('active');
             }
-            if (hit) {
-                state.selectedTextId = hit.id;
-                isDraggingText = true; 
-                dragOffset = { x: mx - cycleToPx(hit.cycle), y: my - hit.y };
-            } else {
-                state.selectedTextId = null;
-                startTextEdit(e.clientX - rect.left, e.clientY - rect.top);
-            }
-            render(); return;
+            render();
+            return;
         }
 
         if (state.mode === 'wave') {
             state.cursorX = Math.floor(pxToCycle(mx));
             state.cursorX = Math.max(0, Math.min(state.cycles - 1, state.cursorX));
-            state.cursorY = Math.floor(my / state.trackHeight);
-            state.cursorY = Math.max(0, Math.min(state.flatTracks.length - 1, state.cursorY));
+            state.cursorY = getTrackIdxAtY(my);
+
+            // 【关键修复 3：点击画布，同步刷新选中的轨道 ID 缓存】
+            const hitTrack = state.flatTracks[state.cursorY];
+            if (hitTrack && hitTrack.node.type !== 'group') {
+                if (!e.ctrlKey) {
+                    state.selectedIds.clear();
+                }
+                state.selectedIds.add(hitTrack.node.id);
+            }
+
+            let hitMeasure = null;
+            for (let m of state.measurements) {
+                if (m.absoluteRenderY === undefined) continue; 
+                const absPx1 = cycleToPx(m.c1);
+                const absPx2 = cycleToPx(m.c2);
+                const absMinX = Math.min(absPx1, absPx2);
+                const absMaxX = Math.max(absPx1, absPx2);
+                const absCenterX = (absPx1 + absPx2) / 2;
+                
+                const absHitMinX = Math.min(absMinX, absCenterX - 30);
+                const absHitMaxX = Math.max(absMaxX, absCenterX + 30);
+
+                if (mx >= absHitMinX - 10 && mx <= absHitMaxX + 10 && Math.abs(my - m.absoluteRenderY) < 15) {
+                    hitMeasure = m; break;
+                }
+            }
+            if (hitMeasure) {
+                state.selectedMeasureId = hitMeasure.id;
+            } else {
+                state.selectedMeasureId = null; 
+            }
             ensureCursorVisible();
+            return;
+        }
+
+        if (state.mode === 'text') {
+            let hit = null;
+            for (let i = state.texts.length - 1; i >= 0; i--) {
+                const t = state.texts[i];
+                const track = state.flatTracks.find(tr => tr.node.id === t.trackId);
+                if(!track) continue; 
+
+                const boxPx = t.boxWidthCycles * state.scaleX;
+                const tX = cycleToPx(t.cycle);
+                const tY_Absolute = track.centerY + t.renderY; 
+                const hitH = t.renderedHeight || t.size;
+
+                if (t.isSticky && mx >= tX && mx <= tX + 16 && my <= tY_Absolute && my >= tY_Absolute - t.size) {
+                    t.collapsed = !t.collapsed;
+                    render();
+                    return; 
+                }
+
+                if (mx >= tX && mx <= tX + boxPx && my <= tY_Absolute + (t.isSticky ? hitH - t.size : 0) && my >= tY_Absolute - t.size) { 
+                    hit = t; break; 
+                }
+            }
+            if (hit) {
+                state.selectedTextId = hit.id;
+                isDraggingText = true; 
+                const hitTrack = state.flatTracks.find(tr => tr.node.id === hit.trackId);
+                dragOffset = { 
+                    x: mx - cycleToPx(hit.cycle), 
+                    y: my - (hitTrack.centerY + hit.renderY) 
+                };
+            } else {
+                state.selectedTextId = null;
+                const bTrack = state.flatTracks.find(tr => tr.node.id === state.boundTrackId);
+                if(bTrack) {
+                    const relY = my - bTrack.centerY;
+                    startTextEdit(e.clientX - rect.left, e.clientY - rect.top, relY, bTrack.node.id);
+                }
+            }
+            render(); return;
         }
     });
 
@@ -814,24 +1026,28 @@
             const rect = waveContainer.getBoundingClientRect();
             const t = state.texts.find(x => x.id === state.selectedTextId);
             if (t) {
-                const newAbsoluteX = (e.clientX - rect.left + state.offsetX) - dragOffset.x;
-                t.cycle = pxToCycle(newAbsoluteX);
-                t.y = (e.clientY - rect.top + state.offsetY) - dragOffset.y;
-                render();
+                const track = state.flatTracks.find(tr => tr.node.id === t.trackId);
+                if (track) {
+                    const newAbsoluteX = (e.clientX - rect.left + state.offsetX) - dragOffset.x;
+                    t.cycle = pxToCycle(newAbsoluteX);
+                    const absoluteMy = e.clientY - rect.top + state.offsetY - state.topMargin;
+                    t.y = absoluteMy - track.centerY - dragOffset.y; 
+                    render();
+                }
             }
         }
     });
     window.addEventListener('mouseup', () => { isDraggingText = false; });
 
-    function startTextEdit(screenX, screenY) {
+    function startTextEdit(screenX, screenY, relY, trackId) {
         state.isEditingText = true;
         textInputOverlay.style.display = 'block';
         textInputOverlay.style.left = `${screenX}px`;
         textInputOverlay.style.top = `${screenY - 14}px`; 
         textInputOverlay.value = ''; 
         textInputOverlay.dataset.px = screenX + state.offsetX;
-        textInputOverlay.dataset.y = screenY + state.offsetY;
-        
+        textInputOverlay.dataset.relY = relY;
+        textInputOverlay.dataset.trackId = trackId;
         setTimeout(() => { textInputOverlay.focus(); }, 10);
     }
 
@@ -845,10 +1061,15 @@
                     id: 'txt_' + Date.now(), 
                     text: val, 
                     cycle: pxToCycle(parseFloat(textInputOverlay.dataset.px)), 
-                    y: parseFloat(textInputOverlay.dataset.y), 
+                    y: parseFloat(textInputOverlay.dataset.relY), 
+                    trackId: textInputOverlay.dataset.trackId, 
                     size: 16, 
                     boxWidthCycles: wPx / state.scaleX, 
-                    color: '#f1c40f' 
+                    color: '#f1c40f',
+                    bgColor: '#2d2d30',
+                    isSticky: false, 
+                    content: '', 
+                    collapsed: true
                 });
             }
             endTextEdit();
@@ -860,6 +1081,22 @@
         if (state.cmdType || state.isModalOpen || state.isEditingText) return;
         const k = e.key.toLowerCase();
 
+        if (k === 't' && state.mode === 'wave') { e.preventDefault(); toggleMode('text'); return; }
+        if (k === 'escape' && state.mode === 'text') { e.preventDefault(); toggleMode('wave'); return; }
+
+        if (k === 'm') { e.preventDefault(); toggleMeasureMode(); return; }
+
+        if (state.mode === 'wave' && state.selectedMeasureId) {
+            if (k === 'delete' || e.key === 'Backspace') {
+                e.preventDefault();
+                state.measurements = state.measurements.filter(m => m.id !== state.selectedMeasureId);
+                state.selectedMeasureId = null;
+                render(); return;
+            }
+            if (k === 's') { e.preventDefault(); startCmdMode('edit_measure'); return; }
+            if (k === 'c') { e.preventDefault(); openAttrModal(); return; }
+        }
+
         if (k === 'delete' || (k === 'd' && lastKey === 'd' && Date.now() - lastKeyTime < 500)) {
             e.preventDefault();
             deleteSelectedSignal();
@@ -867,12 +1104,7 @@
             return;
         }
 
-        if (k === 'd') {
-            lastKey = 'd';
-            lastKeyTime = Date.now();
-        } else {
-            lastKey = ''; 
-        }
+        if (k === 'd') { lastKey = 'd'; lastKeyTime = Date.now(); } else { lastKey = ''; }
 
         if (e.key === '/' && state.mode === 'wave') { e.preventDefault(); startCmdMode('search'); return; }
         if (e.key === ':') { e.preventDefault(); startCmdMode('cmd'); return; }
@@ -897,7 +1129,20 @@
         if (e.key === 'ArrowLeft'  || k === 'h') { state.cursorX = Math.max(0, state.cursorX - 1); moved = true; }
         if (e.key === 'ArrowDown'  || k === 'j') { state.cursorY = Math.min(state.flatTracks.length - 1, state.cursorY + 1); moved = true; }
         if (e.key === 'ArrowUp'    || k === 'k') { state.cursorY = Math.max(0, state.cursorY - 1); moved = true; }
-        if (moved) { e.preventDefault(); ensureCursorVisible(); return; }
+        
+        if (moved) { 
+            e.preventDefault(); 
+            // 【关键修复 4】使用方向键上下移动时，立刻同步并锁定新的选中轨道
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || k === 'j' || k === 'k') {
+                const navSig = state.flatTracks[state.cursorY]?.node;
+                if (navSig && !e.ctrlKey) {
+                    state.selectedIds.clear();
+                    state.selectedIds.add(navSig.id);
+                }
+            }
+            ensureCursorVisible(); 
+            return; 
+        }
 
         if (k === 'i') {
             e.preventDefault();
@@ -933,7 +1178,14 @@
                 t.size += (e.deltaY < 0 ? 2 : -2); 
                 t.size = Math.max(10, Math.min(t.size, 100)); 
                 ctx.font = `${t.size}px Consolas, sans-serif`;
-                t.boxWidthCycles = ctx.measureText(t.text).width / state.scaleX;
+                let maxW = ctx.measureText(t.text).width + (t.isSticky ? 24 : 0);
+                if (t.isSticky && !t.collapsed) {
+                    ctx.font = `${t.size * 0.85}px Consolas, sans-serif`;
+                    const lines = (t.content || '').split('\n');
+                    lines.forEach(l => { maxW = Math.max(maxW, ctx.measureText(l).width + 12); });
+                }
+                t.boxWidthCycles = maxW / state.scaleX;
+
                 render(); 
                 return; 
             }
@@ -955,7 +1207,7 @@
         } else {
             state.offsetY = Math.max(0, state.offsetY + e.deltaY);
             const rect = waveContainer.getBoundingClientRect();
-            const maxScrollY = Math.max(0, state.flatTracks.length * state.trackHeight - rect.height);
+            const maxScrollY = Math.max(0, state.totalTracksHeight + state.topMargin - rect.height);
             state.offsetY = Math.min(state.offsetY, maxScrollY); 
             renderSignalList(); 
             render();
@@ -966,21 +1218,30 @@
         state.cmdType = type;
         document.getElementById('statusInfo').style.display = 'none'; document.getElementById('statusCmd').style.display = 'flex';
         const label = document.getElementById('cmdLabel');
+        
         if (type === 'search') {
             label.innerText = '/SEARCH'; busInput.placeholder = 'Search value...'; busInput.value = '';
         } else if (type === 'cmd') {
             label.innerText = ':CMD'; busInput.placeholder = 'e.g., help, text, wave...'; busInput.value = '';
+        } else if (type === 'edit_measure') {
+            label.innerText = ':MEASURE_TXT'; 
+            const m = state.measurements.find(x => x.id === state.selectedMeasureId);
+            busInput.value = m ? m.text : '';
         } else {
             label.innerText = ':EDIT_BUS'; const sig = state.flatTracks[state.cursorY].node;
             busInput.value = sig.data[state.cursorX] && !['x','z'].includes(sig.data[state.cursorX].toLowerCase()) ? sig.data[state.cursorX] : '';
         }
-        setTimeout(() => { busInput.focus(); if (type === 'edit') busInput.select(); }, 10);
+        setTimeout(() => { busInput.focus(); if (type === 'edit' || type === 'edit_measure') busInput.select(); }, 10);
     }
 
     busInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             const val = busInput.value.trim();
-            if (state.cmdType === 'edit') {
+            if (state.cmdType === 'edit_measure') {
+                const m = state.measurements.find(x => x.id === state.selectedMeasureId);
+                if (m) m.text = val;
+            }
+            else if (state.cmdType === 'edit') {
                 state.flatTracks[state.cursorY].node.data[state.cursorX] = val;
                 state.cursorX = Math.min(state.cycles - 1, state.cursorX + 1);
             } 
@@ -1016,25 +1277,61 @@
 
     function openAttrModal() {
         state.isModalOpen = true; attrModal.style.display = 'flex';
-        if (state.mode === 'text' && state.selectedTextId) {
-            document.getElementById('modalTitle').innerText = 'Text Properties';
+        const thickRow = document.getElementById('thicknessRow'); 
+        const stickyRow = document.getElementById('stickyRow');
+        const contentRow = document.getElementById('contentRow');
+        const bgColorRow = document.getElementById('bgColorRow');
+        
+        if (stickyRow) stickyRow.style.display = 'none';
+        if (contentRow) contentRow.style.display = 'none';
+        if (bgColorRow) bgColorRow.style.display = 'none';
+
+        if (state.mode === 'wave' && state.selectedMeasureId) {
+            document.getElementById('modalTitle').innerText = 'Measure Properties';
+            const m = state.measurements.find(x => x.id === state.selectedMeasureId);
+            
+            document.getElementById('nameRow').style.display = 'none';
+            document.getElementById('radixRow').style.display = 'none';
+            document.getElementById('colorRow').style.display = 'flex';
+            document.getElementById('modalColor').value = m.color;
+            if (thickRow) {
+                thickRow.style.display = 'flex';
+                document.getElementById('modalThickness').value = m.thickness;
+            }
+        } 
+        else if (state.mode === 'text' && state.selectedTextId) {
+            document.getElementById('modalTitle').innerText = 'Text / Note Properties';
             const t = state.texts.find(x => x.id === state.selectedTextId);
-            document.getElementById('nameRow').style.display = 'none'; 
+            
+            document.getElementById('nameRow').style.display = 'flex'; 
+            document.getElementById('modalName').value = t.text || '';
             document.getElementById('colorRow').style.display = 'flex';
             document.getElementById('modalColor').value = t.color;
+            
+            if (bgColorRow) {
+                bgColorRow.style.display = 'flex';
+                document.getElementById('modalBgColor').value = t.bgColor || '#2d2d30';
+            }
+
             document.getElementById('radixRow').style.display = 'none'; 
-        } else {
+            if (thickRow) thickRow.style.display = 'none'; 
+            
+            if (stickyRow) stickyRow.style.display = 'flex';
+            if (contentRow) contentRow.style.display = 'flex';
+            document.getElementById('modalIsSticky').checked = !!t.isSticky;
+            document.getElementById('modalTextContent').value = t.content || '';
+        } 
+        else {
             const sig = state.flatTracks[state.cursorY].node;
             document.getElementById('modalTitle').innerText = sig.type === 'group' ? 'Group Properties' : 'Signal Properties';
             
             document.getElementById('nameRow').style.display = 'flex';
             document.getElementById('modalName').value = sig.name;
-            
             document.getElementById('colorRow').style.display = 'flex';
             document.getElementById('modalColor').value = sig.color;
-            
             document.getElementById('modalRadix').value = sig.radix || 'hex';
             document.getElementById('radixRow').style.display = (sig.type === 'multi') ? 'flex' : 'none';
+            if (thickRow) thickRow.style.display = 'none'; 
         }
         setTimeout(() => document.getElementById('modalName').focus(), 10);
     }
@@ -1042,10 +1339,34 @@
     function closeAttrModal() { state.isModalOpen = false; attrModal.style.display = 'none'; waveContainer.focus(); }
 
     function applyAttrModal() {
-        if (state.mode === 'text' && state.selectedTextId) {
+        if (state.mode === 'wave' && state.selectedMeasureId) {
+            const m = state.measurements.find(x => x.id === state.selectedMeasureId);
+            if (m) {
+                m.color = document.getElementById('modalColor').value;
+                const thickVal = parseInt(document.getElementById('modalThickness').value);
+                if (!isNaN(thickVal) && thickVal >= 1) m.thickness = thickVal;
+            }
+        } 
+        else if (state.mode === 'text' && state.selectedTextId) {
             const t = state.texts.find(x => x.id === state.selectedTextId);
-            if(t) t.color = document.getElementById('modalColor').value;
-        } else {
+            if(t) {
+                t.text = document.getElementById('modalName').value.trim() || t.text;
+                t.color = document.getElementById('modalColor').value;
+                t.bgColor = document.getElementById('modalBgColor').value;
+                t.isSticky = document.getElementById('modalIsSticky').checked;
+                t.content = document.getElementById('modalTextContent').value;
+
+                ctx.font = `${t.size}px Consolas, sans-serif`;
+                let maxW = ctx.measureText(t.text).width + (t.isSticky ? 24 : 0);
+                if (t.isSticky && !t.collapsed) {
+                    ctx.font = `${t.size * 0.85}px Consolas, sans-serif`;
+                    const lines = (t.content || '').split('\n');
+                    lines.forEach(l => { maxW = Math.max(maxW, ctx.measureText(l).width + 12); });
+                }
+                t.boxWidthCycles = maxW / state.scaleX;
+            }
+        } 
+        else {
             const sig = state.flatTracks[state.cursorY].node;
             sig.name = document.getElementById('modalName').value.trim() || sig.name;
             sig.color = document.getElementById('modalColor').value;
@@ -1065,10 +1386,8 @@
     function closeHelpModal() { state.isModalOpen = false; helpModal.style.display = 'none'; waveContainer.focus(); }
 
     document.getElementById('attrModal').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') applyAttrModal();
+        if (e.key === 'Enter' && e.target.id !== 'modalTextContent') { applyAttrModal(); }
+        else if (e.key === 'Enter' && e.ctrlKey) { applyAttrModal(); }
     });
 
     waveContainer.focus(); refreshAll(); resizeCanvas();
-</script>
-</body>
-</html>
