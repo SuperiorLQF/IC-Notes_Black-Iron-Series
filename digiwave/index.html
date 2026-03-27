@@ -20,6 +20,15 @@
     <button class="tool-btn" id="btnMeasure" onclick="toggleMeasureMode()">
         <span class="icon">|↔|</span> Measure (M)
     </button>
+    
+    <div style="width: 1px; height: 20px; background: var(--border-color); margin: 0 5px;"></div>
+    <button class="tool-btn" onclick="exportWaveform()">
+        <span class="icon">💾</span> Save
+    </button>
+    <button class="tool-btn" onclick="importWaveform()">
+        <span class="icon">📂</span> Open
+    </button>
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
 </div>
 
 <div class="main-container">
