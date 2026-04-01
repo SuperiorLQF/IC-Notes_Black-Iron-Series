@@ -14,6 +14,7 @@ let state = {
     printMode: false, 
     cmdType: '',  
     isModalOpen: false, 
+    addingSignalType: null, // 【新增】拦截添加信号时的临时状态
     isEditingText: false,
     
     gaps: new Set(), 
@@ -29,7 +30,12 @@ let state = {
     measureMode: 'IDLE', 
     tempMeasurePoint: null,
 
-    // 【新增】智能填充相关状态
+    connections: [], 
+    selectedConnId: null,
+    arrowMode: 'IDLE', 
+    tempArrowPoint: null,
+    dragArrowConnId: null, 
+
     fill: { hovered: null, dragging: false, currentC: -1, lastHoveredId: null },
 
     totalTracksHeight: 0, 
@@ -100,8 +106,25 @@ rebuildFlatTracks();
 function toggleMeasureMode() {
     state.measureMode = state.measureMode === 'IDLE' ? 'MEASURE_P1' : 'IDLE';
     state.tempMeasurePoint = null;
-    if (state.measureMode !== 'IDLE') btnMeasure.classList.add('active');
-    else btnMeasure.classList.remove('active');
+    if (state.measureMode !== 'IDLE') {
+        if (btnMeasure) btnMeasure.classList.add('active');
+        if (state.arrowMode !== 'IDLE') toggleArrowMode(); 
+    } else {
+        if (btnMeasure) btnMeasure.classList.remove('active');
+    }
+    render();
+}
+
+function toggleArrowMode() {
+    state.arrowMode = state.arrowMode === 'IDLE' ? 'ARROW_P1' : 'IDLE';
+    state.tempArrowPoint = null;
+    const btnArrow = document.getElementById('btnArrow');
+    if (state.arrowMode !== 'IDLE') {
+        if (btnArrow) btnArrow.classList.add('active');
+        if (state.measureMode !== 'IDLE') toggleMeasureMode(); 
+    } else {
+        if (btnArrow) btnArrow.classList.remove('active');
+    }
     render();
 }
 
@@ -145,15 +168,52 @@ function groupSelected() {
     refreshAll();
 }
 
-function deleteSelectedSignal() {
-    if (state.flatTracks.length === 0) return;
-    const sigId = state.flatTracks[state.cursorY].node.id;
-    const info = findNodeInfo(state.tree, sigId);
-    if (info) {
-        info.array.splice(info.index, 1);
-        if (state.selectedIds.has(sigId)) state.selectedIds.delete(sigId);
-        refreshAll();
+// 【修复：支持批量删除】
+function deleteSelectedSignals() {
+    if (state.selectedIds.size === 0) return;
+    function removeIds(nodes) {
+        for (let i = nodes.length - 1; i >= 0; i--) {
+            if (state.selectedIds.has(nodes[i].id)) {
+                nodes.splice(i, 1);
+            } else if (nodes[i].type === 'group' && nodes[i].children) {
+                removeIds(nodes[i].children);
+            }
+        }
     }
+    removeIds(state.tree);
+    state.selectedIds.clear();
+    refreshAll();
+}
+
+// 【修复：添加信号拦截，直接唤起属性面板】
+function addSignal(type) {
+    state.addingSignalType = type;
+    state.isModalOpen = true;
+    attrModal.style.display = 'flex';
+    
+    document.getElementById('modalTitle').innerText = 'Add New ' + type.charAt(0).toUpperCase() + type.slice(1);
+    document.getElementById('nameRow').style.display = 'flex';
+    document.getElementById('modalName').value = type === 'clock' ? 'clk_new' : 'sig_new';
+    
+    document.getElementById('colorRow').style.display = 'flex';
+    const colors = { 'clock': '#ffffff', 'single': '#2ecc71', 'multi': '#9b59b6' };
+    document.getElementById('modalColor').value = colors[type];
+    
+    document.getElementById('radixRow').style.display = type === 'multi' ? 'flex' : 'none';
+    if(type === 'multi') document.getElementById('modalRadix').value = 'hex';
+
+    const thickRow = document.getElementById('thicknessRow');
+    const arrowTypeRow = document.getElementById('arrowTypeRow');
+    const stickyRow = document.getElementById('stickyRow');
+    const contentRow = document.getElementById('contentRow');
+    const bgColorRow = document.getElementById('bgColorRow');
+    if (thickRow) thickRow.style.display = 'none';
+    if (arrowTypeRow) arrowTypeRow.style.display = 'none';
+    if (stickyRow) stickyRow.style.display = 'none';
+    if (contentRow) contentRow.style.display = 'none';
+    if (bgColorRow) bgColorRow.style.display = 'none';
+
+    setTimeout(() => { document.getElementById('modalName').focus(); document.getElementById('modalName').select(); }, 10);
 }
 
 function getTheme() {
@@ -365,19 +425,6 @@ function renderSignalList() {
     document.getElementById('statusCursor').innerText = `Track: ${sigName} | Cycle: ${state.cursorX}`;
 }
 
-function addSignal(type) {
-    const name = prompt("Signal Name:", type === 'clock' ? 'clk_new' : 'sig_new');
-    if (!name) return;
-    const colors = { 'clock': '#ffffff', 'single': '#2ecc71', 'multi': '#9b59b6' };
-    
-    const newSig = { id: 's_'+Date.now(), name: name, type: type, color: colors[type], radix: 'hex', data: [] };
-    state.tree.push(newSig);
-    state.selectedIds.clear(); state.selectedIds.add(newSig.id);
-    refreshAll();
-    state.cursorY = state.flatTracks.length - 1;
-    ensureCursorVisible();
-}
-
 function parseDisplayStr(val, sig) {
     if (!val) return { str: 'z', isX: false, isZ: true };
     const lower = val.toLowerCase();
@@ -396,11 +443,10 @@ function parseDisplayStr(val, sig) {
     return { str: val, isX: false, isZ: false };
 }
 
-// 【新增】提取指定周期所在的 Multi 信号"格子"的起止范围
 function getMultiBlockAtCycle(sig, cycle) {
     if (cycle < 0 || cycle >= state.cycles) return null;
     const val = sig.data[cycle] || 'z';
-    if (['z', 'x'].includes(val.toLowerCase())) return null; // z 和 x 不作为智能拖拽起点
+    if (['z', 'x'].includes(val.toLowerCase())) return null; 
     
     let start = cycle;
     while (start > 0 && (sig.data[start - 1] || 'z') === val && !state.gaps.has(start)) start--;
@@ -410,11 +456,10 @@ function getMultiBlockAtCycle(sig, cycle) {
     return { start, end, val };
 }
 
-// 【新增】智能递增函数
 function incrementValue(valStr, step, radix) {
     if (!valStr) return valStr;
     const lower = valStr.toLowerCase();
-    if (valStr.startsWith('"') && valStr.endsWith('"')) return valStr; // 字符串原样复制
+    if (valStr.startsWith('"') && valStr.endsWith('"')) return valStr; 
     
     let numVal = NaN;
     if (lower.startsWith('0x')) numVal = parseInt(valStr, 16);
@@ -428,7 +473,7 @@ function incrementValue(valStr, step, radix) {
             return nextNum.toString(10);
         }
     }
-    return valStr; // 无法解析的也原样复制
+    return valStr; 
 }
 
 function computeTrackLayout() {
@@ -438,9 +483,6 @@ function computeTrackLayout() {
         t.height = 40; 
     });
 
-    // ==========================================
-    // 1. 标尺布局 (强制在上方)
-    // ==========================================
     let trackIntervals = {};
     let activeMeasurements = [];
     state.measurements.forEach(m => m.absoluteRenderY = undefined);
@@ -503,9 +545,6 @@ function computeTrackLayout() {
         state.flatTracks[tIdx].topSpace = Math.max(state.flatTracks[tIdx].topSpace, topNeed - 20);
     }
 
-    // ==========================================
-    // 2. 文本布局 (无形物理容器 + 完美跟随波形比例 + 透明降级防跳动)
-    // ==========================================
     let textsByTrack = {};
     state.texts.forEach(t => {
         if (!t.trackId) return;
@@ -514,7 +553,6 @@ function computeTrackLayout() {
         
         ctx.font = `${t.size}px Consolas, sans-serif`;
         
-        // 【已修复】加上基础边距避免初期截断
         let rawW = ctx.measureText(t.text || 'Note').width + (t.isSticky ? 28 : 8);
         let totalH = t.size;
         
@@ -595,6 +633,14 @@ function computeTrackLayout() {
             if (bottomEdge > 20) track.bottomSpace = Math.max(track.bottomSpace, bottomEdge - 20);
         });
     }
+
+    state.connections.forEach(conn => {
+        const tIdx1 = state.flatTracks.findIndex(t => t.node.id === conn.sigId1);
+        const tIdx2 = state.flatTracks.findIndex(t => t.node.id === conn.sigId2);
+        if (tIdx1 !== -1 && tIdx1 === tIdx2) {
+            state.flatTracks[tIdx1].topSpace = Math.max(state.flatTracks[tIdx1].topSpace, 45); 
+        }
+    });
 
     let currentY = 0;
     state.flatTracks.forEach(t => {
@@ -819,7 +865,7 @@ function render() {
     }
 
     // ==========================================
-    // 渲染标尺 
+    // 渲染标尺 (修复：支持单向和双向箭头)
     // ==========================================
     state.measurements.forEach(m => {
         if (m._currentTIdx1 === undefined || m._currentTIdx2 === undefined) return;
@@ -867,12 +913,19 @@ function render() {
         if (pxWidth >= 25) {
             const head = Math.min(10, pxWidth / 3);
             ctx.beginPath();
-            const dir1 = px1 < px2 ? 1 : -1;
-            ctx.moveTo(px1, midY); ctx.lineTo(px1 + dir1*head, midY - 3);
-            ctx.moveTo(px1, midY); ctx.lineTo(px1 + dir1*head, midY + 3);
-            const dir2 = px2 < px1 ? 1 : -1;
-            ctx.moveTo(px2, midY); ctx.lineTo(px2 + dir2*head, midY - 3);
-            ctx.moveTo(px2, midY); ctx.lineTo(px2 + dir2*head, midY + 3);
+            
+            const leftX = Math.min(px1, px2);
+            const rightX = Math.max(px1, px2);
+            
+            // 【修复】只有在双向箭头模式下，才绘制左侧的箭头
+            if (m.arrowType !== 'one-way') {
+                ctx.moveTo(leftX, midY); ctx.lineTo(leftX + head, midY - 3);
+                ctx.moveTo(leftX, midY); ctx.lineTo(leftX + head, midY + 3);
+            }
+            // 右侧始终有箭头（从左到右单向）
+            ctx.moveTo(rightX, midY); ctx.lineTo(rightX - head, midY - 3);
+            ctx.moveTo(rightX, midY); ctx.lineTo(rightX - head, midY + 3);
+            
             ctx.stroke();
         }
 
@@ -895,9 +948,6 @@ function render() {
         ctx.shadowBlur = 0; 
     });
 
-    // ==========================================
-    // 渲染文本 (绝对容器，框体限制)
-    // ==========================================
     state.texts.forEach(t => {
         const track = state.flatTracks.find(tr => tr.node.id === t.trackId);
         if (!track) return; 
@@ -1006,9 +1056,6 @@ function render() {
         }
     });
 
-    // ==========================================
-    // 【新增】渲染智能填充手柄 (Excel Style) 和 拖拽预览框
-    // ==========================================
     if (state.mode === 'wave' && state.fill && (state.fill.hovered || state.fill.dragging)) {
         const h = state.fill.hovered;
         const track = state.flatTracks[h.tIdx];
@@ -1018,18 +1065,16 @@ function render() {
             const yLow = yMid + 12;
             const yHigh = yMid - 12;
 
-            // 黑色小方块（加个小白边防暗色背景糊在一起）
             ctx.fillStyle = '#000000';
             ctx.fillRect(endPx - 4, yLow - 4, 8, 8);
             ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
             ctx.strokeRect(endPx - 4, yLow - 4, 8, 8);
 
-            // 拖拽时的绿色预览框
             if (state.fill.dragging && state.fill.currentC > h.end) {
                 const startPx = cycleX[h.end + 1] - state.offsetX;
                 const previewEndPx = cycleX[state.fill.currentC] + state.scaleX - state.offsetX;
                 
-                ctx.strokeStyle = '#2ecc71'; // Excel 绿
+                ctx.strokeStyle = '#2ecc71'; 
                 ctx.lineWidth = 2;
                 ctx.setLineDash([4, 4]);
                 ctx.strokeRect(startPx, yHigh, previewEndPx - startPx, yLow - yHigh);
@@ -1038,18 +1083,229 @@ function render() {
         }
     }
 
+    state.connections.forEach(conn => {
+        const tIdx1 = state.flatTracks.findIndex(t => t.node.id === conn.sigId1);
+        const tIdx2 = state.flatTracks.findIndex(t => t.node.id === conn.sigId2);
+        if (tIdx1 === -1 || tIdx2 === -1) return;
+
+        const track1 = state.flatTracks[tIdx1];
+        const track2 = state.flatTracks[tIdx2];
+
+        const px1 = cycleToPx(conn.c1) - state.offsetX;
+        const px2 = cycleToPx(conn.c2) - state.offsetX;
+        const py1 = track1.centerY - state.offsetY + state.topMargin;
+        const py2 = track2.centerY - state.offsetY + state.topMargin;
+
+        const isSelected = (state.selectedConnId === conn.id);
+        const drawColor = state.printMode ? '#000000' : (conn.color || '#e74c3c');
+
+        let cpx, cpy;
+        if (tIdx1 === tIdx2) {
+            cpx = px1 + (px2 - px1) / 2;
+            cpy = py1 - 60;
+        } else {
+            cpx = px1 + (px2 - px1) / 2;
+            cpy = py1;
+        }
+
+        const lineDist = Math.sqrt((px2 - px1)**2 + (py2 - py1)**2);
+        if (lineDist < 15) return; 
+
+        ctx.strokeStyle = drawColor;
+        ctx.fillStyle = drawColor;
+        ctx.lineWidth = isSelected ? conn.thickness + 1 : conn.thickness;
+
+        if (isSelected && !state.printMode) {
+            ctx.shadowColor = drawColor; ctx.shadowBlur = 8;
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(px1, py1);
+        ctx.quadraticCurveTo(cpx, cpy, px2, py2);
+        ctx.stroke();
+
+        const arrowLen = 8;
+        const angle = Math.atan2(py2 - cpy, px2 - cpx); 
+        ctx.beginPath();
+        ctx.moveTo(px2, py2);
+        ctx.lineTo(px2 - arrowLen * Math.cos(angle - Math.PI/7), py2 - arrowLen * Math.sin(angle - Math.PI/7));
+        ctx.lineTo(px2 - arrowLen * Math.cos(angle + Math.PI/7), py2 - arrowLen * Math.sin(angle + Math.PI/7));
+        ctx.fill();
+
+        if (lineDist >= 45 && conn.text) {
+            const tParam = conn.textPos !== undefined ? conn.textPos : 0.5;
+            const invT = 1 - tParam;
+            
+            const textX = invT * invT * px1 + 2 * invT * tParam * cpx + tParam * tParam * px2;
+            const textY = invT * invT * py1 + 2 * invT * tParam * cpy + tParam * tParam * py2;
+            
+            ctx.font = (isSelected ? "bold " : "") + `12px Consolas, sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle"; 
+            
+            let dispText = conn.text;
+            const maxW = lineDist - 10;
+            
+            if (ctx.measureText(dispText).width > maxW) {
+                while (dispText.length > 0 && ctx.measureText(dispText + '...').width > maxW) {
+                    dispText = dispText.slice(0, -1);
+                }
+                dispText += '...';
+            }
+            
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = theme.bg; 
+            ctx.strokeText(dispText, textX, textY);
+            
+            ctx.fillStyle = drawColor;
+            ctx.fillText(dispText, textX, textY);
+        }
+        ctx.shadowBlur = 0;
+    });
+
+    if (state.arrowMode === 'ARROW_P2' && state.tempArrowPoint) {
+        const px = cycleToPx(state.tempArrowPoint.c) - state.offsetX;
+        ctx.strokeStyle = '#e74c3c'; 
+        ctx.lineWidth = 1; ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, height); ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
     document.getElementById('statusZoom').innerText = `Scale: ${Math.round(state.scaleX)} px/cycle`;
 }
 
 let isDraggingText = false;
 let dragOffset = { x: 0, y: 0 };
 
+waveContainer.addEventListener('mousemove', (e) => {
+    if (state.dragArrowConnId) {
+        const rect = waveContainer.getBoundingClientRect();
+        const mx = e.clientX - rect.left + state.offsetX;
+        const my = e.clientY - rect.top + state.offsetY - state.topMargin;
+        
+        const conn = state.connections.find(c => c.id === state.dragArrowConnId);
+        if (conn) {
+            const tIdx1 = state.flatTracks.findIndex(t => t.node.id === conn.sigId1);
+            const tIdx2 = state.flatTracks.findIndex(t => t.node.id === conn.sigId2);
+            if (tIdx1 !== -1 && tIdx2 !== -1) {
+                const px1 = cycleToPx(conn.c1);
+                const px2 = cycleToPx(conn.c2);
+                const py1 = state.flatTracks[tIdx1].centerY;
+                const py2 = state.flatTracks[tIdx2].centerY;
+                
+                let cpx = px1 + (px2 - px1) / 2;
+                let cpy = (tIdx1 === tIdx2) ? py1 - 60 : py1;
+
+                let bestT = 0.5;
+                let minDist = Infinity;
+                for (let i = 0; i <= 50; i++) {
+                    let t = i / 50;
+                    let invT = 1 - t;
+                    let curX = invT * invT * px1 + 2 * invT * t * cpx + t * t * px2;
+                    let curY = invT * invT * py1 + 2 * invT * t * cpy + t * t * py2;
+                    let dist = (mx - curX)**2 + (my - curY)**2;
+                    if (dist < minDist) {
+                        minDist = dist;
+                        bestT = t;
+                    }
+                }
+                conn.textPos = Math.max(0.08, Math.min(0.92, bestT));
+                render();
+            }
+        }
+        return;
+    }
+
+    if (state.fill && state.fill.dragging) {
+        const rect = waveContainer.getBoundingClientRect();
+        const mx = e.clientX - rect.left + state.offsetX;
+        state.fill.currentC = Math.floor(pxToCycle(mx));
+        state.fill.currentC = Math.max(state.fill.hovered.end, Math.min(state.cycles - 1, state.fill.currentC));
+        render();
+        return;
+    }
+
+    if (state.mode === 'text' && isDraggingText && state.selectedTextId) {
+        const rect = waveContainer.getBoundingClientRect();
+        const t = state.texts.find(x => x.id === state.selectedTextId);
+        if (t) {
+            const track = state.flatTracks.find(tr => tr.node.id === t.trackId);
+            if (track) {
+                const newAbsoluteX = (e.clientX - rect.left + state.offsetX) - dragOffset.x;
+                t.cycle = pxToCycle(newAbsoluteX);
+                const absoluteMy = e.clientY - rect.top + state.offsetY - state.topMargin;
+                t.y = absoluteMy - track.centerY - dragOffset.y; 
+                render();
+            }
+        }
+    }
+
+    if (state.mode === 'wave' && state.measureMode === 'IDLE' && state.arrowMode === 'IDLE' && !state.fill.dragging) {
+        const rect = waveContainer.getBoundingClientRect();
+        const mx = e.clientX - rect.left + state.offsetX;
+        const my = e.clientY - rect.top + state.offsetY - state.topMargin;
+        const hitTrackIdx = getTrackIdxAtY(my);
+        const hitTrack = state.flatTracks[hitTrackIdx];
+        
+        state.fill.hovered = null;
+
+        if (hitTrack && hitTrack.node.type === 'multi') {
+            const sig = hitTrack.node;
+            const cycleX = buildCycleMap();
+            const cStr = Math.floor(pxToCycle(mx));
+            const cLeft = Math.floor(pxToCycle(mx - 10)); 
+            
+            let block = getMultiBlockAtCycle(sig, cStr) || getMultiBlockAtCycle(sig, cLeft);
+
+            if (block) {
+                const absRightX = cycleX[block.end] + state.scaleX;
+                const absBottomY = hitTrack.centerY + 12;
+                
+                if (Math.abs(mx - absRightX) <= 12 && Math.abs(my - absBottomY) <= 12) {
+                    state.fill.hovered = { tIdx: hitTrackIdx, ...block };
+                }
+            }
+        }
+
+        if (state.fill.hovered) waveContainer.style.cursor = 'cell';
+        else waveContainer.style.cursor = 'crosshair';
+
+        const hid = state.fill.hovered ? `${state.fill.hovered.tIdx}_${state.fill.hovered.end}` : null;
+        if (state.fill.lastHoveredId !== hid) {
+            state.fill.lastHoveredId = hid;
+            render();
+        }
+    }
+});
+
+window.addEventListener('mouseup', () => { 
+    isDraggingText = false; 
+    
+    if (state.dragArrowConnId) {
+        state.dragArrowConnId = null;
+        render();
+    }
+    
+    if (state.fill && state.fill.dragging) {
+        if (state.fill.currentC > state.fill.hovered.end) {
+            const sig = state.flatTracks[state.fill.hovered.tIdx].node;
+            for (let i = state.fill.hovered.end + 1; i <= state.fill.currentC; i++) {
+                sig.data[i] = incrementValue(state.fill.hovered.val, i - state.fill.hovered.end, sig.radix);
+            }
+        }
+        state.fill.dragging = false;
+        state.fill.hovered = null;
+        state.fill.lastHoveredId = null;
+        waveContainer.style.cursor = 'crosshair';
+        render();
+    }
+});
+
 waveContainer.addEventListener('mousedown', (e) => {
     if (state.isModalOpen || state.cmdType) return;
     waveContainer.focus();
     const rect = waveContainer.getBoundingClientRect();
     
-    // 【新增】拦截智能填充柄的按下事件
     if (state.fill.hovered) {
         state.fill.dragging = true;
         state.fill.currentC = state.fill.hovered.end;
@@ -1058,6 +1314,40 @@ waveContainer.addEventListener('mousedown', (e) => {
 
     const mx = e.clientX - rect.left + state.offsetX;
     const my = e.clientY - rect.top + state.offsetY - state.topMargin; 
+
+    if (state.arrowMode !== 'IDLE') {
+        const snappedC = Math.round(pxToCycle(mx)); 
+        const hitTrackIdx = getTrackIdxAtY(my); 
+        
+        if (hitTrackIdx < 0 || hitTrackIdx >= state.flatTracks.length) return;
+        const hitTrack = state.flatTracks[hitTrackIdx];
+        if (!hitTrack) return; 
+        const hitSigId = hitTrack.node.id;
+        
+        if (state.arrowMode === 'ARROW_P1') {
+            state.tempArrowPoint = { c: snappedC, sigId: hitSigId }; 
+            state.arrowMode = 'ARROW_P2';
+            const btnArrow = document.getElementById('btnArrow');
+            if (btnArrow) btnArrow.classList.add('active'); 
+        } else if (state.arrowMode === 'ARROW_P2') {
+            if (snappedC !== state.tempArrowPoint.c || hitSigId !== state.tempArrowPoint.sigId) {
+                state.connections.push({
+                    id: 'conn_' + Date.now(),
+                    c1: state.tempArrowPoint.c, sigId1: state.tempArrowPoint.sigId, 
+                    c2: snappedC, sigId2: hitSigId, 
+                    text: 'Event',
+                    color: '#e74c3c', 
+                    thickness: 2
+                });
+            }
+            state.arrowMode = 'IDLE';
+            state.tempArrowPoint = null;
+            const btnArrow = document.getElementById('btnArrow');
+            if (btnArrow) btnArrow.classList.remove('active');
+        }
+        render();
+        return;
+    }
 
     if (state.measureMode !== 'IDLE') {
         const snappedC = Math.round(pxToCycle(mx)); 
@@ -1071,7 +1361,7 @@ waveContainer.addEventListener('mousedown', (e) => {
         if (state.measureMode === 'MEASURE_P1') {
             state.tempMeasurePoint = { c: snappedC, sigId: hitSigId }; 
             state.measureMode = 'MEASURE_P2';
-            btnMeasure.classList.add('active'); 
+            if (btnMeasure) btnMeasure.classList.add('active'); 
         } else if (state.measureMode === 'MEASURE_P2') {
             if (snappedC !== state.tempMeasurePoint.c) {
                 const newM = {
@@ -1081,13 +1371,14 @@ waveContainer.addEventListener('mousedown', (e) => {
                     text: 'Δt',
                     color: '#00FF00', 
                     thickness: 1,
+                    arrowType: 'two-way', // 默认双向箭头
                     baseScale: state.scaleX
                 };
                 state.measurements.push(newM);
             }
             state.measureMode = 'IDLE';
             state.tempMeasurePoint = null;
-            btnMeasure.classList.remove('active');
+            if (btnMeasure) btnMeasure.classList.remove('active');
         }
         render();
         return;
@@ -1096,14 +1387,63 @@ waveContainer.addEventListener('mousedown', (e) => {
     if (state.mode === 'wave') {
         state.cursorX = Math.floor(pxToCycle(mx));
         state.cursorX = Math.max(0, Math.min(state.cycles - 1, state.cursorX));
-        state.cursorY = getTrackIdxAtY(my);
 
-        const hitTrack = state.flatTracks[state.cursorY];
-        if (hitTrack && hitTrack.node.type !== 'group') {
+        let hitArrowTextConn = null;
+        for (let conn of state.connections) {
+            if (!conn.text) continue;
+            const tIdx1 = state.flatTracks.findIndex(t => t.node.id === conn.sigId1);
+            const tIdx2 = state.flatTracks.findIndex(t => t.node.id === conn.sigId2);
+            if (tIdx1 === -1 || tIdx2 === -1) continue;
+
+            const px1 = cycleToPx(conn.c1);
+            const px2 = cycleToPx(conn.c2);
+            const py1 = state.flatTracks[tIdx1].centerY;
+            const py2 = state.flatTracks[tIdx2].centerY;
+
+            let cpx = px1 + (px2 - px1) / 2;
+            let cpy = (tIdx1 === tIdx2) ? py1 - 60 : py1;
+
+            const tParam = conn.textPos !== undefined ? conn.textPos : 0.5;
+            const invT = 1 - tParam;
+            const textX = invT * invT * px1 + 2 * invT * tParam * cpx + tParam * tParam * px2;
+            const textY = invT * invT * py1 + 2 * invT * tParam * cpy + tParam * tParam * py2;
+
+            if (Math.abs(mx - textX) <= 20 && Math.abs(my - textY) <= 10) {
+                hitArrowTextConn = conn;
+                break;
+            }
+        }
+
+        if (hitArrowTextConn) {
+            state.dragArrowConnId = hitArrowTextConn.id;
+            state.selectedConnId = hitArrowTextConn.id;
+            state.selectedMeasureId = null;
+            ensureCursorVisible();
+            return; 
+        }
+        
+        const hitTrackIdx = getTrackIdxAtY(my);
+        const hitTrack = state.flatTracks[hitTrackIdx];
+
+        let hitEntity = false;
+        if (hitTrack) {
+            if (hitTrack.node.type === 'group') {
+                hitEntity = true; 
+            } else if (Math.abs(my - hitTrack.centerY) <= 15) {
+                hitEntity = true; 
+            }
+        }
+
+        if (hitEntity) {
+            state.cursorY = hitTrackIdx; 
             if (!e.ctrlKey) {
                 state.selectedIds.clear();
             }
-            state.selectedIds.add(hitTrack.node.id);
+            if (e.ctrlKey && state.selectedIds.has(hitTrack.node.id)) {
+                state.selectedIds.delete(hitTrack.node.id);
+            } else {
+                state.selectedIds.add(hitTrack.node.id);
+            }
         }
 
         let hitMeasure = null;
@@ -1122,10 +1462,57 @@ waveContainer.addEventListener('mousedown', (e) => {
                 hitMeasure = m; break;
             }
         }
-        if (hitMeasure) {
+
+        let hitConn = null;
+        for (let conn of state.connections) {
+            const tIdx1 = state.flatTracks.findIndex(t => t.node.id === conn.sigId1);
+            const tIdx2 = state.flatTracks.findIndex(t => t.node.id === conn.sigId2);
+            if (tIdx1 === -1 || tIdx2 === -1) continue;
+
+            const px1 = cycleToPx(conn.c1);
+            const px2 = cycleToPx(conn.c2);
+            const py1 = state.flatTracks[tIdx1].centerY;
+            const py2 = state.flatTracks[tIdx2].centerY;
+
+            let cpx, cpy;
+            if (tIdx1 === tIdx2) {
+                cpx = px1 + (px2 - px1) / 2;
+                cpy = py1 - 60;
+            } else {
+                cpx = px1 + (px2 - px1) / 2;
+                cpy = py1;
+            }
+
+            const lineDist = Math.sqrt((px2 - px1)**2 + (py2 - py1)**2);
+            const steps = Math.max(10, Math.ceil(lineDist / 10)); 
+            let minDistance = Infinity;
+
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const invT = 1 - t;
+                const curX = invT * invT * px1 + 2 * invT * t * cpx + t * t * px2;
+                const curY = invT * invT * py1 + 2 * invT * t * cpy + t * t * py2;
+                
+                const dist = Math.sqrt((mx - curX) ** 2 + (my - curY) ** 2);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                }
+            }
+
+            if (minDistance <= 10) {
+                hitConn = conn; break;
+            }
+        }
+
+        if (hitConn) {
+            state.selectedConnId = hitConn.id;
+            state.selectedMeasureId = null; 
+        } else if (hitMeasure) {
             state.selectedMeasureId = hitMeasure.id;
+            state.selectedConnId = null; 
         } else {
             state.selectedMeasureId = null; 
+            state.selectedConnId = null;
         }
         ensureCursorVisible();
         return;
@@ -1176,99 +1563,6 @@ waveContainer.addEventListener('mousedown', (e) => {
     }
 });
 
-waveContainer.addEventListener('mousemove', (e) => {
-    // 【新增】处理智能填充拖拽中
-    if (state.fill && state.fill.dragging) {
-        const rect = waveContainer.getBoundingClientRect();
-        const mx = e.clientX - rect.left + state.offsetX;
-        state.fill.currentC = Math.floor(pxToCycle(mx));
-        // 只允许向右拖拽填充
-        state.fill.currentC = Math.max(state.fill.hovered.end, Math.min(state.cycles - 1, state.fill.currentC));
-        render();
-        return;
-    }
-
-    if (state.mode === 'text' && isDraggingText && state.selectedTextId) {
-        const rect = waveContainer.getBoundingClientRect();
-        const t = state.texts.find(x => x.id === state.selectedTextId);
-        if (t) {
-            const track = state.flatTracks.find(tr => tr.node.id === t.trackId);
-            if (track) {
-                const newAbsoluteX = (e.clientX - rect.left + state.offsetX) - dragOffset.x;
-                t.cycle = pxToCycle(newAbsoluteX);
-                const absoluteMy = e.clientY - rect.top + state.offsetY - state.topMargin;
-                t.y = absoluteMy - track.centerY - dragOffset.y; 
-                render();
-            }
-        }
-    }
-
-    // 【新增】侦测鼠标是否悬浮在"格子"右下角
-    if (state.mode === 'wave' && state.measureMode === 'IDLE' && !state.fill.dragging) {
-        const rect = waveContainer.getBoundingClientRect();
-        // mx 和 my 是带有滚动偏移的“绝对虚拟坐标”
-        const mx = e.clientX - rect.left + state.offsetX;
-        const my = e.clientY - rect.top + state.offsetY - state.topMargin;
-        const hitTrackIdx = getTrackIdxAtY(my);
-        const hitTrack = state.flatTracks[hitTrackIdx];
-        
-        state.fill.hovered = null;
-
-        if (hitTrack && hitTrack.node.type === 'multi') {
-            const sig = hitTrack.node;
-            const cycleX = buildCycleMap();
-            const cStr = Math.floor(pxToCycle(mx));
-            const cLeft = Math.floor(pxToCycle(mx - 10)); // 扩大探测范围，防止鼠标在边缘缝隙时漏判
-            
-            let block = getMultiBlockAtCycle(sig, cStr) || getMultiBlockAtCycle(sig, cLeft);
-
-            if (block) {
-                // 【修复核心】：统一使用绝对虚拟坐标进行比对
-                // block.end 是当前格子的最后一个周期，右边缘就是它的坐标 + 一个周期的宽度
-                const absRightX = cycleX[block.end] + state.scaleX;
-                // hitTrack.centerY 本身就是绝对坐标，波形格子的高度是 24 (centerY-12 到 centerY+12)
-                const absBottomY = hitTrack.centerY + 12;
-                
-                // 鼠标在格子右下角 12x12 像素区域内 (稍微放大了一点判定区，手感更好)
-                if (Math.abs(mx - absRightX) <= 12 && Math.abs(my - absBottomY) <= 12) {
-                    state.fill.hovered = { tIdx: hitTrackIdx, ...block };
-                }
-            }
-        }
-
-        // 更改鼠标指针样式：悬浮到右下角时变成类似 Excel 的十字光标 (cell)
-        if (state.fill.hovered) waveContainer.style.cursor = 'cell';
-        else waveContainer.style.cursor = 'crosshair';
-
-        // 避免频繁 render，只有悬浮状态改变时才重绘
-        const hid = state.fill.hovered ? `${state.fill.hovered.tIdx}_${state.fill.hovered.end}` : null;
-        if (state.fill.lastHoveredId !== hid) {
-            state.fill.lastHoveredId = hid;
-            render();
-        }
-    }
-});
-
-window.addEventListener('mouseup', () => { 
-    isDraggingText = false; 
-    
-    // 【新增】智能填充松开鼠标时的结算逻辑
-    if (state.fill && state.fill.dragging) {
-        if (state.fill.currentC > state.fill.hovered.end) {
-            const sig = state.flatTracks[state.fill.hovered.tIdx].node;
-            // 按照每拍都生成一个新格子的逻辑写入数据
-            for (let i = state.fill.hovered.end + 1; i <= state.fill.currentC; i++) {
-                sig.data[i] = incrementValue(state.fill.hovered.val, i - state.fill.hovered.end, sig.radix);
-            }
-        }
-        state.fill.dragging = false;
-        state.fill.hovered = null;
-        state.fill.lastHoveredId = null;
-        waveContainer.style.cursor = 'crosshair';
-        render();
-    }
-});
-
 function startTextEdit(screenX, screenY, relY, trackId) {
     state.isEditingText = true;
     textInputOverlay.style.display = 'block';
@@ -1313,12 +1607,15 @@ window.addEventListener('keydown', (e) => {
     if (k === 'escape' && state.mode === 'text') { e.preventDefault(); toggleMode('wave'); return; }
 
     if (k === 'm') { e.preventDefault(); toggleMeasureMode(); return; }
+    if (k === 'a') { e.preventDefault(); toggleArrowMode(); return; }
 
-    if (state.mode === 'wave' && state.selectedMeasureId) {
+    if (state.mode === 'wave' && (state.selectedMeasureId || state.selectedConnId)) {
         if (k === 'delete' || e.key === 'Backspace') {
             e.preventDefault();
-            state.measurements = state.measurements.filter(m => m.id !== state.selectedMeasureId);
+            if (state.selectedMeasureId) state.measurements = state.measurements.filter(m => m.id !== state.selectedMeasureId);
+            if (state.selectedConnId) state.connections = state.connections.filter(c => c.id !== state.selectedConnId);
             state.selectedMeasureId = null;
+            state.selectedConnId = null;
             render(); return;
         }
         if (k === 's') { e.preventDefault(); startCmdMode('edit_measure'); return; }
@@ -1327,7 +1624,7 @@ window.addEventListener('keydown', (e) => {
 
     if (k === 'delete' || (k === 'd' && lastKey === 'd' && Date.now() - lastKeyTime < 500)) {
         e.preventDefault();
-        deleteSelectedSignal();
+        deleteSelectedSignals(); // 修复为批量删除的方法
         lastKey = '';
         return;
     }
@@ -1445,9 +1742,10 @@ function startCmdMode(type) {
     } else if (type === 'cmd') {
         label.innerText = ':CMD'; busInput.placeholder = 'e.g., help, text, wave...'; busInput.value = '';
     } else if (type === 'edit_measure') {
-        label.innerText = ':MEASURE_TXT'; 
+        label.innerText = ':EDIT_TXT'; 
         const m = state.measurements.find(x => x.id === state.selectedMeasureId);
-        busInput.value = m ? m.text : '';
+        const c = state.connections.find(x => x.id === state.selectedConnId);
+        busInput.value = m ? m.text : (c ? c.text : '');
     } else {
         label.innerText = ':EDIT_BUS'; const sig = state.flatTracks[state.cursorY].node;
         busInput.value = sig.data[state.cursorX] && !['x','z'].includes(sig.data[state.cursorX].toLowerCase()) ? sig.data[state.cursorX] : '';
@@ -1460,7 +1758,9 @@ busInput.addEventListener('keydown', (e) => {
         const val = busInput.value.trim();
         if (state.cmdType === 'edit_measure') {
             const m = state.measurements.find(x => x.id === state.selectedMeasureId);
+            const c = state.connections.find(x => x.id === state.selectedConnId);
             if (m) m.text = val;
+            if (c) c.text = val;
         }
         else if (state.cmdType === 'edit') {
             state.flatTracks[state.cursorY].node.data[state.cursorX] = val;
@@ -1483,14 +1783,12 @@ busInput.addEventListener('keydown', (e) => {
         else if (state.cmdType === 'cmd') {
             if (val === 'text') toggleMode('text'); 
             else if (val === 'wave') toggleMode('wave');
-            else if (val === 'help') { openHelpModal(); }
         }
         endCmdMode(); ensureCursorVisible();
     } else if (e.key === 'Escape') endCmdMode();
 });
 
 function endCmdMode() {
-    if (state.cmdType === 'cmd' && busInput.value.trim() === 'help') return; 
     state.cmdType = ''; busInput.blur();
     document.getElementById('statusCmd').style.display = 'none'; document.getElementById('statusInfo').style.display = 'flex';
     waveContainer.focus(); render();
@@ -1499,6 +1797,7 @@ function endCmdMode() {
 function openAttrModal() {
     state.isModalOpen = true; attrModal.style.display = 'flex';
     const thickRow = document.getElementById('thicknessRow'); 
+    const arrowTypeRow = document.getElementById('arrowTypeRow');
     const stickyRow = document.getElementById('stickyRow');
     const contentRow = document.getElementById('contentRow');
     const bgColorRow = document.getElementById('bgColorRow');
@@ -1506,6 +1805,7 @@ function openAttrModal() {
     if (stickyRow) stickyRow.style.display = 'none';
     if (contentRow) contentRow.style.display = 'none';
     if (bgColorRow) bgColorRow.style.display = 'none';
+    if (arrowTypeRow) arrowTypeRow.style.display = 'none';
 
     if (state.mode === 'wave' && state.selectedMeasureId) {
         document.getElementById('modalTitle').innerText = 'Measure Properties';
@@ -1516,11 +1816,30 @@ function openAttrModal() {
         document.getElementById('radixRow').style.display = 'none';
         document.getElementById('colorRow').style.display = 'flex';
         document.getElementById('modalColor').value = m.color;
+        
         if (thickRow) {
             thickRow.style.display = 'flex';
             document.getElementById('modalThickness').value = m.thickness;
         }
+        if (arrowTypeRow) {
+            arrowTypeRow.style.display = 'flex';
+            document.getElementById('modalArrowType').value = m.arrowType || 'two-way';
+        }
     } 
+    else if (state.mode === 'wave' && state.selectedConnId) {
+        document.getElementById('modalTitle').innerText = 'Arrow Connection Properties';
+        const c = state.connections.find(x => x.id === state.selectedConnId);
+        
+        document.getElementById('nameRow').style.display = 'flex';
+        document.getElementById('modalName').value = c.text || ''; 
+        document.getElementById('radixRow').style.display = 'none';
+        document.getElementById('colorRow').style.display = 'flex';
+        document.getElementById('modalColor').value = c.color;
+        if (thickRow) {
+            thickRow.style.display = 'flex';
+            document.getElementById('modalThickness').value = c.thickness;
+        }
+    }
     else if (state.mode === 'text' && state.selectedTextId) {
         document.getElementById('modalTitle').innerText = 'Text / Note Properties';
         const t = state.texts.find(x => x.id === state.selectedTextId);
@@ -1555,12 +1874,36 @@ function openAttrModal() {
         document.getElementById('radixRow').style.display = (sig.type === 'multi') ? 'flex' : 'none';
         if (thickRow) thickRow.style.display = 'none'; 
     }
-    setTimeout(() => document.getElementById('modalName').focus(), 10);
+    setTimeout(() => { document.getElementById('modalName').focus(); document.getElementById('modalName').select(); }, 10);
 }
 
-function closeAttrModal() { state.isModalOpen = false; attrModal.style.display = 'none'; waveContainer.focus(); }
+function closeAttrModal() { 
+    state.isModalOpen = false; 
+    attrModal.style.display = 'none'; 
+    state.addingSignalType = null; // 【修复】取消时清空拦截状态
+    waveContainer.focus(); 
+}
 
 function applyAttrModal() {
+    // 【新增】拦截应用新建信号
+    if (state.addingSignalType) {
+        const name = document.getElementById('modalName').value.trim() || 'new_sig';
+        const color = document.getElementById('modalColor').value;
+        const radix = document.getElementById('modalRadix').value || 'hex';
+        
+        const newSig = { id: 's_'+Date.now(), name: name, type: state.addingSignalType, color: color, radix: radix, data: [] };
+        state.tree.push(newSig);
+        state.selectedIds.clear(); 
+        state.selectedIds.add(newSig.id);
+        
+        state.addingSignalType = null;
+        refreshAll();
+        state.cursorY = state.flatTracks.length - 1;
+        ensureCursorVisible();
+        closeAttrModal();
+        return;
+    }
+
     if (state.mode === 'wave' && state.selectedMeasureId) {
         const m = state.measurements.find(x => x.id === state.selectedMeasureId);
         if (m) {
@@ -1568,8 +1911,18 @@ function applyAttrModal() {
             m.color = document.getElementById('modalColor').value;
             const thickVal = parseInt(document.getElementById('modalThickness').value);
             if (!isNaN(thickVal) && thickVal >= 1) m.thickness = thickVal;
+            m.arrowType = document.getElementById('modalArrowType').value; // 保存单/双向设置
         }
     } 
+    else if (state.mode === 'wave' && state.selectedConnId) {
+        const c = state.connections.find(x => x.id === state.selectedConnId);
+        if (c) {
+            c.text = document.getElementById('modalName').value.trim() || c.text; 
+            c.color = document.getElementById('modalColor').value;
+            const thickVal = parseInt(document.getElementById('modalThickness').value);
+            if (!isNaN(thickVal) && thickVal >= 1) c.thickness = thickVal;
+        }
+    }
     else if (state.mode === 'text' && state.selectedTextId) {
         const t = state.texts.find(x => x.id === state.selectedTextId);
         if(t) {
@@ -1595,8 +1948,7 @@ function applyAttrModal() {
 
 function openHelpModal() {
     state.isModalOpen = true; 
-    state.cmdType = ''; busInput.blur();
-    document.getElementById('statusCmd').style.display = 'none'; document.getElementById('statusInfo').style.display = 'flex';
+    if (state.cmdType === 'cmd') endCmdMode();
     helpModal.style.display = 'flex';
 }
 
@@ -1606,27 +1958,25 @@ document.getElementById('attrModal').addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && e.target.id !== 'modalTextContent') { applyAttrModal(); }
     else if (e.key === 'Enter' && e.ctrlKey) { applyAttrModal(); }
 });
-// ==========================================
-// 【新增】导出与导入功能 (JSON 序列化)
-// ==========================================
 
+// ==========================================
+// 导出与导入功能 (JSON 序列化)
+// ==========================================
 function exportWaveform() {
-    // 提取需要持久化的核心数据
     const exportData = {
         cycles: state.cycles,
         scaleX: state.scaleX,
         tree: state.tree,
         texts: state.texts,
-        measurements: state.measurements,
-        gaps: Array.from(state.gaps) // Set 对象不能直接转 JSON，转成数组
+        measurements: state.measurements, // 会连带 arrowType 一并保存
+        connections: state.connections,
+        gaps: Array.from(state.gaps) 
     };
 
-    // 转换为格式化的 JSON 字符串
     const dataStr = JSON.stringify(exportData, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 
-    // 动态创建 a 标签触发下载
     const a = document.createElement('a');
     a.href = url;
     a.download = `digi_wave_${new Date().toISOString().slice(0,10).replace(/-/g,"")}.json`;
@@ -1637,7 +1987,6 @@ function exportWaveform() {
 }
 
 function importWaveform() {
-    // 触发隐藏的文件输入框
     document.getElementById('fileInput').click();
 }
 
@@ -1650,18 +1999,18 @@ function handleFileImport(event) {
         try {
             const importedData = JSON.parse(e.target.result);
 
-            // 恢复数据
             state.cycles = importedData.cycles || 100;
             state.scaleX = importedData.scaleX || 50;
             state.tree = importedData.tree || [];
             state.texts = importedData.texts || [];
             state.measurements = importedData.measurements || [];
-            state.gaps = new Set(importedData.gaps || []); // 将数组恢复为 Set
+            state.connections = importedData.connections || [];
+            state.gaps = new Set(importedData.gaps || []); 
 
-            // 重置 UI 状态，防止读取旧数据时越界或持有不存在的 ID
             state.selectedIds.clear();
             state.selectedTextId = null;
             state.selectedMeasureId = null;
+            state.selectedConnId = null;
             state.boundTrackId = null;
             state.fill.hovered = null;
             state.fill.dragging = false;
@@ -1671,27 +2020,25 @@ function handleFileImport(event) {
             state.offsetY = 0;
             state.measureMode = 'IDLE';
             state.tempMeasurePoint = null;
+            state.arrowMode = 'IDLE';
+            state.tempArrowPoint = null;
             if (btnMeasure) btnMeasure.classList.remove('active');
+            const btnArrow = document.getElementById('btnArrow');
+            if (btnArrow) btnArrow.classList.remove('active');
 
-            // 彻底重绘
             refreshAll();
-            
-            // 如果导入成功，控制台提示一下
             console.log("Waveform imported successfully.");
 
         } catch (err) {
             alert("读取失败：文件损坏或格式不正确！\n" + err.message);
         }
         
-        // 清空 input，保证用户下次还能选中同一个文件触发 onchange
         event.target.value = '';
     };
     
     reader.readAsText(file);
 }
-// ==========================================
-// 【新增】初始化时自动加载默认配置
-// ==========================================
+
 function loadDefaultWaveform() {
     fetch('digi_wave.json')
         .then(response => {
@@ -1701,18 +2048,18 @@ function loadDefaultWaveform() {
             return response.json();
         })
         .then(importedData => {
-            // 解析成功，覆盖当前状态
             state.cycles = importedData.cycles || 100;
             state.scaleX = importedData.scaleX || 50;
             state.tree = importedData.tree || [];
             state.texts = importedData.texts || [];
             state.measurements = importedData.measurements || [];
+            state.connections = importedData.connections || [];
             state.gaps = new Set(importedData.gaps || []);
 
-            // 重置 UI 交互状态
             state.selectedIds.clear();
             state.selectedTextId = null;
             state.selectedMeasureId = null;
+            state.selectedConnId = null;
             state.boundTrackId = null;
             state.fill.hovered = null;
             state.fill.dragging = false;
@@ -1722,12 +2069,13 @@ function loadDefaultWaveform() {
             state.offsetY = 0;
             state.measureMode = 'IDLE';
             state.tempMeasurePoint = null;
+            state.arrowMode = 'IDLE';
+            state.tempArrowPoint = null;
 
             refreshAll();
             console.log("Default digi_wave.json loaded successfully.");
         })
         .catch(e => {
-            // 如果文件不存在，或者因为 file:// 协议被拦截，就回退到使用 JS 里默认定义的初始状态
             console.log("Could not load default digi_wave.json (maybe running via file:// or file missing). Using default state.", e.message);
             refreshAll(); 
         });
@@ -1736,4 +2084,4 @@ function loadDefaultWaveform() {
 // 执行初始化
 waveContainer.focus();
 resizeCanvas();
-loadDefaultWaveform(); // 替代了原来的 refreshAll()，在请求结果出来后再渲染
+loadDefaultWaveform();
