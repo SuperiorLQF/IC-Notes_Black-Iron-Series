@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>DigiWave - V9.0 (Ultimate)</title>
+    <title>DigiWave</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,6 +18,18 @@
             <a href="#" onclick="addSignal('multi')"><svg viewBox="0 0 24 12" width="16" height="12"><polygon points="2,2 14,2 16,6 14,10 2,10 0,6" fill="none" stroke="currentColor" stroke-width="2"/></svg> Bus Signal</a>
         </div>
     </div>
+    <div class="divider"></div>
+
+    <button class="icon-btn" onclick="openScaleModal()" title="缩放比例 (Scale)">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+            <line x1="6" y1="6" x2="6" y2="10"></line>
+            <line x1="10" y1="6" x2="10" y2="14"></line>
+            <line x1="14" y1="6" x2="14" y2="10"></line>
+            <line x1="18" y1="6" x2="18" y2="14"></line>
+        </svg>
+    </button>
+
     <div class="divider"></div>
 
     <button class="icon-btn" id="btnMeasure" onclick="toggleMeasureMode()" title="测量标尺 (M)">
@@ -78,7 +90,7 @@
         <input type="text" id="busValueInput" autocomplete="off" placeholder="Bus Val" style="display:none; margin-left:10px;">
     </div>
     <div class="status-right" id="statusInfo">
-        <span id="statusZoom" onclick="promptScale()" style="cursor: pointer; text-decoration: underline dotted #888;" title="点击修改缩放">Scale: 10 px/ns</span>
+        <span id="statusZoom">Scale: 10 px/ns</span>
         <span id="statusSelected">未选择信号</span>
     </div>
 </div>
@@ -88,10 +100,20 @@
     <input type="text" id="durationInput" autocomplete="off">
     <div class="modal-btns"><button class="cancel" onclick="closeModal('durationModal')">取消</button><button class="primary" onclick="confirmDuration()">确定</button></div>
 </div>
+
 <div id="repeatModal" class="modal">
     <h3>输入 Repeat 次数</h3><p class="modal-desc">批量将波形片段重复/覆盖指定次数</p>
     <input type="number" id="repeatInput" autocomplete="off" min="1">
     <div class="modal-btns"><button class="cancel" onclick="closeModal('repeatModal')">取消</button><button class="primary" onclick="confirmRepeat()">确定</button></div>
+</div>
+
+<div id="scaleModal" class="modal">
+    <h3>设置波形缩放比例</h3><p class="modal-desc">单位: 像素 / 纳秒 (px/ns)</p>
+    <input type="number" id="scaleInput" autocomplete="off" min="1" max="1000">
+    <div class="modal-btns">
+        <button class="cancel" onclick="closeModal('scaleModal')">取消</button>
+        <button class="primary" onclick="applyScaleModal()">确定</button>
+    </div>
 </div>
 
 <div id="attrModal" class="modal">

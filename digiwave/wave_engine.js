@@ -462,16 +462,19 @@ function togglePrintMode() {
     render();
 }
 
-window.promptScale = function() {
-    const current = Math.round(state.scaleX);
-    const val = prompt('请输入新的缩放比例 (px/ns):', current);
-    if (val !== null) {
-        const num = parseFloat(val);
-        if (!isNaN(num) && num > 0) {
-            state.scaleX = num;
-            updateUI();
-        }
+window.openScaleModal = function() {
+    document.getElementById('scaleModal').style.display = 'flex';
+    document.getElementById('scaleInput').value = Math.round(state.scaleX);
+    setTimeout(() => { document.getElementById('scaleInput').focus(); document.getElementById('scaleInput').select(); }, 10);
+};
+
+window.applyScaleModal = function() {
+    const val = parseFloat(document.getElementById('scaleInput').value);
+    if (!isNaN(val) && val > 0) {
+        state.scaleX = val;
+        updateUI();
     }
+    closeModal('scaleModal');
 };
 
 function updateSnapTarget() {
@@ -1227,7 +1230,12 @@ window.addEventListener('keydown', (e) => {
 
     if (k === 'c') { 
         if (state.mode === 'TEXT' && state.selectedTextId) { e.preventDefault(); openAttrModal(); return; }
-        if (state.selectedMeasureId || state.selectedConnId || sigs.length > 0) { e.preventDefault(); openAttrModal(); return; }
+        
+        let selectedGroups = Array.from(state.selectedIds).map(id => findNodeAndParent(state.tree, id)?.node).filter(n => n?.type === 'group');
+        
+        if (state.selectedMeasureId || state.selectedConnId || sigs.length > 0 || selectedGroups.length > 0) { 
+            e.preventDefault(); openAttrModal(); return; 
+        }
     }
 
     if (e.key === 'Delete') {
@@ -1381,7 +1389,13 @@ waveContainer.addEventListener('wheel', (e) => {
     updateUI();
 });
 
-function closeModal(id) { document.getElementById(id).style.display = 'none'; if (id === 'repeatModal') state.subMode = 'NORMAL'; if(id === 'attrModal') state.addingSignalType = null; waveContainer.focus(); updateUI(); }
+function closeModal(id) { 
+    document.getElementById(id).style.display = 'none'; 
+    if (id === 'repeatModal') state.subMode = 'NORMAL'; 
+    if(id === 'attrModal') state.addingSignalType = null; 
+    waveContainer.focus(); 
+    updateUI(); 
+}
 
 function confirmDuration() {
     const raw = durationInput.value.trim().toLowerCase(); const match = raw.match(/^([\d.]+)\s*(ns|us|ms)?$/);
@@ -1419,6 +1433,7 @@ function openAttrModal() {
     const contentRow = document.getElementById('contentRow');
     const bgColorRow = document.getElementById('bgColorRow'); 
     const radixRow = document.getElementById('radixRow');
+    const colorRow = document.getElementById('colorRow'); // 获取Color配置行
     
     // 初始化隐藏所有高级选项
     if (stickyRow) stickyRow.style.display = 'none'; 
@@ -1427,8 +1442,11 @@ function openAttrModal() {
     if (arrowTypeRow) arrowTypeRow.style.display = 'none';
     if (radixRow) radixRow.style.display = 'none'; 
     if (thickRow) thickRow.style.display = 'none';
+    if (colorRow) colorRow.style.display = 'flex'; // 默认显示颜色选项
 
     document.getElementById('attrModal').style.display = 'flex';
+    
+    let selectedGroups = Array.from(state.selectedIds).map(id => findNodeAndParent(state.tree, id)?.node).filter(n => n?.type === 'group');
 
     // 1. 如果处于【添加新信号】状态
     if (state.addingSignalType) {
@@ -1467,7 +1485,14 @@ function openAttrModal() {
         document.getElementById('modalIsSticky').checked = !!t.isSticky; 
         document.getElementById('modalTextContent').value = t.content || '';
     } 
-    // 5. 默认：编辑当前选中的已有信号
+    // 5. 如果正在编辑 Group 组名
+    else if (selectedGroups.length > 0) {
+        document.getElementById('modalTitle').innerText = 'Group Properties'; 
+        const grp = selectedGroups[0];
+        document.getElementById('modalName').value = grp.name; 
+        if (colorRow) colorRow.style.display = 'none'; // 分组不需要调整颜色
+    }
+    // 6. 默认：编辑当前选中的已有信号
     else {
         const sigs = getSelectedSignals(); 
         // 只有在这里（非添加模式下）没选中信号才关闭面板
@@ -1510,21 +1535,35 @@ function applyAttrModal() {
         }
     }
     else {
-        const sigs = getSelectedSignals();
-        sigs.forEach(sig => {
-            sig.name = document.getElementById('modalName').value.trim() || sig.name; sig.color = document.getElementById('modalColor').value; sig.thickness = parseInt(document.getElementById('modalThickness').value) || 2;
-            if (sig.type === 'multi') sig.radix = document.getElementById('modalRadix').value;
-        });
+        let selectedGroups = Array.from(state.selectedIds).map(id => findNodeAndParent(state.tree, id)?.node).filter(n => n?.type === 'group');
+        if (selectedGroups.length > 0) {
+            selectedGroups.forEach(grp => {
+                grp.name = document.getElementById('modalName').value.trim() || grp.name;
+            });
+        } else {
+            const sigs = getSelectedSignals();
+            sigs.forEach(sig => {
+                sig.name = document.getElementById('modalName').value.trim() || sig.name; 
+                sig.color = document.getElementById('modalColor').value; 
+                sig.thickness = parseInt(document.getElementById('modalThickness').value) || 2;
+                if (sig.type === 'multi') sig.radix = document.getElementById('modalRadix').value;
+            });
+        }
     }
     updateUI(); closeModal('attrModal');
 }
 
-['durationInput', 'repeatInput', 'modalName', 'modalThickness'].forEach(id => {
+['durationInput', 'repeatInput', 'modalName', 'modalThickness', 'scaleInput'].forEach(id => {
     const el = document.getElementById(id);
     if(el) {
         el.addEventListener('keydown', (e) => {
             e.stopPropagation(); 
-            if (e.key === 'Enter') { if (id === 'durationInput') confirmDuration(); else if (id === 'repeatInput') confirmRepeat(); else applyAttrModal(); }
+            if (e.key === 'Enter') { 
+                if (id === 'durationInput') confirmDuration(); 
+                else if (id === 'repeatInput') confirmRepeat(); 
+                else if (id === 'scaleInput') applyScaleModal();
+                else applyAttrModal(); 
+            }
             if (e.key === 'Escape') closeModal(e.target.closest('.modal').id);
         });
     }
