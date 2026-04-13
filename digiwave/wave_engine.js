@@ -414,6 +414,37 @@ function cleanUpEvents(sig) {
     sig.data = cleaned;
 }
 
+// ================= 清理与全局操作 =================
+function cleanupDanglingObjects() {
+    updateFlatTracks(); 
+    const validIds = new Set(state.flatTracks.map(t => t.node.id));
+
+    state.measurements = state.measurements.filter(m => validIds.has(m.sigId1) && validIds.has(m.sigId2));
+    state.connections = state.connections.filter(c => validIds.has(c.sigId1) && validIds.has(c.sigId2));
+    state.texts = state.texts.filter(t => validIds.has(t.trackId));
+}
+
+window.clearCanvas = function() {
+    if (confirm("确定要清空画布吗？此操作不可恢复。")) {
+        state.tree = [];
+        state.texts = [];
+        state.measurements = [];
+        state.connections = [];
+        state.flatTracks = [];
+        state.selectedIds.clear();
+        state.selectedTextId = null;
+        state.selectedMeasureId = null;
+        state.selectedConnId = null;
+        state.cursorT = 0;
+        state.offsetX = 0;
+        state.offsetY = 0;
+        state.pendingVal = null;
+        state.mode = 'VIEW';
+        state.subMode = 'NORMAL';
+        updateUI();
+    }
+};
+
 window.toggleGroup = function(id, e) {
     e.stopPropagation();
     let info = findNodeAndParent(state.tree, id);
@@ -1244,7 +1275,9 @@ window.addEventListener('keydown', (e) => {
         if (state.selectedConnId) { state.connections = state.connections.filter(c => c.id !== state.selectedConnId); state.selectedConnId = null; updateUI(); return; }
         if (state.selectedIds.size > 0) {
             state.selectedIds.forEach(id => { let info = findNodeAndParent(state.tree, id); if (info) info.list.splice(info.index, 1); });
-            state.selectedIds.clear(); updateUI(); return;
+            state.selectedIds.clear(); 
+            cleanupDanglingObjects();
+            updateUI(); return;
         }
     }
 
@@ -1298,7 +1331,7 @@ window.addEventListener('keydown', (e) => {
         if (k === 'r' && state.subMode === 'NORMAL') { e.preventDefault(); state.subMode = 'REPEAT_START'; state.hoverEdgeT = null; updateUI(); return; }
         if (state.subMode !== 'NORMAL') return;
 
-        if (mainSig.type === 'single' && ['0', '1', 'x', 'z'].includes(k)) { state.pendingVal = k; return; }
+        if (mainSig.type === 'single' && ['0', '1', 'x', 'z'].includes(k)) { state.pendingVal = k; updateUI(); return; }
         if (mainSig.type === 'multi') {
             if (k === 'x' || k === 'z') { state.pendingVal = k; updateUI(); return; }
             if (k === 'v') { e.preventDefault(); state.subMode = 'VALUE'; updateUI(); return; }
