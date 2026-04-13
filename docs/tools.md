@@ -2,12 +2,13 @@
 
 这里收录了一些实用的 IC 小工具。
 
-## SVA 仿真工具
+## 实用工具集 (Toolbox)
 
 <div class="tool-container">
   <select id="tool-select" class="tool-select">
-    <option value="">-- 请选择工具--</option>
-    <option value="sva-sim">🚀 SVA 全功能仿真器</option>
+    <option value="">-- 请选择工具 --</option>
+    <option value="sva-sim">🚀 SVA 仿真器</option>
+    <option value="digiwave">🌊 DigiWave 波形编辑器</option>
   </select>
   <button onclick="openTool()" class="tool-btn">开启新标签页</button>
 </div>
@@ -18,9 +19,11 @@ function openTool() {
   var value = select.value;
   
   if (value === 'sva-sim') {
-    // 使用 _blank 属性，并去掉宽高限制，即可强制在浏览器新标签页打开
-    // 注意路径：使用 ../ 退回根目录寻找 html 文件
+    // 使用 _blank 属性强制在新标签页打开
     window.open('../sva_sim.html', '_blank');
+  } else if (value === 'digiwave') {
+    // 假设你将波形引擎代码保存为了 digiwave.html，请确保路径正确
+    window.open('../digiwave/index.html', '_blank');
   } else {
     alert('⚠️ 请先在下拉菜单中选择一个工具！');
   }
@@ -50,6 +53,7 @@ function openTool() {
   color: #2c3e50;
   outline: none;
   transition: 0.2s;
+  cursor: pointer;
 }
 .tool-select:focus {
   border-color: #3498db;

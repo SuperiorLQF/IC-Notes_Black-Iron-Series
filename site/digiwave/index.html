@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>DigiWave</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="toolbar">
+    <div class="dropdown">
+        <button class="icon-btn dropdown-btn" title="添加信号">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" class="caret"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="dropdown-content">
+            <a href="#" onclick="addSignal('single')"><svg viewBox="0 0 24 12" width="16" height="12"><path d="M0,10 L8,10 L8,2 L16,2 L16,10 L24,10" fill="none" stroke="currentColor" stroke-width="2"/></svg> Binary Signal</a>
+            <a href="#" onclick="addSignal('multi')"><svg viewBox="0 0 24 12" width="16" height="12"><polygon points="2,2 14,2 16,6 14,10 2,10 0,6" fill="none" stroke="currentColor" stroke-width="2"/></svg> Bus Signal</a>
+        </div>
+    </div>
+    <div class="divider"></div>
+
+    <button class="icon-btn" onclick="openScaleModal()" title="缩放比例 (Scale)">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+            <line x1="6" y1="6" x2="6" y2="10"></line>
+            <line x1="10" y1="6" x2="10" y2="14"></line>
+            <line x1="14" y1="6" x2="14" y2="10"></line>
+            <line x1="18" y1="6" x2="18" y2="14"></line>
+        </svg>
+    </button>
+
+    <div class="divider"></div>
+
+    <button class="icon-btn" id="btnMeasure" onclick="toggleMeasureMode()" title="测量标尺 (M)">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M2 8v8M22 8v8"/></svg>
+    </button>
+    <button class="icon-btn" id="btnArrow" onclick="toggleArrowMode()" title="事件连线 (A)">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 16 C 5 6 19 6 19 16" />
+            <polyline points="15 16 19 16 19 12" />
+        </svg>
+    </button>
+
+    <div class="divider"></div>
+
+    <div class="toolbar-group" title="吸附目标 (Snap)">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 10V8a7 7 0 0 1 14 0v2"></path>
+            <path d="M5 10v4h4v-4H5z" fill="#e74c3c" stroke="none"></path>
+            <path d="M15 10v4h4v-4h-4z" fill="#3498db" stroke="none"></path>
+            <path d="M5 10v4h4v-4H5zM15 10v4h4v-4h-4z" stroke="currentColor"></path>
+        </svg>
+        <select id="snapSelect" class="toolbar-select" onchange="updateSnapTarget()"><option value="">None</option></select>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="icon-btn" id="btnPrint" onclick="togglePrintMode()" title="黑白打印模式">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+    </button>
+
+    <div class="divider"></div>
+
+    <button class="icon-btn" onclick="clearCanvas()" title="清空画布 (Clear Canvas)">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v10"></path>
+            <path d="M10 12h4l4 10H6l4-10Z"></path>
+            <path d="M11 12v10"></path>
+            <path d="M13 12v10"></path>
+            <path d="M12 12v10"></path>
+        </svg>
+    </button>
+
+    <button class="icon-btn" onclick="importWaveform()" title="导入 JSON 波形">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            <line x1="12" y1="11" x2="12" y2="17"></line>
+            <polyline points="9 14 12 11 15 14"></polyline>
+        </svg>
+    </button>
+
+    <button class="icon-btn" onclick="exportWaveform()" title="导出 JSON 波形">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+    </button>
+</div>
+
+<div class="main-container">
+    <div class="signal-list" id="signalList"></div>
+    <div class="wave-container" id="waveContainer" tabindex="0">
+        <canvas id="waveCanvas"></canvas>
+        <input type="text" id="textInputOverlay" autocomplete="off" placeholder="输入注释...">
+    </div>
+</div>
+
+<div class="statusbar" id="statusBar">
+    <div class="status-left">
+        <div id="statusMode" class="mode-btn view-mode">LAYER: WAVE</div>
+    </div>
+    <div class="status-center">
+        <span id="statusCursor" class="status-highlight">光标位置: 0 ns</span>
+        <input type="text" id="busValueInput" autocomplete="off" placeholder="Bus Val" style="display:none; margin-left:10px;">
+    </div>
+    <div class="status-right" id="statusInfo">
+        <span id="statusZoom">Scale: 10 px/ns</span>
+        <span id="statusSelected">未选择信号</span>
+    </div>
+</div>
+
+<div id="durationModal" class="modal">
+    <h3>输入延续时间</h3><p class="modal-desc">支持后缀: ns, us, ms</p>
+    <input type="text" id="durationInput" autocomplete="off">
+    <div class="modal-btns"><button class="cancel" onclick="closeModal('durationModal')">取消</button><button class="primary" onclick="confirmDuration()">确定</button></div>
+</div>
+
+<div id="repeatModal" class="modal">
+    <h3>输入 Repeat 次数</h3><p class="modal-desc">批量将波形片段重复/覆盖指定次数</p>
+    <input type="number" id="repeatInput" autocomplete="off" min="1">
+    <div class="modal-btns"><button class="cancel" onclick="closeModal('repeatModal')">取消</button><button class="primary" onclick="confirmRepeat()">确定</button></div>
+</div>
+
+<div id="scaleModal" class="modal">
+    <h3>设置波形缩放比例</h3><p class="modal-desc">单位: 像素 / 纳秒 (px/ns)</p>
+    <input type="number" id="scaleInput" autocomplete="off" min="1" max="1000">
+    <div class="modal-btns">
+        <button class="cancel" onclick="closeModal('scaleModal')">取消</button>
+        <button class="primary" onclick="applyScaleModal()">确定</button>
+    </div>
+</div>
+
+<div id="attrModal" class="modal">
+    <h3 id="modalTitle">Properties</h3>
+    <div class="attr-row" id="nameRow"><label>Name/Text:</label><input type="text" id="modalName"></div>
+    <div class="attr-row" id="colorRow"><label>Color:</label><input type="color" id="modalColor"></div>
+    <div class="attr-row" id="bgColorRow" style="display:none;"><label>Background:</label><input type="color" id="modalBgColor"></div>
+    <div class="attr-row" id="thicknessRow" style="display:none;"><label>Thickness:</label><input type="number" id="modalThickness" min="1" max="10"></div>
+    <div class="attr-row" id="radixRow"><label>Radix:</label>
+        <select id="modalRadix"><option value="hex">Hex</option><option value="dec">Dec</option></select>
+    </div>
+    <div class="attr-row" id="arrowTypeRow" style="display:none;">
+        <label>Arrow Type:</label>
+        <select id="modalArrowType"><option value="two-way">双向 (↔)</option><option value="one-way">单向 (→)</option></select>
+    </div>
+    <div class="attr-row" id="stickyRow" style="display:none;">
+        <label>Sticky Note:</label><input type="checkbox" id="modalIsSticky" style="width: auto;">
+    </div>
+    <div class="attr-row" id="contentRow" style="display:none; align-items:flex-start;">
+        <label>Content:</label>
+        <textarea id="modalTextContent" rows="4" style="width: 140px; background: #1e1e1e; color: #fff; border: 1px solid #555; padding: 4px; border-radius: 3px; outline: none; font-family: monospace;"></textarea>
+    </div>
+    <div class="modal-btns"><button class="cancel" onclick="closeModal('attrModal')">Cancel</button><button class="primary" onclick="applyAttrModal()">Apply</button></div>
+</div>
+
+<input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+
+<script src="wave_engine.js"></script>
+</body>
+</html>

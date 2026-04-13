@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>GeekWave Master - 工业级本地波形引擎</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-bg: #252526;
+            --border-color: #3e3e42;
+            --text-color: #d4d4d4;
+            --grid-color: #333333;
+            --track-active: #37373d;
+            --track-height: 40px;
+            --toolbar-bg: #2d2d30;
+            --btn-bg: #333337;
+            --btn-border: #454545;
+            --btn-hover: #094771;
+            --btn-hover-border: #007acc;
+        }
+
+        body.print-theme {
+            --bg-color: #ffffff;
+            --panel-bg: #f3f3f3;
+            --border-color: #cccccc;
+            --text-color: #000000;
+            --grid-color: #dddddd;
+            --track-active: #e5e5e5;
+            --toolbar-bg: #e1e1e1;
+            --btn-bg: #ffffff;
+            --btn-border: #bbbbbb;
+            --btn-hover: #e6f7ff;
+            --btn-hover-border: #1890ff;
+        }
+
+        body { margin: 0; font-family: 'Consolas', sans-serif; background: var(--bg-color); color: var(--text-color); overflow: hidden; display: flex; flex-direction: column; height: 100vh; user-select: none; transition: background 0.3s, color 0.3s;}
+        
+        .toolbar { padding: 8px 20px; background: var(--toolbar-bg); border-bottom: 1px solid var(--border-color); display: flex; gap: 12px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 10; transition: background 0.3s;}
+        .tool-btn {
+            background: var(--btn-bg); color: var(--text-color); border: 1px solid var(--btn-border);
+            padding: 5px 14px; border-radius: 4px; font-family: inherit; font-size: 13px; font-weight: 500;
+            cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+        }
+        .tool-btn:hover { background: var(--btn-hover); border-color: var(--btn-hover-border); color: #fff;}
+        .tool-btn .icon { font-size: 14px; opacity: 0.8; font-weight: bold; color: #3498db; display: flex; align-items: center; justify-content: center;}
+        body.print-theme .tool-btn:hover { color: #000; }
+        
+        .main-container { display: flex; flex: 1; overflow: hidden; position: relative; }
+        
+        .signal-list { width: 280px; background: var(--panel-bg); border-right: 1px solid var(--border-color); overflow-y: hidden; z-index: 5; transition: background 0.3s;}
+        .signal-row { height: var(--track-height); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; padding: 0 10px; box-sizing: border-box; cursor: pointer; transition: background 0.1s;}
+        
+        .signal-row.selected { background-color: rgba(52, 152, 219, 0.2); border-left: 3px solid #3498db; padding-left: 7px;}
+        .signal-row.active { background-color: var(--track-active); border-left: 3px solid #007acc; padding-left: 7px;}
+        .signal-row.selected.active { background-color: rgba(52, 152, 219, 0.3); }
+        
+        /* 强化的拖拽交互反馈 */
+        .signal-row.drag-over-top { box-shadow: inset 0 2px 0 0 #3498db !important; }
+        .signal-row.drag-over-bottom { box-shadow: inset 0 -2px 0 0 #3498db !important; }
+
+        .signal-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold; margin-left: 6px; font-size: 13px;}
+        .group-toggle { width: 16px; height: 16px; text-align: center; line-height: 16px; margin-right: 4px; color: #888; font-size: 10px; cursor: pointer; }
+        .group-toggle:hover { color: #fff; }
+        
+        .ungroup-btn { background: #c0392b; border: none; color: white; border-radius: 3px; padding: 2px 6px; font-size: 11px; cursor: pointer; display: none; margin-left: 5px;}
+        .signal-row:hover .ungroup-btn { display: block; }
+        .ungroup-btn:hover { background: #e74c3c; }
+
+        .wave-container { flex: 1; overflow: hidden; position: relative; outline: none; cursor: crosshair;}
+        canvas { display: block; }
+        
+        #textInputOverlay { display: none; position: absolute; background: transparent; color: var(--text-color); border: 1px dashed #007acc; outline: none; font-family: 'Consolas', sans-serif; z-index: 30; padding: 2px;}
+
+        /* --- 恢复为经典的高级感尺寸 --- */
+        .statusbar { background: #007acc; color: white; padding: 0 15px; height: 26px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; z-index: 20; transition: background 0.3s;}
+        body.print-theme .statusbar { background: #333333; }
+        .status-left { display: flex; gap: 20px; align-items: center;}
+        
+        .mode-btn { background: #f39c12; color: #000; padding: 2px 8px; border-radius: 3px; font-weight: bold; cursor: pointer; border: 1px solid #e67e22; transition: 0.2s;}
+        .mode-btn:hover { background: #f1c40f; }
+        .mode-btn.text-mode { background: #9b59b6; border-color: #8e44ad; color: white;}
+        .mode-btn.print-mode { background: #ecf0f1; border-color: #bdc3c7; color: #2c3e50;}
+        .mode-btn.print-mode.active { background: #2c3e50; color: #fff; border-color: #1a252f;}
+
+        .cmd-mode { display: none; width: 100%; align-items: center; gap: 10px;}
+        .cmd-label { font-weight: bold; color: #f1c40f; }
+        #busInput { background: #1e1e1e; color: #fff; border: 1px solid #555; padding: 2px 8px; font-family: 'Consolas', sans-serif; font-size: 13px; width: 400px; outline: none; border-radius: 2px;}
+        #busInput:focus { border-color: #f1c40f; }
+
+        .modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #252526; border: 1px solid #454545; box-shadow: 0 5px 25px rgba(0,0,0,0.8); border-radius: 6px; padding: 20px; width: 320px; z-index: 100; flex-direction: column; gap: 15px; color: #d4d4d4;}
+        body.print-theme .modal { background: #ffffff; border-color: #ccc; color: #000; box-shadow: 0 5px 25px rgba(0,0,0,0.2);}
+        .modal h3 { margin: 0; font-size: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;}
+        .modal-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;}
+        .modal-btns button { padding: 4px 12px; border-radius: 3px; border: none; cursor: pointer; font-family: inherit; font-size: 13px;}
+        .modal-btns button.primary { background: #007acc; color: white;}
+        .modal-btns button.cancel { background: #555; color: white;}
+        body.print-theme .modal-btns button.cancel { background: #ccc; color: black;}
+
+        .attr-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px;}
+        .attr-row input[type="text"], .attr-row select, .attr-row input[type="color"] { background: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 4px; border-radius: 3px; outline: none; width: 140px;}
+        .attr-row input[type="color"] { width: 40px; }
+        
+        #helpModal { width: 460px; line-height: 1.8; font-size: 13px;}
+        #helpModal kbd { background: #333; color: #fff; padding: 2px 5px; border-radius: 3px; font-family: monospace; font-size: 11px;}
+        body.print-theme #helpModal kbd { background: #eee; color: #000; border: 1px solid #ccc;}
+    </style>
+</head>
+<body>
+
+<div class="toolbar">
+    <button class="tool-btn" onclick="addSignal('single')">
+        <span class="icon"><svg viewBox="0 0 24 12" width="16" height="12"><path d="M0,10 L8,10 L8,2 L16,2 L16,10 L24,10" fill="none" stroke="currentColor" stroke-width="2"/></svg></span> Signal
+    </button>
+    <button class="tool-btn" onclick="addSignal('multi')">
+        <span class="icon"><svg viewBox="0 0 24 12" width="18" height="12"><polygon points="3,2 21,2 24,6 21,10 3,10 0,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></span> Bus
+    </button>
+    <button class="tool-btn" onclick="addSignal('clock')">
+        <span class="icon"><svg viewBox="0 0 24 16" width="16" height="16"><path d="M0,12 L4,12 L4,4 L10,4 L10,12 L16,12 L16,4 L22,4 L22,12 L24,12" fill="none" stroke="currentColor" stroke-width="2"/></svg></span> Clock
+    </button>
+</div>
+
+<div class="main-container">
+    <div class="signal-list" id="signalList"></div>
+    <div class="wave-container" id="waveContainer" tabindex="0">
+        <canvas id="waveCanvas"></canvas>
+        <input type="text" id="textInputOverlay" autocomplete="off" placeholder="输入注释...">
+    </div>
+</div>
+
+<div class="statusbar" id="statusBar">
+    <div class="status-left" id="statusInfo">
+        <div class="mode-btn" id="modeToggle" onclick="toggleMode()">LAYER: WAVE</div>
+        <div class="mode-btn print-mode" id="printToggle" onclick="togglePrintMode()">PRINT: OFF</div>
+        <span id="statusCursor">Track 0, Cycle 0</span>
+        <span id="statusZoom">Scale: 50 px/cycle</span>
+    </div>
+    <div class="cmd-mode" id="statusCmd">
+        <span class="cmd-label" id="cmdLabel">:EDIT</span>
+        <input type="text" id="busInput" autocomplete="off" placeholder="...">
+    </div>
+</div>
+
+<div id="attrModal" class="modal">
+    <h3 id="modalTitle">Properties</h3>
+    <div class="attr-row" id="nameRow">
+        <label>Name:</label>
+        <input type="text" id="modalName">
+    </div>
+    <div class="attr-row" id="colorRow">
+        <label>Color:</label>
+        <input type="color" id="modalColor">
+    </div>
+    <div class="attr-row" id="radixRow">
+        <label>Radix:</label>
+        <select id="modalRadix">
+            <option value="hex">Hexadecimal</option>
+            <option value="dec">Decimal</option>
+        </select>
+    </div>
+    <div class="modal-btns">
+        <button class="cancel" onclick="closeAttrModal()">Cancel</button>
+        <button class="primary" onclick="applyAttrModal()">Apply</button>
+    </div>
+</div>
+
+<div id="helpModal" class="modal">
+    <h3>Verdi-Like Shortcuts</h3>
+    <div>
+        <b>Selection & Grouping:</b><br>
+        <kbd>Ctrl + Click</kbd> : 多选信号<br>
+        <kbd>Ctrl + G</kbd> : 将选中的信号建组<br>
+        <kbd>Delete</kbd> / <kbd>dd</kbd> : 删除选中的信号/组<br>
+        <kbd>c</kbd> : 重命名 / 修改属性<br><br>
+
+        <b>Wave Editing:</b><br>
+        <kbd>s</kbd> : 编辑 Bus 的值<br>
+        <kbd>x</kbd> / <kbd>z</kbd> : 设置为 Unknown/High-Z<br>
+        <kbd>Space</kbd> : 保持并延续前一个状态<br>
+        <kbd>i</kbd> : 插入/移除 Omitted Time Gap (虚线间隔)<br><br>
+
+        <b>Text Annotation Layer:</b><br>
+        <kbd>:text</kbd> : 进入文本编辑模式<br>
+        <kbd>Wheel</kbd> : 在文本上滚动滑轮以缩放字体<br>
+    </div>
+    <div class="modal-btns">
+        <button class="primary" onclick="closeHelpModal()">Got it</button>
+    </div>
+</div>
+
+<script>
+    let state = {
+        cycles: 100,
+        scaleX: 50,
+        offsetX: 0,
+        offsetY: 0,
+        trackHeight: 40,
+        
+        cursorX: 0, 
+        cursorY: 0, 
+        
+        mode: 'wave', 
+        printMode: false, 
+        cmdType: '',  
+        isModalOpen: false, 
+        isEditingText: false,
+        
+        gaps: new Set(), 
+        GAP_WIDTH: 24,   
+        
+        texts: [], 
+        selectedTextId: null, 
+        
+        selectedIds: new Set(),
+
+        tree: [
+            { id: 'c1', name: 'clk', type: 'clock', color: '#ffffff', data: [] },
+            { id: 'g1', name: 'AXI Read Channel', type: 'group', color: '#555555', expanded: true, children: [
+                { id: 'm1', name: 'araddr', type: 'multi', color: '#3498db', radix: 'hex', data: ['0x00', '0x1A', '0x1A', '"Addr"'] },
+                { id: 's1', name: 'arvalid', type: 'single', color: '#e74c3c', data: ['0','1','x','z'] }
+            ]},
+            { id: 'm2', name: 'rdata', type: 'multi', color: '#f1c40f', radix: 'dec', data: ['10', '255', 'x', 'z'] }
+        ],
+        
+        flatTracks: []
+    };
+
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    const waveContainer = document.getElementById('waveContainer');
+    const busInput = document.getElementById('busInput');
+    const attrModal = document.getElementById('attrModal');
+    const helpModal = document.getElementById('helpModal');
+    const textInputOverlay = document.getElementById('textInputOverlay');
+    const modeToggle = document.getElementById('modeToggle');
+    const printToggle = document.getElementById('printToggle');
+
+    let lastKey = '';
+    let lastKeyTime = 0;
+
+    function rebuildFlatTracks() {
+        let result = [];
+        function flatten(nodes, depth, parentArray) {
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                result.push({ node, depth, parentArray, index: i });
+                if (node.type === 'group' && node.expanded && node.children) {
+                    flatten(node.children, depth + 1, node.children);
+                }
+            }
+        }
+        flatten(state.tree, 0, state.tree);
+        state.flatTracks = result;
+        if (state.flatTracks.length === 0) {
+            state.cursorY = 0;
+        } else {
+            state.cursorY = Math.max(0, Math.min(state.flatTracks.length - 1, state.cursorY));
+        }
+    }
+
+    function findNodeInfo(nodes, id, parentArray = null) {
+        for (let i = 0; i < nodes.length; i++) {
+            if (nodes[i].id === id) return { node: nodes[i], array: nodes, index: i, parentArray };
+            if (nodes[i].type === 'group') {
+                const res = findNodeInfo(nodes[i].children, id, nodes[i].children);
+                if (res) return res;
+            }
+        }
+        return null;
+    }
+
+    function refreshAll() { rebuildFlatTracks(); renderSignalList(); render(); }
+
+    const m2Info = findNodeInfo(state.tree, 'm2');
+    for(let i=10; i<15; i++) m2Info.node.data[i] = '0xFF';
+    rebuildFlatTracks();
+
+    function toggleGroup(id, e) {
+        if(e) e.stopPropagation();
+        const info = findNodeInfo(state.tree, id);
+        if (info) { info.node.expanded = !info.node.expanded; refreshAll(); }
+    }
+
+    function ungroup(groupId, e) {
+        if(e) e.stopPropagation();
+        const info = findNodeInfo(state.tree, groupId);
+        if (!info) return;
+        const groupNode = info.node;
+        info.array.splice(info.index, 1, ...(groupNode.children || []));
+        if(state.selectedIds.has(groupId)) state.selectedIds.delete(groupId);
+        refreshAll();
+    }
+
+    function groupSelected() {
+        if (state.selectedIds.size < 1) return;
+        const firstTrack = state.flatTracks.find(t => state.selectedIds.has(t.node.id));
+        if (!firstTrack) return;
+        const insertTarget = findNodeInfo(state.tree, firstTrack.node.id);
+
+        const extracted = [];
+        function extract(nodes) {
+            for (let i = 0; i < nodes.length; i++) {
+                if (state.selectedIds.has(nodes[i].id)) {
+                    extracted.push(nodes.splice(i, 1)[0]); i--; 
+                } else if (nodes[i].type === 'group') { extract(nodes[i].children); }
+            }
+        }
+        extract(state.tree);
+
+        const newGroup = { id: 'g_' + Date.now(), type: 'group', name: 'New Group', expanded: true, color: '#555555', children: extracted };
+        const safeIdx = Math.min(insertTarget.index, insertTarget.array.length);
+        insertTarget.array.splice(safeIdx, 0, newGroup);
+
+        state.selectedIds.clear(); state.selectedIds.add(newGroup.id);
+        refreshAll();
+    }
+
+    function deleteSelectedSignal() {
+        if (state.flatTracks.length === 0) return;
+        const sigId = state.flatTracks[state.cursorY].node.id;
+        const info = findNodeInfo(state.tree, sigId);
+        if (info) {
+            info.array.splice(info.index, 1);
+            if (state.selectedIds.has(sigId)) state.selectedIds.delete(sigId);
+            refreshAll();
+        }
+    }
+
+    function getTheme() {
+        if (state.printMode) {
+            return {
+                bg: '#ffffff', grid: '#dddddd', text: '#000000',
+                cursorBg: 'rgba(0,0,0,0.05)', cursorLine: '#000000',
+                xState: '#666666', zState: '#aaaaaa', gapBg: '#ffffff', gapLine: '#555555',
+                getSigColor: (c) => '#000000' 
+            };
+        } else {
+            return {
+                bg: '#000000', grid: '#333333', text: '#666666',
+                cursorBg: 'rgba(52, 152, 219, 0.3)', cursorLine: '#3498db',
+                xState: '#e74c3c', zState: '#7f8c8d', gapBg: '#080808', gapLine: '#555555',
+                getSigColor: (c) => c
+            };
+        }
+    }
+
+    function togglePrintMode() {
+        state.printMode = !state.printMode;
+        if (state.printMode) {
+            document.body.classList.add('print-theme'); printToggle.classList.add('active'); printToggle.innerText = 'PRINT: ON';
+        } else {
+            document.body.classList.remove('print-theme'); printToggle.classList.remove('active'); printToggle.innerText = 'PRINT: OFF';
+        }
+        renderSignalList(); render();
+    }
+
+    function resizeCanvas() {
+        const rect = waveContainer.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
+        canvas.style.width = `${rect.width}px`; canvas.style.height = `${rect.height}px`;
+        ctx.scale(dpr, dpr); render();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function toggleMode(targetMode) {
+        state.mode = targetMode || (state.mode === 'wave' ? 'text' : 'wave');
+        if (state.mode === 'text') {
+            modeToggle.innerText = 'LAYER: TEXT'; modeToggle.className = 'mode-btn text-mode'; waveContainer.style.cursor = 'default';
+        } else {
+            modeToggle.innerText = 'LAYER: WAVE'; modeToggle.className = 'mode-btn'; waveContainer.style.cursor = 'crosshair'; state.selectedTextId = null;
+        }
+        render();
+    }
+
+    function buildCycleMap() {
+        let cycleX = [];
+        let currentX = 0;
+        for (let i = 0; i <= state.cycles; i++) {
+            if (state.gaps.has(i)) currentX += state.GAP_WIDTH;
+            cycleX.push(currentX);
+            currentX += state.scaleX;
+        }
+        return cycleX;
+    }
+
+    function cycleToPx(cFloat) {
+        const intC = Math.floor(cFloat);
+        const frac = cFloat - intC;
+        const cycleX = buildCycleMap();
+        if (intC >= state.cycles) return cycleX[state.cycles];
+        if (intC < 0) return 0;
+        return cycleX[intC] + frac * state.scaleX;
+    }
+
+    function pxToCycle(px) {
+        const cycleX = buildCycleMap();
+        for (let i = 0; i < state.cycles; i++) {
+            const cxStart = cycleX[i];
+            const cxEnd = cxStart + state.scaleX;
+            const hitBoxStart = state.gaps.has(i) ? cxStart - state.GAP_WIDTH : cxStart;
+            if (px >= hitBoxStart && px < cxEnd) {
+                if (px < cxStart) return i; 
+                return i + (px - cxStart) / state.scaleX;
+            }
+        }
+        return state.cycles;
+    }
+
+    function ensureCursorVisible() {
+        if(state.mode !== 'wave') return;
+        const rect = waveContainer.getBoundingClientRect();
+        const cycleX = buildCycleMap();
+        
+        const curPxX = cycleX[state.cursorX];
+        if (curPxX < state.offsetX) state.offsetX = curPxX;
+        if (curPxX + state.scaleX > state.offsetX + rect.width) state.offsetX = curPxX + state.scaleX - rect.width;
+
+        const curPxY = state.cursorY * state.trackHeight;
+        if (curPxY < state.offsetY) state.offsetY = curPxY;
+        if (curPxY + state.trackHeight > state.offsetY + rect.height) {
+            state.offsetY = curPxY + state.trackHeight - rect.height;
+        }
+        
+        renderSignalList(); render();
+    }
+
+    function renderSignalList() {
+        const signalListEl = document.getElementById('signalList');
+        signalListEl.innerHTML = '';
+        
+        state.flatTracks.forEach((track, idx) => {
+            const sig = track.node;
+            const row = document.createElement('div');
+            
+            const isSelected = state.selectedIds.has(sig.id);
+            const isActive = (idx === state.cursorY && state.mode === 'wave');
+            row.className = `signal-row ${isSelected ? 'selected' : ''} ${isActive ? 'active' : ''}`;
+            row.style.transform = `translateY(${-state.offsetY}px)`;
+            row.style.paddingLeft = `${10 + track.depth * 15}px`;
+            
+            row.draggable = true;
+            row.ondragstart = (e) => { 
+                e.dataTransfer.setData('text/plain', sig.id); 
+            };
+            
+            // --- 重写拖拽覆盖逻辑，判断上半部分还是下半部分 ---
+            row.ondragover = (e) => { 
+                e.preventDefault(); 
+                const rect = row.getBoundingClientRect();
+                const y = e.clientY - rect.top;
+                if (y < rect.height / 2) {
+                    row.classList.add('drag-over-top');
+                    row.classList.remove('drag-over-bottom');
+                } else {
+                    row.classList.add('drag-over-bottom');
+                    row.classList.remove('drag-over-top');
+                }
+            };
+            
+            row.ondragleave = (e) => { 
+                row.classList.remove('drag-over-top', 'drag-over-bottom'); 
+            };
+            
+            // --- 强化拖拽放置逻辑，精准插入 ---
+            row.ondrop = (e) => {
+                const isTopHalf = row.classList.contains('drag-over-top');
+                row.classList.remove('drag-over-top', 'drag-over-bottom');
+                
+                const sourceId = e.dataTransfer.getData('text/plain');
+                if (sourceId === sig.id) return;
+                
+                const sourceInfo = findNodeInfo(state.tree, sourceId);
+                const targetInfo = findNodeInfo(state.tree, sig.id);
+                if (!sourceInfo || !targetInfo) return;
+
+                let isDescendant = false;
+                function check(n) { if (n.id === sig.id) isDescendant = true; if (n.type==='group') n.children.forEach(check); }
+                check(sourceInfo.node);
+                if (isDescendant) return;
+
+                // 1. 先将源节点从原位置移除
+                const srcNode = sourceInfo.node;
+                sourceInfo.array.splice(sourceInfo.index, 1);
+                
+                // 2. 重新查找目标节点（因为上一步的 splice 可能会导致目标节点的索引偏移）
+                const newTargetInfo = findNodeInfo(state.tree, sig.id);
+                if (!newTargetInfo) { refreshAll(); return; }
+                
+                // 3. 根据拖拽的上/下半区决定插入位置
+                let insertIdx = newTargetInfo.index;
+                if (!isTopHalf) {
+                    insertIdx++; // 如果丢在下半区，则插入到它后面
+                }
+                
+                newTargetInfo.array.splice(insertIdx, 0, srcNode);
+                refreshAll();
+            };
+
+            row.onclick = (e) => {
+                if (state.mode === 'wave') {
+                    if (e.ctrlKey) {
+                        if (state.selectedIds.has(sig.id)) state.selectedIds.delete(sig.id);
+                        else state.selectedIds.add(sig.id);
+                    } else {
+                        state.selectedIds.clear(); state.selectedIds.add(sig.id);
+                    }
+                    state.cursorY = idx; waveContainer.focus(); ensureCursorVisible();
+                }
+            };
+
+            let innerHTML = '';
+            if (sig.type === 'group') {
+                innerHTML += `<div class="group-toggle" onclick="toggleGroup('${sig.id}', event)">${sig.expanded ? '▼' : '▶'}</div>`;
+            } else {
+                innerHTML += `<div style="width:16px; margin-right:4px;"></div>`; 
+            }
+
+            const boxColor = state.printMode ? '#000' : sig.color;
+            let radixLabel = sig.type === 'multi' ? `<span style="opacity:0.6; font-size:11px; margin-left:5px;">[${sig.radix}]</span>` : '';
+            
+            innerHTML += `<div style="width:12px; height:12px; background:${boxColor}; border-radius:2px; margin-right:5px; flex-shrink:0;"></div>`;
+            innerHTML += `<span class="signal-name" title="${sig.name}">${sig.name}${radixLabel}</span>`;
+            
+            if (sig.type === 'group') {
+                innerHTML += `<button class="ungroup-btn" onclick="ungroup('${sig.id}', event)">Ungroup</button>`;
+            }
+
+            row.innerHTML = innerHTML;
+            signalListEl.appendChild(row);
+        });
+        
+        const sigName = state.flatTracks[state.cursorY]?.node.name || '';
+        document.getElementById('statusCursor').innerText = `Track: ${sigName} | Cycle: ${state.cursorX}`;
+    }
+
+    function addSignal(type) {
+        const name = prompt("Signal Name:", type === 'clock' ? 'clk_new' : 'sig_new');
+        if (!name) return;
+        const colors = { 'clock': '#ffffff', 'single': '#2ecc71', 'multi': '#9b59b6' };
+        
+        const newSig = { id: 's_'+Date.now(), name: name, type: type, color: colors[type], radix: 'hex', data: [] };
+        state.tree.push(newSig);
+        
+        state.selectedIds.clear();
+        state.selectedIds.add(newSig.id);
+
+        refreshAll();
+        state.cursorY = state.flatTracks.length - 1;
+        ensureCursorVisible();
+    }
+
+    function parseDisplayStr(val, sig) {
+        if (!val) return { str: 'z', isX: false, isZ: true };
+        const lower = val.toLowerCase();
+        if (lower === 'z') return { str: 'z', isX: false, isZ: true };
+        if (lower === 'x') return { str: 'x', isX: true, isZ: false };
+        if (val.startsWith('"') && val.endsWith('"')) return { str: val.substring(1, val.length - 1), isX:false, isZ:false };
+        
+        let numVal = NaN;
+        if (lower.startsWith('0x')) numVal = parseInt(val, 16);
+        else if (/^-?\d+$/.test(val)) numVal = parseInt(val, 10);
+        
+        if (!isNaN(numVal)) {
+            if (sig.radix === 'hex') return { str: '0x' + numVal.toString(16).toUpperCase(), isX:false, isZ:false };
+            if (sig.radix === 'dec') return { str: numVal.toString(10), isX:false, isZ:false };
+        }
+        return { str: val, isX: false, isZ: false };
+    }
+
+    function render() {
+        const rect = waveContainer.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        const theme = getTheme();
+        
+        ctx.fillStyle = theme.bg;
+        ctx.fillRect(0, 0, width, height);
+        
+        const cycleX = buildCycleMap();
+
+        ctx.setLineDash([2, 2]); ctx.lineWidth = 1; ctx.strokeStyle = theme.grid;
+        ctx.beginPath();
+        for (let i = 0; i <= state.cycles; i++) {
+            const x = cycleX[i] - state.offsetX;
+            if (x >= 0 && x <= width) { ctx.moveTo(x, 0); ctx.lineTo(x, height); }
+        }
+        ctx.stroke(); ctx.setLineDash([]); 
+
+        if (state.mode === 'wave') {
+            state.flatTracks.forEach((track, idx) => {
+                if(state.selectedIds.has(track.node.id)) {
+                    ctx.fillStyle = state.printMode ? 'rgba(0,0,0,0.03)' : 'rgba(52, 152, 219, 0.15)';
+                    ctx.fillRect(0, idx * state.trackHeight - state.offsetY, width, state.trackHeight);
+                }
+            });
+
+            const activeY = state.cursorY * state.trackHeight - state.offsetY;
+            ctx.fillStyle = theme.cursorBg;
+            ctx.fillRect(0, activeY, width, state.trackHeight);
+
+            const cursorPxX = cycleX[state.cursorX] - state.offsetX;
+            ctx.fillRect(cursorPxX, activeY, state.scaleX, state.trackHeight);
+            ctx.strokeStyle = theme.cursorLine; ctx.lineWidth = 1;
+            ctx.strokeRect(cursorPxX, activeY, state.scaleX, state.trackHeight);
+        }
+
+        ctx.save();
+        state.gaps.forEach(g => {
+            const rightX = cycleX[g] - state.offsetX;
+            const leftX = rightX - state.GAP_WIDTH;
+            if (rightX < 0 || leftX > width) return;
+
+            ctx.fillStyle = theme.gapBg;
+            ctx.fillRect(leftX, 0, state.GAP_WIDTH, height);
+
+            ctx.strokeStyle = theme.gapLine;
+            ctx.lineWidth = 1; ctx.setLineDash([4, 4]); 
+            ctx.beginPath();
+            ctx.moveTo(leftX + 4, 0); ctx.lineTo(leftX + 4, height);
+            ctx.moveTo(rightX - 4, 0); ctx.lineTo(rightX - 4, height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        });
+        ctx.restore();
+
+        state.flatTracks.forEach((track, idx) => {
+            const sig = track.node;
+            const yOffset = idx * state.trackHeight - state.offsetY;
+            if (yOffset > height || yOffset + state.trackHeight < 0) return;
+
+            if (sig.type === 'group') {
+                ctx.fillStyle = state.printMode ? '#f9f9f9' : '#1a1a1c';
+                ctx.fillRect(0, yOffset + 2, width, state.trackHeight - 4);
+                return;
+            }
+
+            const yMid = yOffset + state.trackHeight / 2;
+            const yHigh = yOffset + 8;
+            const yLow = yOffset + state.trackHeight - 8;
+            const drawColor = theme.getSigColor(sig.color);
+
+            ctx.strokeStyle = drawColor; ctx.fillStyle = drawColor; ctx.lineWidth = 2;
+            
+            if (sig.type === 'clock') {
+                ctx.beginPath();
+                for (let i = 0; i < state.cycles; i++) {
+                    const startX = cycleX[i] - state.offsetX;
+                    const endX = startX + state.scaleX;
+                    const midX = startX + state.scaleX / 2;
+                    if (i === 0 || state.gaps.has(i)) ctx.moveTo(startX, yLow);
+                    else ctx.lineTo(startX, yLow);
+                    ctx.lineTo(startX, yHigh); ctx.lineTo(midX, yHigh);
+                    ctx.lineTo(midX, yLow); ctx.lineTo(endX, yLow);
+                }
+                ctx.stroke();
+            }
+
+            else if (sig.type === 'single') {
+                ctx.beginPath();
+                let lastVal = null;
+                for (let i = 0; i < state.cycles; i++) {
+                    const startX = cycleX[i] - state.offsetX;
+                    const endX = startX + state.scaleX;
+                    const val = sig.data[i] || 'z';
+                    let y = yMid;
+                    if (val === '1') y = yHigh; else if (val === '0') y = yLow;
+
+                    if (i === 0 || state.gaps.has(i)) ctx.moveTo(startX, y); 
+                    else if (val !== lastVal) ctx.lineTo(startX, y);
+
+                    if (val.toLowerCase() === 'x') {
+                        ctx.stroke(); ctx.beginPath(); ctx.strokeStyle = theme.xState; 
+                        ctx.moveTo(startX, y); ctx.lineTo(endX, y);
+                        ctx.stroke(); ctx.beginPath(); ctx.strokeStyle = drawColor; 
+                    } else if (val.toLowerCase() === 'z') {
+                        ctx.stroke(); ctx.beginPath(); ctx.strokeStyle = theme.zState; 
+                        ctx.moveTo(startX, y); ctx.lineTo(endX, y);
+                        ctx.stroke(); ctx.beginPath(); ctx.strokeStyle = drawColor;
+                    } else { ctx.lineTo(endX, y); }
+                    lastVal = val;
+                }
+                ctx.stroke();
+            }
+
+            else if (sig.type === 'multi') {
+                let startIdx = 0;
+                while (startIdx < state.cycles) {
+                    const val = sig.data[startIdx] || 'z';
+                    let endIdx = startIdx;
+                    while (endIdx + 1 < state.cycles && (sig.data[endIdx + 1] || 'z') === val && !state.gaps.has(endIdx + 1)) {
+                        endIdx++;
+                    }
+                    
+                    const xStart = cycleX[startIdx] - state.offsetX;
+                    const xEnd = cycleX[endIdx] + state.scaleX - state.offsetX;
+                    const boxWidth = xEnd - xStart;
+                    const boxHeight = yLow - yHigh;
+                    
+                    if (xEnd > 0 && xStart < width) {
+                        const parsed = parseDisplayStr(val, sig);
+                        
+                        if (parsed.isZ) {
+                            ctx.beginPath(); ctx.strokeStyle = theme.zState;
+                            ctx.moveTo(xStart, yMid); ctx.lineTo(xEnd, yMid); ctx.stroke();
+                            ctx.strokeStyle = drawColor;
+                        } 
+                        else if (parsed.isX) {
+                            ctx.beginPath(); ctx.strokeStyle = theme.xState;
+                            ctx.strokeRect(xStart, yHigh, boxWidth, boxHeight);
+                            ctx.save(); ctx.beginPath(); ctx.rect(xStart, yHigh, boxWidth, boxHeight); ctx.clip(); 
+                            ctx.beginPath(); ctx.strokeStyle = theme.xState; ctx.lineWidth = 1;
+                            for (let x = xStart - boxHeight; x < xEnd; x += 6) {
+                                ctx.moveTo(x, yLow); ctx.lineTo(x + boxHeight, yHigh);
+                            }
+                            ctx.stroke(); ctx.restore();
+                            ctx.strokeStyle = drawColor; ctx.fillStyle = drawColor;
+                        } 
+                        else {
+                            ctx.beginPath(); ctx.strokeRect(xStart, yHigh, boxWidth, boxHeight);
+                            ctx.font = '12px Consolas, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                            const maxTextW = boxWidth - 4;
+                            if (maxTextW > 10) {
+                                if (ctx.measureText(parsed.str).width > maxTextW) {
+                                    let str = parsed.str;
+                                    if(boxWidth < 20) ctx.fillText('...', xStart + boxWidth/2, yMid);
+                                    else {
+                                        while(str.length > 0 && ctx.measureText(str+'...').width > maxTextW) str = str.slice(0,-1);
+                                        ctx.fillText(str+'...', xStart + boxWidth/2, yMid);
+                                    }
+                                }
+                                else ctx.fillText(parsed.str, xStart + boxWidth/2, yMid);
+                            }
+                        }
+                    }
+                    startIdx = endIdx + 1;
+                }
+            }
+        });
+
+        state.texts.forEach(t => {
+            ctx.font = `${t.size}px Consolas, sans-serif`;
+            ctx.fillStyle = state.printMode ? '#000000' : t.color;
+            ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+            
+            const screenX = cycleToPx(t.cycle) - state.offsetX;
+            const screenY = t.y - state.offsetY;
+            
+            const boxPx = t.boxWidthCycles * state.scaleX;
+            let displayStr = t.text;
+            
+            if (ctx.measureText(displayStr).width > boxPx) {
+                if (boxPx < 20) displayStr = '...';
+                else {
+                    while (displayStr.length > 0 && ctx.measureText(displayStr + '...').width > boxPx) {
+                        displayStr = displayStr.slice(0, -1);
+                    }
+                    displayStr += '...';
+                }
+            }
+
+            ctx.fillText(displayStr, screenX, screenY);
+            
+            if (state.mode === 'text' && state.selectedTextId === t.id) {
+                ctx.strokeStyle = theme.cursorLine; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+                ctx.strokeRect(screenX - 2, screenY - t.size - 2, boxPx + 4, t.size + 4);
+                ctx.setLineDash([]);
+            }
+        });
+
+        document.getElementById('statusZoom').innerText = `Scale: ${Math.round(state.scaleX)} px/cycle`;
+    }
+
+    let isDraggingText = false;
+    let dragOffset = { x: 0, y: 0 };
+
+    waveContainer.addEventListener('mousedown', (e) => {
+        if (state.isModalOpen || state.cmdType) return;
+        waveContainer.focus();
+        const rect = waveContainer.getBoundingClientRect();
+        const mx = e.clientX - rect.left + state.offsetX;
+        const my = e.clientY - rect.top + state.offsetY;
+
+        if (state.mode === 'text') {
+            let hit = null;
+            for (let i = state.texts.length - 1; i >= 0; i--) {
+                const t = state.texts[i];
+                ctx.font = `${t.size}px Consolas, sans-serif`;
+                const boxPx = t.boxWidthCycles * state.scaleX;
+                const tX = cycleToPx(t.cycle);
+                if (mx >= tX && mx <= tX + boxPx && my <= t.y && my >= t.y - t.size) { hit = t; break; }
+            }
+            if (hit) {
+                state.selectedTextId = hit.id;
+                isDraggingText = true; 
+                dragOffset = { x: mx - cycleToPx(hit.cycle), y: my - hit.y };
+            } else {
+                state.selectedTextId = null;
+                startTextEdit(e.clientX - rect.left, e.clientY - rect.top);
+            }
+            render(); return;
+        }
+
+        if (state.mode === 'wave') {
+            state.cursorX = Math.floor(pxToCycle(mx));
+            state.cursorX = Math.max(0, Math.min(state.cycles - 1, state.cursorX));
+            state.cursorY = Math.floor(my / state.trackHeight);
+            state.cursorY = Math.max(0, Math.min(state.flatTracks.length - 1, state.cursorY));
+            ensureCursorVisible();
+        }
+    });
+
+    waveContainer.addEventListener('mousemove', (e) => {
+        if (state.mode === 'text' && isDraggingText && state.selectedTextId) {
+            const rect = waveContainer.getBoundingClientRect();
+            const t = state.texts.find(x => x.id === state.selectedTextId);
+            if (t) {
+                const newAbsoluteX = (e.clientX - rect.left + state.offsetX) - dragOffset.x;
+                t.cycle = pxToCycle(newAbsoluteX);
+                t.y = (e.clientY - rect.top + state.offsetY) - dragOffset.y;
+                render();
+            }
+        }
+    });
+    window.addEventListener('mouseup', () => { isDraggingText = false; });
+
+    function startTextEdit(screenX, screenY) {
+        state.isEditingText = true;
+        textInputOverlay.style.display = 'block';
+        textInputOverlay.style.left = `${screenX}px`;
+        textInputOverlay.style.top = `${screenY - 14}px`; 
+        textInputOverlay.value = ''; 
+        textInputOverlay.dataset.px = screenX + state.offsetX;
+        textInputOverlay.dataset.y = screenY + state.offsetY;
+        
+        setTimeout(() => { textInputOverlay.focus(); }, 10);
+    }
+
+    textInputOverlay.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const val = textInputOverlay.value.trim();
+            if (val) {
+                ctx.font = `16px Consolas, sans-serif`;
+                const wPx = ctx.measureText(val).width;
+                state.texts.push({ 
+                    id: 'txt_' + Date.now(), 
+                    text: val, 
+                    cycle: pxToCycle(parseFloat(textInputOverlay.dataset.px)), 
+                    y: parseFloat(textInputOverlay.dataset.y), 
+                    size: 16, 
+                    boxWidthCycles: wPx / state.scaleX, 
+                    color: '#f1c40f' 
+                });
+            }
+            endTextEdit();
+        } else if (e.key === 'Escape') endTextEdit();
+    });
+    function endTextEdit() { state.isEditingText = false; textInputOverlay.style.display = 'none'; waveContainer.focus(); render(); }
+
+    window.addEventListener('keydown', (e) => {
+        if (state.cmdType || state.isModalOpen || state.isEditingText) return;
+        const k = e.key.toLowerCase();
+
+        if (k === 'delete' || (k === 'd' && lastKey === 'd' && Date.now() - lastKeyTime < 500)) {
+            e.preventDefault();
+            deleteSelectedSignal();
+            lastKey = '';
+            return;
+        }
+
+        if (k === 'd') {
+            lastKey = 'd';
+            lastKeyTime = Date.now();
+        } else {
+            lastKey = ''; 
+        }
+
+        if (e.key === '/' && state.mode === 'wave') { e.preventDefault(); startCmdMode('search'); return; }
+        if (e.key === ':') { e.preventDefault(); startCmdMode('cmd'); return; }
+
+        if (e.ctrlKey && k === 'g') { e.preventDefault(); groupSelected(); return; }
+
+        if (state.mode === 'text') {
+            if (state.selectedTextId) {
+                if (k === 'delete' || k === 'x') { state.texts = state.texts.filter(t => t.id !== state.selectedTextId); state.selectedTextId = null; render(); }
+                else if (k === 'c') { e.preventDefault(); openAttrModal(); }
+            }
+            return;
+        }
+
+        const sig = state.flatTracks[state.cursorY]?.node;
+        if (!sig) return;
+
+        if (k === 'c') { e.preventDefault(); openAttrModal(); return; }
+
+        let moved = false;
+        if (e.key === 'ArrowRight' || k === 'l') { state.cursorX = Math.min(state.cycles - 1, state.cursorX + 1); moved = true; }
+        if (e.key === 'ArrowLeft'  || k === 'h') { state.cursorX = Math.max(0, state.cursorX - 1); moved = true; }
+        if (e.key === 'ArrowDown'  || k === 'j') { state.cursorY = Math.min(state.flatTracks.length - 1, state.cursorY + 1); moved = true; }
+        if (e.key === 'ArrowUp'    || k === 'k') { state.cursorY = Math.max(0, state.cursorY - 1); moved = true; }
+        if (moved) { e.preventDefault(); ensureCursorVisible(); return; }
+
+        if (k === 'i') {
+            e.preventDefault();
+            if (state.gaps.has(state.cursorX)) state.gaps.delete(state.cursorX);
+            else state.gaps.add(state.cursorX);
+            ensureCursorVisible(); return;
+        }
+
+        if (sig.type === 'clock' || sig.type === 'group') return;
+
+        if (k === ' ') {
+            e.preventDefault();
+            if (state.cursorX > 0) sig.data[state.cursorX] = sig.data[state.cursorX - 1] || 'z';
+            state.cursorX = Math.min(state.cycles - 1, state.cursorX + 1);
+            ensureCursorVisible(); return;
+        }
+        if (sig.type === 'single' && ['0', '1', 'x', 'z'].includes(k)) {
+            sig.data[state.cursorX] = k; state.cursorX = Math.min(state.cycles - 1, state.cursorX + 1); ensureCursorVisible();
+        }
+        if (sig.type === 'multi') {
+            if (k === 'x' || k === 'z') { sig.data[state.cursorX] = k; state.cursorX = Math.min(state.cycles - 1, state.cursorX + 1); ensureCursorVisible(); }
+            else if (k === 's') { e.preventDefault(); startCmdMode('edit'); }
+        }
+    });
+
+    waveContainer.addEventListener('wheel', (e) => {
+        if (state.isModalOpen || state.isEditingText) return;
+        e.preventDefault();
+        
+        if (state.mode === 'text' && state.selectedTextId) {
+            const t = state.texts.find(x => x.id === state.selectedTextId);
+            if (t) { 
+                t.size += (e.deltaY < 0 ? 2 : -2); 
+                t.size = Math.max(10, Math.min(t.size, 100)); 
+                ctx.font = `${t.size}px Consolas, sans-serif`;
+                t.boxWidthCycles = ctx.measureText(t.text).width / state.scaleX;
+                render(); 
+                return; 
+            }
+        }
+
+        if (e.ctrlKey) {
+            const zoomDelta = e.deltaY > 0 ? 0.8 : 1.25;
+            const mouseX = e.clientX - waveContainer.getBoundingClientRect().left;
+            const absoluteMouseX = mouseX + state.offsetX;
+            const ratio = absoluteMouseX / (state.cycles * state.scaleX + state.gaps.size * state.GAP_WIDTH);
+
+            state.scaleX = Math.max(10, Math.min(state.scaleX * zoomDelta, 200));
+            const newTotalWidth = state.cycles * state.scaleX + state.gaps.size * state.GAP_WIDTH;
+            state.offsetX = Math.max(0, newTotalWidth * ratio - mouseX);
+            render();
+        } else if (e.shiftKey) { 
+            state.offsetX = Math.max(0, state.offsetX + e.deltaY); 
+            render();
+        } else {
+            state.offsetY = Math.max(0, state.offsetY + e.deltaY);
+            const rect = waveContainer.getBoundingClientRect();
+            const maxScrollY = Math.max(0, state.flatTracks.length * state.trackHeight - rect.height);
+            state.offsetY = Math.min(state.offsetY, maxScrollY); 
+            renderSignalList(); 
+            render();
+        }
+    });
+
+    function startCmdMode(type) {
+        state.cmdType = type;
+        document.getElementById('statusInfo').style.display = 'none'; document.getElementById('statusCmd').style.display = 'flex';
+        const label = document.getElementById('cmdLabel');
+        if (type === 'search') {
+            label.innerText = '/SEARCH'; busInput.placeholder = 'Search value...'; busInput.value = '';
+        } else if (type === 'cmd') {
+            label.innerText = ':CMD'; busInput.placeholder = 'e.g., help, text, wave...'; busInput.value = '';
+        } else {
+            label.innerText = ':EDIT_BUS'; const sig = state.flatTracks[state.cursorY].node;
+            busInput.value = sig.data[state.cursorX] && !['x','z'].includes(sig.data[state.cursorX].toLowerCase()) ? sig.data[state.cursorX] : '';
+        }
+        setTimeout(() => { busInput.focus(); if (type === 'edit') busInput.select(); }, 10);
+    }
+
+    busInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const val = busInput.value.trim();
+            if (state.cmdType === 'edit') {
+                state.flatTracks[state.cursorY].node.data[state.cursorX] = val;
+                state.cursorX = Math.min(state.cycles - 1, state.cursorX + 1);
+            } 
+            else if (state.cmdType === 'search') {
+                const sig = state.flatTracks[state.cursorY].node;
+                let found = false;
+                const searchStr = val.toLowerCase();
+                for (let offset = 1; offset <= state.cycles; offset++) {
+                    const i = (state.cursorX + offset) % state.cycles;
+                    const rawVal = sig.data[i] || 'z';
+                    const parsed = parseDisplayStr(rawVal, sig);
+                    if (rawVal.toLowerCase().includes(searchStr) || parsed.str.toLowerCase().includes(searchStr)) {
+                        state.cursorX = i; found = true; break;
+                    }
+                }
+                if (!found) alert('整条轨道未找到: ' + val);
+            } 
+            else if (state.cmdType === 'cmd') {
+                if (val === 'text') toggleMode('text'); 
+                else if (val === 'wave') toggleMode('wave');
+                else if (val === 'help') { openHelpModal(); }
+            }
+            endCmdMode(); ensureCursorVisible();
+        } else if (e.key === 'Escape') endCmdMode();
+    });
+
+    function endCmdMode() {
+        if (state.cmdType === 'cmd' && busInput.value.trim() === 'help') return; 
+        state.cmdType = ''; busInput.blur();
+        document.getElementById('statusCmd').style.display = 'none'; document.getElementById('statusInfo').style.display = 'flex';
+        waveContainer.focus(); render();
+    }
+
+    function openAttrModal() {
+        state.isModalOpen = true; attrModal.style.display = 'flex';
+        if (state.mode === 'text' && state.selectedTextId) {
+            document.getElementById('modalTitle').innerText = 'Text Properties';
+            const t = state.texts.find(x => x.id === state.selectedTextId);
+            document.getElementById('nameRow').style.display = 'none'; 
+            document.getElementById('colorRow').style.display = 'flex';
+            document.getElementById('modalColor').value = t.color;
+            document.getElementById('radixRow').style.display = 'none'; 
+        } else {
+            const sig = state.flatTracks[state.cursorY].node;
+            document.getElementById('modalTitle').innerText = sig.type === 'group' ? 'Group Properties' : 'Signal Properties';
+            
+            document.getElementById('nameRow').style.display = 'flex';
+            document.getElementById('modalName').value = sig.name;
+            
+            document.getElementById('colorRow').style.display = 'flex';
+            document.getElementById('modalColor').value = sig.color;
+            
+            document.getElementById('modalRadix').value = sig.radix || 'hex';
+            document.getElementById('radixRow').style.display = (sig.type === 'multi') ? 'flex' : 'none';
+        }
+        setTimeout(() => document.getElementById('modalName').focus(), 10);
+    }
+
+    function closeAttrModal() { state.isModalOpen = false; attrModal.style.display = 'none'; waveContainer.focus(); }
+
+    function applyAttrModal() {
+        if (state.mode === 'text' && state.selectedTextId) {
+            const t = state.texts.find(x => x.id === state.selectedTextId);
+            if(t) t.color = document.getElementById('modalColor').value;
+        } else {
+            const sig = state.flatTracks[state.cursorY].node;
+            sig.name = document.getElementById('modalName').value.trim() || sig.name;
+            sig.color = document.getElementById('modalColor').value;
+            if (sig.type === 'multi') sig.radix = document.getElementById('modalRadix').value;
+            refreshAll();
+        }
+        closeAttrModal(); render();
+    }
+
+    function openHelpModal() {
+        state.isModalOpen = true; 
+        state.cmdType = ''; busInput.blur();
+        document.getElementById('statusCmd').style.display = 'none'; document.getElementById('statusInfo').style.display = 'flex';
+        helpModal.style.display = 'flex';
+    }
+
+    function closeHelpModal() { state.isModalOpen = false; helpModal.style.display = 'none'; waveContainer.focus(); }
+
+    document.getElementById('attrModal').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') applyAttrModal();
+    });
+
+    waveContainer.focus(); refreshAll(); resizeCanvas();
+</script>
+</body>
+</html>
