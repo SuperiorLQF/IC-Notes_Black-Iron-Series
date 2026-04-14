@@ -83,7 +83,7 @@ function getTheme() {
     } else {
         return {
             bg: '#1e1e1e', 
-            grid: 'rgba(255, 255, 255, 0.4)', // 【修改】大幅提高栅格亮度
+            grid: 'rgba(255, 255, 255, 0.4)',
             text: '#d4d4d4',
             cursorBg, cursorLine,
             xState: '#e74c3c', zState: '#7f8c8d', measureBase: null, tempMeasure: '#f1c40f', 
@@ -158,7 +158,9 @@ function computeTrackLayout() {
             ctx.font = `14px Consolas, monospace`; textW = Math.min(ctx.measureText(m.text || 'Δt').width, pxWidth - 4); 
         } else if (pxWidth >= 10) textW = 6;
 
-        trackIntervals[minTrackIdx].push({ m, min: Math.min(absX1, absX2) - textW/2 - 5, max: Math.max(absX1, absX2) + textW/2 + 5 });
+        let minX = Math.min(absX1, absX2);
+        let maxX = Math.max(absX1, absX2);
+        trackIntervals[minTrackIdx].push({ m, min: minX + 0.1, max: maxX - 0.1 });
     });
 
     for (let tIdx in trackIntervals) {
@@ -182,17 +184,17 @@ function computeTrackLayout() {
         if (!textsByTrack[t.trackId]) textsByTrack[t.trackId] = [];
         textsByTrack[t.trackId].push(t);
         
-        ctx.font = `${t.size}px Consolas, monospace`;
+        ctx.font = `${t.size}px "Microsoft YaHei", SimHei, sans-serif`;
         let rawW = ctx.measureText(t.text || 'Note').width + (t.isSticky ? 28 : 8);
         let totalH = t.size;
         
         if (t.isSticky) {
             let lines = t.collapsed ? [] : (t.content || '').split('\n');
             if (!t.collapsed) {
-                ctx.font = `${t.size * 0.85}px Consolas, monospace`;
+                ctx.font = `${t.size * 0.85}px "Microsoft YaHei", SimHei, sans-serif`;
                 lines.forEach(l => { rawW = Math.max(rawW, ctx.measureText(l).width + 12); });
                 totalH = t.size + 12 + (lines.length * t.size * 0.9);
-                ctx.font = `${t.size}px Consolas, monospace`;
+                ctx.font = `${t.size}px "Microsoft YaHei", SimHei, sans-serif`;
             } else { totalH = t.size + 4; }
         }
         t.renderedHeight = totalH;
@@ -654,8 +656,8 @@ function render() {
         const snapSigInfo = findNodeAndParent(state.tree, state.snapTargetId);
         if (snapSigInfo && snapSigInfo.node.type !== 'group') {
             ctx.strokeStyle = theme.grid; 
-            ctx.lineWidth = 2;              // 【修改】线宽从 1 加粗到 2
-            ctx.setLineDash([4, 4]);        // 【修改】虚线间距调大，更加清晰
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
             ctx.beginPath();
             snapSigInfo.node.data.forEach(e => {
                 let px = timeToPx(e.t) - state.offsetX;
@@ -959,7 +961,7 @@ function render() {
                 ctx.fill();
             }
 
-            ctx.font = `${dSize}px Consolas, monospace`; let titleStr = displayStr; let availableTitleW = boxPx - 20; 
+            ctx.font = `${dSize}px "Microsoft YaHei", SimHei, sans-serif`; let titleStr = displayStr; let availableTitleW = boxPx - 20; 
             if (availableTitleW > 0) {
                 if (ctx.measureText(titleStr).width > availableTitleW) {
                     while (titleStr.length > 0 && ctx.measureText(titleStr + '...').width > availableTitleW) titleStr = titleStr.slice(0, -1);
@@ -970,7 +972,7 @@ function render() {
             }
 
             if (!t.collapsed) {
-                ctx.fillStyle = state.printMode ? '#333333' : theme.text; ctx.font = `${dSize * 0.85}px Consolas, monospace`;
+                ctx.fillStyle = state.printMode ? '#333333' : theme.text; ctx.font = `${dSize * 0.85}px "Microsoft YaHei", SimHei, sans-serif`;
                 lines.forEach((l, i) => {
                     let lineStr = l; let availableLineW = boxPx - 10;
                     if (availableLineW > 0) {
@@ -983,7 +985,7 @@ function render() {
                 });
             }
         } else {
-            ctx.font = `${dSize}px Consolas, monospace`; ctx.fillStyle = state.printMode ? '#000000' : t.color;
+            ctx.font = `${dSize}px "Microsoft YaHei", SimHei, sans-serif`; ctx.fillStyle = state.printMode ? '#000000' : t.color;
             ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; let availableW = boxPx - 4; 
             if (availableW > 0) {
                 if (ctx.measureText(displayStr).width > availableW) {
@@ -1466,7 +1468,7 @@ function openAttrModal() {
     const contentRow = document.getElementById('contentRow');
     const bgColorRow = document.getElementById('bgColorRow'); 
     const radixRow = document.getElementById('radixRow');
-    const colorRow = document.getElementById('colorRow'); // 获取Color配置行
+    const colorRow = document.getElementById('colorRow'); 
     
     // 初始化隐藏所有高级选项
     if (stickyRow) stickyRow.style.display = 'none'; 
@@ -1475,7 +1477,7 @@ function openAttrModal() {
     if (arrowTypeRow) arrowTypeRow.style.display = 'none';
     if (radixRow) radixRow.style.display = 'none'; 
     if (thickRow) thickRow.style.display = 'none';
-    if (colorRow) colorRow.style.display = 'flex'; // 默认显示颜色选项
+    if (colorRow) colorRow.style.display = 'flex'; 
 
     document.getElementById('attrModal').style.display = 'flex';
     
@@ -1523,12 +1525,11 @@ function openAttrModal() {
         document.getElementById('modalTitle').innerText = 'Group Properties'; 
         const grp = selectedGroups[0];
         document.getElementById('modalName').value = grp.name; 
-        if (colorRow) colorRow.style.display = 'none'; // 分组不需要调整颜色
+        if (colorRow) colorRow.style.display = 'none'; 
     }
     // 6. 默认：编辑当前选中的已有信号
     else {
         const sigs = getSelectedSignals(); 
-        // 只有在这里（非添加模式下）没选中信号才关闭面板
         if (sigs.length === 0) { closeModal('attrModal'); return; }
         
         document.getElementById('modalTitle').innerText = 'Signal Properties'; 
@@ -1539,7 +1540,6 @@ function openAttrModal() {
         if (sig.type === 'multi') { radixRow.style.display = 'flex'; document.getElementById('modalRadix').value = sig.radix || 'hex'; }
     }
     
-    // 自动聚焦输入框
     setTimeout(() => { document.getElementById('modalName').focus(); document.getElementById('modalName').select(); }, 10);
 }
 
