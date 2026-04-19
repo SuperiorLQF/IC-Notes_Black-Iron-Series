@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="..">
+        <link rel="prev" href="../cordic/">
       
       
-        <link rel="next" href="../sva/">
+        <link rel="next" href="../noc/">
       
       
       <link rel="icon" href="../img/favicon.ico">
@@ -20,7 +20,7 @@
     
     
       
-        <title>SystemVerilog - IC笔记 [黑铁篇]</title>
+        <title>FOC算法 - IC笔记 [黑铁篇]</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#systemverilog" class="md-skip">
+        <a href="#foc" class="md-skip">
           Skip to content
         </a>
       
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              SystemVerilog
+              FOC算法
             
           </span>
         </div>
@@ -197,13 +197,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../sv/" class="md-tabs__link">
           
   
   
@@ -219,10 +217,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../cordic/" class="md-tabs__link">
           
   
@@ -391,29 +391,24 @@
       
   
   
-    
   
   
-  
     
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -426,7 +421,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             语法章
@@ -437,32 +432,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    SystemVerilog
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../sv/" class="md-nav__link">
         
   
   
@@ -473,71 +446,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      数据类型与数据结构
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
-    <span class="md-ellipsis">
-      面向对象
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
-    <span class="md-ellipsis">
-      随机化与约束
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
-    <span class="md-ellipsis">
-      线程
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      interface
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -600,24 +508,29 @@
       
   
   
+    
   
   
+  
     
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -630,7 +543,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             算法章
@@ -664,10 +577,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../foc/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    FOC算法
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -678,6 +613,71 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.直流无刷电机简介
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.直流无刷电机简化模型
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.三相电流推导
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.控制中的权衡
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5svpwm" class="md-nav__link">
+    <span class="md-ellipsis">
+      5.电压旋转矢量与SVPWM
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1043,45 +1043,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#1" class="md-nav__link">
     <span class="md-ellipsis">
-      数据类型与数据结构
+      1.直流无刷电机简介
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#2" class="md-nav__link">
     <span class="md-ellipsis">
-      面向对象
+      2.直流无刷电机简化模型
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#3" class="md-nav__link">
     <span class="md-ellipsis">
-      随机化与约束
+      3.三相电流推导
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
+  <a href="#4" class="md-nav__link">
     <span class="md-ellipsis">
-      线程
+      4.控制中的权衡
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#interface" class="md-nav__link">
+  <a href="#5svpwm" class="md-nav__link">
     <span class="md-ellipsis">
-      interface
+      5.电压旋转矢量与SVPWM
     </span>
   </a>
   
@@ -1103,30 +1103,59 @@
 
 
 
-<h1 id="systemverilog"><span class="hl info">SystemVerilog</span><a class="headerlink" href="#systemverilog" title="Permanent link">&para;</a></h1>
-<div class="toc">
-<ul>
-<li><a href="#systemverilog">SystemVerilog</a><ul>
-<li><a href="#_1">数据类型与数据结构</a></li>
-<li><a href="#_2">面向对象</a></li>
-<li><a href="#_3">随机化与约束</a></li>
-<li><a href="#_4">线程</a></li>
-<li><a href="#interface">interface</a></li>
-</ul>
-</li>
-</ul>
+<h1 id="foc"><span class="hl warn">FOC算法</span><a class="headerlink" href="#foc" title="Permanent link">&para;</a></h1>
+<h2 id="1">1.直流无刷电机简介<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>直流无刷电机由定子和转子构成，定子是线圈，转子是永磁体。
+<font color=gray>(因为在无刷电机中没有电刷，如果线圈转起来，线就缠在一起了，所以线圈只能作为定子。</font><br />
+根据转子在内还是在外，分为内转子和外转子,对比如下:  </p>
+<p><img alt="alt text" src="../img/image-46.png#img80" />  </p>
+<p>示意图如下  </p>
+<p><img alt="alt text" src="../img/image-45.png#img70" />   </p>
+<h2 id="2">2.直流无刷电机简化模型<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<p>尽管直流无刷电机经常拥有多对极，但是都可以简化为以下模型，三个绕组线圈位置相差120°   <br />
+<img alt="alt text" src="../img/fig3-a-bldc-monitor-zh.gif#img50" /> <br />
+只需要控制三相线圈产生的合磁场可以拖动永磁体旋转即可，容易想到，当磁场方向和磁铁方向垂直时，产生的拖动力矩是最大的。<font color=gray>(因为如果磁场方向和磁铁方向的夹角不是90°，磁场就会有平行于磁铁方向无效的分量。)</font><br />
+为了保证每时每刻力矩都是最大的，没有无效分量(下图中的D force的方向)，就需要<span class="btlr">控制线圈产生的磁场方向在旋转过程中时钟保持和转子永磁体磁场方向垂直</span>。(下图中的Q force的方向)  <br />
+<img alt="alt text" src="../img/image-47.png#img70" /><br />
+大部分直流无刷电机三相绕组使用星形连接，如下图所示<br />
+<img alt="alt text" src="../img/image-48.png#img90" />  </p>
+<h2 id="3">3.三相电流推导<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<p>目标是希望有一个磁场，匀速旋转。
+<script type="math/tex; mode=display">
+F_{target} = F_me^{j\omega t} = F_m(cos\omega t + j\ sin\omega t)
+</script>
+现在有3个线圈，通入电流ia/ib/ic，产生的磁场表达式
+<script type="math/tex; mode=display">
+F_{target} = i_a(t)\cdot e^{j0} + i_b(t)\cdot e^{j\frac{2\pi}{3}} + i_c(t)\cdot e^{j\frac{4\pi}{3}}
+</script>
+此外还有KCL约束
+<script type="math/tex; mode=display">
+i_a(t) + i_b(t) + i_c(t) = 0
+</script>
+建立实部和虚部相等的方程，就可以解出来a,b,c线圈电流相位依次相差120°
+<script type="math/tex; mode=display">
+i_a(t) = \frac{2}{3}F_mcos\omega t
+</script>
+<script type="math/tex; mode=display">
+i_b(t) = \frac{2}{3}F_mcos(\omega t - \frac{2\pi}{3})
+</script>
+<script type="math/tex; mode=display">
+i_c(t) = \frac{2}{3}F_mcos(\omega t - \frac{4\pi}{3})
+</script>
+</p>
+<div class="hb">
+注意，推导过程中假设a,b,c绕组在0，120和240度的位置
 </div>
-<details class="success" open="open">
-<summary><font size=3>reference</font></summary>
-<p>[1] <a href="https://easyformal.com/">easy formal官网</a><br />
-[2] 《SystemVerilog绿皮书》</p>
-</details>
-<h2 id="_1">数据类型与数据结构<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<h2 id="_2">面向对象<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<h2 id="_3">随机化与约束<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<p>定向测试编写用例覆盖场景优先，效率也不高，因此随机化应运而生。</p>
-<h2 id="_4">线程<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<h2 id="interface">interface<a class="headerlink" href="#interface" title="Permanent link">&para;</a></h2>
+<p>波形如下    <br />
+<img alt="alt text" src="../img/image-52.png#img70" />  </p>
+<h2 id="4">4.控制中的权衡<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<p>我们的实际控制对象是电压而不是电流，在动态时，将电感、反电动势等考虑进来，其实电压矢量和电流矢量是存在一个偏角的。但我们把这些包括点击发热等，视为误差交给反馈控制来解决。在后面章节会介绍，这里只是提一下打消可能存在的疑惑。   </p>
+<h2 id="5svpwm">5.电压旋转矢量与SVPWM<a class="headerlink" href="#5svpwm" title="Permanent link">&para;</a></h2>
+<p>假设电流从线圈A流到B/C，那可以合成出空间电压矢量。罗列各种情况，总共可以产生6种空间电压矢量   <br />
+<img alt="alt text" src="../img/image-49.png#img30" /><br />
+每两个相邻的空间电压矢量直接60°的范围称为扇区 <br />
+扇区内部的电压旋转矢量，可以使用伏秒平衡的方法来实现，即用扇区两个边界矢量加上0矢量，控制持续时间，来控制电压矢量的大小与方向。
+本质上，伏秒平衡是因为电感电流不能突变，短时间内的积分电压只要“面积相等”，无论在时间轴上是什么形状，其带来的电流增量效果是一样的。  </p>
 
 
 
