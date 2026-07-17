@@ -740,6 +740,57 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      马鞍波推导
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="马鞍波推导">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      物理边界约束方程
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#u_n_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      中性点电位 $U_N$ 的容身空间求解
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-a_max-u_n" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 最大线性调制幅值 $A_{\max}$ 与最优 $U_N$ 的确立
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. 最终马鞍波调制形变波形
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1219,6 +1270,57 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      马鞍波推导
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="马鞍波推导">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      物理边界约束方程
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#u_n_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      中性点电位 $U_N$ 的容身空间求解
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-a_max-u_n" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 最大线性调制幅值 $A_{\max}$ 与最优 $U_N$ 的确立
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. 最终马鞍波调制形变波形
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1448,6 +1550,7 @@ i_3 = A \cos\left(\omega t - \frac{4}{3}\pi\right)
 </div>
 <p>波形如下    <br />
 <img alt="alt text" src="../img/image-52.png#img70" />  </p>
+<p>容易证明，三相电压的关系和电流相似，也是相差120度，但是电压在时间上整体领先电流（由于感抗导致，后面可能会补充证明过程）</p>
 <h2 id="_4"><span class="hl">三相星形拓扑中性点电位推导</span><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <div class="hb">
 在三相无中线对称负载系统中，已知外部加载的端电位（电动势）为 $Uu, Uv, Uw$，如何求得中心点（中性点）电位 $UN$？
@@ -1591,6 +1694,155 @@ U_N = \frac{Uu + Uv + Uw}{3}
 <p>由此可见，只有当 $Zu = Zv = Zw$ 时，上式分母变为 $\frac{3}{Z}$，分子提取 $\frac{1}{Z}$ 相互消去，方可收敛至标准算术平均值公式（6）。</p>
 </details>
 <p>&emsp;  </p>
+<h2 id="_6"><span class="hl">马鞍波推导</span><a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<div class="hb">
+已知三相绕组自身的相电动势（相电压）为 $U_{uN}, U_{vN}, U_{wN}$。在单电源供电系统中，为了使逆变器输出不失真，三相端电位$U_v,U_u,U_w$必须严格约束在直流母线电压 $[0, U_{dc}]$ 之间。<br/>   <br/>   
+如何选择动态中性点电位 $U_N$，才能使相电压幅值 $A$ 达到最大？
+</div>
+
+<p>&emsp;  </p>
+<h3 id="_7"><font color=purple>物理边界约束方程</font><a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p>系统输出的端电位由绕组自身的相电动势与中性点电位叠加而成。由于受限于直流母线轨，任意瞬时时刻均需满足以下不等式组：</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\begin{cases}
+0 \le U_{uN} + U_N \le U_{dc} \\
+0 \le U_{vN} + U_N \le U_{dc} \\
+0 \le U_{wN} + U_N \le U_{dc}
+\end{cases}
+\end{equation}
+</script>
+</p>
+<p>将相电动势各项参数化，设其为相差 $120^\circ$ 的对称正弦波形：
+<script type="math/tex; mode=display">
+\begin{align}
+U_{uN} &= A\cos\omega t \\
+U_{vN} &= A\cos\left(\omega t - \frac{2}{3}\pi\right) \\
+U_{wN} &= A\cos\left(\omega t - \frac{4}{3}\pi\right)
+\end{align}
+</script>
+</p>
+<p>&emsp;  </p>
+<h3 id="u_n_1"><font color=purple>中性点电位 $U_N$ 的容身空间求解</font><a class="headerlink" href="#u_n_1" title="Permanent link">&para;</a></h3>
+<p>为了求解 $U_N$ 的动态取值范围，将不等式组（1）进行移项拆解，分离出 $U_N$ 的上下夹头边界：</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\begin{cases}
+U_N \ge -U_{uN} \\
+U_N \ge -U_{vN} \\
+U_N \ge -U_{wN}
+\end{cases}
+\quad \text{且} \quad
+\begin{cases}
+U_N \le -U_{uN} + U_{dc} \\
+U_N \le -U_{vN} + U_{dc} \\
+U_N \le -U_{wN} + U_{dc}
+\end{cases}
+\end{equation}
+</script>
+</p>
+<p>欲使上述条件在任一瞬时时刻同时成立，$U_N$ 必须介于三相基波负值的<span class="hl warn">最大上包络线</span>与<span class="hl warn">最小下包络线</span>之间：</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\max(-U_{uN}, -U_{vN}, -U_{wN}) \le U_N \le \min(-U_{uN}, -U_{vN}, -U_{wN}) + U_{dc}
+\end{equation}
+</script>
+</p>
+<p>利用极值数学性质 $\max(-X) = -\min(X)$ 归一化符号，得到 $U_N$ 的精简边界约束：</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{equation}
+-\min(U_{uN}, U_{vN}, U_{wN}) \le U_N \le -\max(U_{uN}, U_{vN}, U_{wN}) + U_{dc}
+\end{equation}
+</script>
+</p>
+<p>&emsp;  </p>
+<h3 id="3-a_max-u_n">3. 最大线性调制幅值 $A_{\max}$ 与最优 $U_N$ 的确立<a class="headerlink" href="#3-a_max-u_n" title="Permanent link">&para;</a></h3>
+<details class="info" open="open">
+<summary>详细化简与极限推导过程</summary>
+<p>为了确保约束空间方程（6）在全周期内存在物理实解，上边界必须恒大于或等于下边界条件：
+<script type="math/tex; mode=display"> -\max(U_{uN}, U_{vN}, U_{wN}) + U_{dc} \ge -\min(U_{uN}, U_{vN}, U_{wN}) </script>
+<script type="math/tex; mode=display"> U_{dc} \ge \max(U_{uN}, U_{vN}, U_{wN}) - \min(U_{uN}, U_{vN}, U_{wN}) </script>
+</p>
+<p>在对称三相正弦波系统中，最大相与最小相的瞬时差值（即线电压包络线的峰值）是恒定的：
+<script type="math/tex; mode=display"> \left[ \max(U_{uN}, U_{vN}, U_{wN}) - \min(U_{uN}, U_{vN}, U_{wN}) \right]_{\max} = \sqrt{3}A </script>
+</p>
+<p>代入临界失真边界，即可直接求出最大线性调制幅值 $A_{\max}$：
+<script type="math/tex; mode=display"> \sqrt{3}A_{\max} = U_{dc} \implies A_{\max} = \frac{U_{dc}}{\sqrt{3}} \approx 0.577 U_{dc} </script>
+</p>
+<p><strong>最优零序电压注入策略：</strong>
+为了给各相端电位向两端母线轨（$0\text{V}$ 与 $U_{dc}$）留出最均衡的动态裕量，在工程上选择将 $U_N$ 钉在上下限的<strong>正中间（Midpoint）</strong>：
+<script type="math/tex; mode=display"> U_N(t) = \frac{-\min(U_{uN},U_{vN},U_{wN}) + \left[-\max(U_{uN},U_{vN},U_{wN}) + U_{dc}\right]}{2} </script>
+<script type="math/tex; mode=display"> U_N(t) = \frac{U_{dc}}{2} - \frac{\max(U_{uN}, U_{vN}, U_{wN}) + \min(U_{uN}, U_{vN}, U_{wN})}{2} </script>
+</p>
+</details>
+<p>&emsp;  </p>
+<h3 id="4_1">4. 最终马鞍波调制形变波形<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h3>
+<p>当系统工作在 $A_{\max} = \frac{U_{dc}}{\sqrt{3}}$ 极限状态下，注入最优零序电压 $U_N(t)$ 后的实际端电位波形（例如 U 相端电位 $U_u = U_{uN} + U_N$）将演化为经典的<strong>马鞍波（Saddle Wave）</strong>，其物理图像如下所示：</p>
+<div align="center">
+<svg width="540" height="280" viewBox="0 0 540 280" xmlns="http://www.w3.org/2000/svg" style="background: transparent;">
+  <!-- 电压上下限边界 -->
+  <line x1="45" y1="30" x2="445" y2="30" stroke="#ff4d4f" stroke-width="1.5" stroke-dasharray="4 4" />
+  <line x1="45" y1="230" x2="445" y2="230" stroke="#ff4d4f" stroke-width="1.5" stroke-dasharray="4 4" />
+
+  <!-- 坐标轴 -->
+  <line x1="45" y1="245" x2="45" y2="15" stroke="#333" stroke-width="1.5" />
+  <line x1="40" y1="130" x2="455" y2="130" stroke="#666" stroke-width="1" />
+
+  <!-- 定义高清晰度自适应文字标签 -->
+  <g font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="bold" stroke="#fff" stroke-width="3" stroke-linejoin="round" paint-order="stroke">
+    <text x="10" y="35" fill="#ff4d4f">Udc</text>
+    <text x="12" y="134" fill="#666" font-weight="normal">0.5Udc</text>
+    <text x="15" y="235" fill="#ff4d4f">0V</text>
+  </g>
+
+  <!-- U相原始纯正弦波 U_uN (虚线，幅值超出30~230的线性区) -->
+  <path d="M 45 130 C 105 12, 165 12, 225 130 C 285 248, 345 248, 405 130" fill="none" stroke="#bbb" stroke-width="1.5" stroke-dasharray="3 3" />
+
+  <!-- U相注入零序电压后的输出端电位马鞍波 (U_uN + U_N) -->
+  <path d="M 45 130 
+           Q 75 55, 105 43 
+           Q 135 30, 165 43 
+           Q 195 55, 225 130 
+           Q 255 205, 285 217 
+           Q 315 230, 345 217 
+           Q 375 205, 405 130" 
+        fill="none" stroke="#1890ff" stroke-width="3" stroke-linecap="round" />
+
+  <!-- V相输出端电位马鞍波 (U_vN + U_N，相差120度，右移120像素) -->
+  <path d="M 45 217 Q 75 205, 105 130 Q 135 55, 165 43 Q 195 30, 225 43 Q 255 55, 285 130 Q 315 205, 345 217 Q 375 230, 405 217" fill="none" stroke="#52c41a" stroke-width="1.5" opacity="0.65"/>
+
+  <!-- 注入的动态零序电压 UN(t) 波形 (3倍频马鞍底座) -->
+  <path d="M 45 130 Q 75 155, 105 130 Q 135 105, 165 130 Q 195 155, 225 130 Q 255 105, 285 130 Q 315 155, 345 130 Q 375 105, 405 130" 
+        fill="none" stroke="#ffa940" stroke-width="2" stroke-dasharray="2 2" />
+
+  <!-- 图例样式说明 -->
+  <g font-size="12" font-family="sans-serif">
+    <rect x="420" y="55" width="12" height="12" fill="#1890ff" />
+    <text x="440" y="66" fill="#333">端电位 Uu (马鞍波)</text>
+
+    <rect x="420" y="80" width="12" height="12" fill="#ffa940" />
+    <text x="440" y="91" fill="#ffa940" font-weight="bold">零序电压 UN(t)</text>
+
+    <line x1="420" y1="110" x2="432" y2="110" stroke="#bbb" stroke-width="1.5" stroke-dasharray="3 3" />
+    <text x="440" y="114" fill="#999">纯正弦波 UuN</text>
+  </g>
+
+  <!-- 顶峰切点标志 -->
+  <circle cx="165" cy="43" r="3.5" fill="#ff4d4f" />
+  <line x1="165" y1="43" x2="165" y2="130" stroke="#ff4d4f" stroke-width="0.8" stroke-dasharray="2 2" />
+  <text x="157" y="145" font-size="11" fill="#ff4d4f" font-family="sans-serif">90°</text>
+</svg>
+</div>
+
+<p>&emsp;  </p>
+<div class="hb tip">
+<b>物理与芯片架构总结：</b><br>
+未注入零序电压时（即中性点固定为 $0.5U_{dc}$），相电压幅值最大只能达到 $0.5U_{dc}$。引入最优动态 $U_N(t)$ 注入后，利用“削峰填谷”的空间几何平移，<b>在不改变线电压本质的前提下，成功将基波线性调制区利用率压榨并提升了 15.47%</b>（至 $0.577U_{dc}$）。在数字芯片（如 FPGA/ASIC 逻辑硬核）中，该算法无需复杂的三角函数计算，仅需实时捕获三相相电压的极值并完成基础的移位加法 <code>UN = 0.5Udc - ((Max + Min) >> 1)</code> 即可高速收敛。
+</div>
 
 
 
