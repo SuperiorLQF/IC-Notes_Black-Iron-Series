@@ -707,6 +707,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      三相星形拓扑中性点电位推导
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三相星形拓扑中性点电位推导">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      三相星形负载电路模型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#u_n" class="md-nav__link">
+    <span class="md-ellipsis">
+      拓展延伸: 非对称阻抗场景$U_N$计算
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1153,6 +1186,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      三相星形拓扑中性点电位推导
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三相星形拓扑中性点电位推导">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      三相星形负载电路模型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#u_n" class="md-nav__link">
+    <span class="md-ellipsis">
+      拓展延伸: 非对称阻抗场景$U_N$计算
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1382,6 +1448,149 @@ i_3 = A \cos\left(\omega t - \frac{4}{3}\pi\right)
 </div>
 <p>波形如下    <br />
 <img alt="alt text" src="../img/image-52.png#img70" />  </p>
+<h2 id="_4"><span class="hl">三相星形拓扑中性点电位推导</span><a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<div class="hb">
+在三相无中线对称负载系统中，已知外部加载的端电位（电动势）为 $Uu, Uv, Uw$，如何求得中心点（中性点）电位 $UN$？
+</div>
+
+<p>&emsp;  </p>
+<h3 id="_5"><font color=purple>三相星形负载电路模型</font><a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>三相星形（Y型）,为了精准量化各节点关系，首先建立如下的物理电路拓扑图。</p>
+<p>图中规定：各相输入端电位为 $U_U, U_V, U_W$，中性点电位为 $U_N$，电流参考方向统一由相端流向中性点。</p>
+<div align="center">
+<svg width="360" height="260" viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg" style="background: transparent;">
+  <!-- 定义高清晰度标准兼容箭头 -->
+  <defs>
+    <marker id="arrow-u" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 2 L 8 5 L 0 8 z" fill="#ff4d4f" />
+    </marker>
+    <marker id="arrow-v" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 2 L 8 5 L 0 8 z" fill="#1890ff" />
+    </marker>
+    <marker id="arrow-w" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 2 L 8 5 L 0 8 z" fill="#52c41a" />
+    </marker>
+  </defs>
+
+  <!-- 核心拓扑连接（以中心点 160,130 为原点旋转变换） -->
+  <g transform="translate(160, 130)">
+    <!-- U相分支 (旋转 -90度直通向上) -->
+    <g transform="rotate(-90)">
+      <line x1="0" y1="0" x2="35" y2="0" stroke="#ff4d4f" stroke-width="1.5" />
+      <!-- 线圈电感符号 (波浪线) -->
+      <path d="M 35 0 Q 40 -6 45 0 Q 50 6 55 0 Q 60 -6 65 0 Q 70 6 75 0 Q 80 -6 85 0" fill="none" stroke="#ff4d4f" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="85" y1="0" x2="105" y2="0" stroke="#ff4d4f" stroke-width="1.5" />
+      <!-- 电流参考方向 branch-to-center -->
+      <line x1="100" y1="-12" x2="60" y2="-12" stroke="#ff4d4f" stroke-width="1.5" marker-end="url(#arrow-u)" />
+    </g>
+
+    <!-- V相分支 (旋转 150度到左下方) -->
+    <g transform="rotate(150)">
+      <line x1="0" y1="0" x2="35" y2="0" stroke="#1890ff" stroke-width="1.5" />
+      <path d="M 35 0 Q 40 -6 45 0 Q 50 6 55 0 Q 60 -6 65 0 Q 70 6 75 0 Q 80 -6 85 0" fill="none" stroke="#1890ff" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="85" y1="0" x2="105" y2="0" stroke="#1890ff" stroke-width="1.5" />
+      <!-- 电流参考方向 branch-to-center -->
+      <line x1="100" y1="-12" x2="60" y2="-12" stroke="#1890ff" stroke-width="1.5" marker-end="url(#arrow-v)" />
+    </g>
+
+    <!-- W相分支 (旋转 30度到右下方) -->
+    <g transform="rotate(30)">
+      <line x1="0" y1="0" x2="35" y2="0" stroke="#52c41a" stroke-width="1.5" />
+      <path d="M 35 0 Q 40 -6 45 0 Q 50 6 55 0 Q 60 -6 65 0 Q 70 6 75 0 Q 80 -6 85 0" fill="none" stroke="#52c41a" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="85" y1="0" x2="105" y2="0" stroke="#52c41a" stroke-width="1.5" />
+      <!-- 电流参考方向 branch-to-center -->
+      <line x1="100" y1="-12" x2="60" y2="-12" stroke="#52c41a" stroke-width="1.5" marker-end="url(#arrow-w)" />
+    </g>
+
+    <!-- 中性点核心圆圈 -->
+    <circle cx="0" cy="0" r="4" fill="#333" />
+  </g>
+
+  <!-- 静态绝对坐标文字标签 (移除下划线误导，带自适应防干扰白色描边) -->
+  <g font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="bold" stroke="#fff" stroke-width="3" stroke-linejoin="round" paint-order="stroke">
+    <!-- 端电势/电动势 -->
+    <text x="148" y="20" fill="#ff4d4f">Uu</text>
+    <text x="50" y="195" fill="#1890ff">Uv</text>
+    <text x="245" y="195" fill="#52c41a">Uw</text>
+
+    <!-- 电流参考方向标签 -->
+    <text x="115" y="65" fill="#ff4d4f" font-size="13" font-style="italic">iu</text>
+    <text x="85" y="150" fill="#1890ff" font-size="13" font-style="italic">iv</text>
+    <text x="210" y="150" fill="#52c41a" font-size="13" font-style="italic">iw</text>
+
+    <!-- 中心点电位 -->
+    <text x="172" y="135" fill="#333" font-size="15">UN (N)</text>
+  </g>
+</svg>
+</div>
+
+<p>&emsp;  </p>
+<p>根据基尔霍夫电流定律（KCL）：
+<script type="math/tex; mode=display">
+\begin{equation}
+i_u + i_v + i_w = 0
+\end{equation}
+</script>
+</p>
+<p>依据欧姆定律，各相导通电流等于线圈两端的电位差除以其复阻抗 $Z$。已知三个线圈完全对称，即复阻抗均满足 $Zu = Zv = Zw = Z$。</p>
+<p>代入电流参考方向可得各相电流方程：
+<script type="math/tex; mode=display">
+\begin{equation}
+\begin{cases}
+iu = \frac{Uu - U_N}{Z} \\
+\\
+iv = \frac{Uv - U_N}{Z} \\
+\\
+iw = \frac{Uw - U_N}{Z}
+\end{cases}
+\end{equation}
+</script>
+</p>
+<p>将式（2）整体代入式（1）的 KCL 约束条件中：
+<script type="math/tex; mode=display">
+\begin{equation}
+\frac{Uu - U_N}{Z} + \frac{Uv - U_N}{Z} + \frac{Uw - U_N}{Z} = 0
+\end{equation}
+</script>
+</p>
+<p>由于系统阻抗 $Z \neq 0$，方程两边同乘以 $Z$ 展开：
+<script type="math/tex; mode=display">
+\begin{equation}
+(Uu - U_N) + (Uv - U_N) + (Uw - U_N) = 0
+\end{equation}
+</script>
+</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{equation}
+Uu + Uv + Uw - 3U_N = 0
+\end{equation}
+</script>
+</p>
+<p>移项提取目标变量 $U_N$，即可最终获证：
+<script type="math/tex; mode=display">
+\begin{equation}
+U_N = \frac{Uu + Uv + Uw}{3}
+\end{equation}
+</script>
+</p>
+<p>&emsp;  </p>
+<h3 id="u_n"><font color=purple>拓展延伸: 非对称阻抗场景$U_N$计算</font><a class="headerlink" href="#u_n" title="Permanent link">&para;</a></h3>
+<details class="info">
+<summary>严格证明过程：当三相阻抗不相等（阻抗不平衡）时的通用求解</summary>
+<p>若系统由于工艺缺陷、硬件老化或相间故障导致三相阻抗不一致，即 $Zu \neq Zv \neq Zw$，此时我们必须引入<b>密尔曼定理 (Millman's Theorem)</b>进行节点分析。</p>
+<p>同样由 KCL 约束出发：
+<script type="math/tex; mode=display"> \frac{Uu - UN}{Zu} + \frac{Uv - UN}{Zv} + \frac{Uw - UN}{Zw} = 0 </script>
+</p>
+<p>拆分各项电位：
+<script type="math/tex; mode=display"> \frac{Uu}{Zu} + \frac{Uv}{Zv} + \frac{Uw}{Zw} = UN \left( \frac{1}{Zu} + \frac{1}{Zv} + \frac{1}{Zw} \right) </script>
+</p>
+<p>逆推出广义阻抗系统下的中性点电位通用表达式：
+<script type="math/tex; mode=display"> UN = \frac{\frac{Uu}{Zu} + \frac{Uv}{Zv} + \frac{Uw}{Zw}}{\frac{1}{Zu} + \frac{1}{Zv} + \frac{1}{Zw}} </script>
+</p>
+<p>由此可见，只有当 $Zu = Zv = Zw$ 时，上式分母变为 $\frac{3}{Z}$，分子提取 $\frac{1}{Z}$ 相互消去，方可收敛至标准算术平均值公式（6）。</p>
+</details>
+<p>&emsp;  </p>
 
 
 
