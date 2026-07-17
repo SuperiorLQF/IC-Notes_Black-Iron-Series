@@ -12,7 +12,7 @@
         <link rel="prev" href="../cordic/">
       
       
-        <link rel="next" href="../noc/">
+        <link rel="next" href="../foc02/">
       
       
       <link rel="icon" href="../img/favicon.ico">
@@ -674,10 +674,66 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      三相合成旋转磁场
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三相合成旋转磁场">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      寻找条件&amp;建立表达式
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      最终结论
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foc02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FOC算法02
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1087,6 +1143,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      三相合成旋转磁场
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三相合成旋转磁场">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      寻找条件&amp;建立表达式
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      最终结论
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1156,6 +1245,166 @@ i_c(t) = \frac{2}{3}F_mcos(\omega t - \frac{4\pi}{3})
 每两个相邻的空间电压矢量直接60°的范围称为扇区 <br />
 扇区内部的电压旋转矢量，可以使用伏秒平衡的方法来实现，即用扇区两个边界矢量加上0矢量，控制持续时间，来控制电压矢量的大小与方向。
 本质上，伏秒平衡是因为电感电流不能突变，短时间内的积分电压只要“面积相等”，无论在时间轴上是什么形状，其带来的电流增量效果是一样的。  </p>
+<h2 id="_1"><span class="hl">三相合成旋转磁场</span><a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<div class="hb">
+三相电流$i_1, i_2, i_3$ 应如何变化，才能保证合成的磁场是一个大小恒定、匀速旋转的磁场？
+</div>
+
+<p>&emsp;  </p>
+<h3 id="_2"><font color=purple>寻找条件&amp;建立表达式</font><a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p>首先引入基尔霍夫电流定律（KCL）作为三相不带中线系统的基本约束：
+<font color=purple>
+<script type="math/tex; mode=display">
+\begin{equation}
+i_1 + i_2 + i_3 = 0 \quad (\text{KCL})
+\end{equation}
+</script>
+</font></p>
+<p>由于线圈产生的磁场与通过的电流成正比，设空间各相磁场标量为：
+<script type="math/tex; mode=display">
+\begin{align}
+B_1 &= k \cdot i_1 \\
+B_2 &= k \cdot i_2 \\
+B_3 &= k \cdot i_3 
+\end{align}
+</script>
+</p>
+<p>三个线圈（简化分析模型）在空间上互差 $120^\circ$ 对称排布，其空间几何位置与磁场如下图所示：</p>
+<div align="center">
+<svg width="280" height="240" viewBox="0 0 260 240" xmlns="http://www.w3.org/2000/svg" style="background: transparent;">
+  <!-- 空间圆形轨道 (半径80，中心移至110,120给右侧留空间) -->
+  <circle cx="110" cy="120" r="80" stroke="#999" stroke-width="1.5" stroke-dasharray="4 4" fill="none" />
+  <!-- 直角坐标轴 -->
+  <line x1="15" y1="120" x2="215" y2="120" stroke="#ccc" stroke-width="1" stroke-dasharray="2 2" />
+  <line x1="110" y1="20" x2="110" y2="220" stroke="#ccc" stroke-width="1" stroke-dasharray="2 2" />
+  <!-- 60/120度几何辅助线 -->
+  <line x1="70" y1="50.7" x2="150" y2="189.3" stroke="#e0e0e0" stroke-width="1" />
+  <line x1="70" y1="189.3" x2="150" y2="50.7" stroke="#e0e0e0" stroke-width="1" />
+  <!-- 定义高清晰度箭头 -->
+  <defs>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#ff4d4f" />
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1890ff" />
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#52c41a" />
+    </marker>
+  </defs>
+  <!-- 矢量 B1 / i1 (0度，长度72) -->
+  <line x1="110" y1="120" x2="182" y2="120" stroke="#ff4d4f" stroke-width="2.5" marker-end="url(#arrow-red)" />
+  <!-- 矢量 B2 / i2 (120度) -->
+  <line x1="110" y1="120" x2="74" y2="57.7" stroke="#1890ff" stroke-width="2.5" marker-end="url(#arrow-blue)" />
+  <!-- 矢量 B3 / i3 (240度) -->
+  <line x1="110" y1="120" x2="74" y2="182.3" stroke="#52c41a" stroke-width="2.5" marker-end="url(#arrow-green)" />
+
+  <!-- 高清晰度自适应文字标签样式 (自带防背景干扰描边) -->
+  <g font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="bold" stroke="#fff" stroke-width="3" stroke-linejoin="round" paint-order="stroke">
+    <!-- i1 标签右移，彻底防截断 -->
+    <text x="195" y="125" fill="#ff4d4f" stroke-width="4">i₁ (B₁)</text>
+    <text x="32" y="48" fill="#1890ff">i₂ (B₂)</text>
+    <text x="32" y="202" fill="#52c41a">i₃ (B₃)</text>
+  </g>
+
+  <!-- 角度标注 -->
+  <text x="122" y="75" font-size="11" fill="#888" font-family="sans-serif">120°</text>
+  <path d="M 130 120 A 20 20 0 0 0 120 102.7" fill="none" stroke="#999" stroke-width="1" />
+</svg>
+</div>
+
+<p>&emsp;  </p>
+<p>将各相磁场沿直角坐标系进行投影正交合成：
+<font color=purple>
+<script type="math/tex; mode=display">
+\begin{align}
+B_x &= B_1 - B_2\cos(60^\circ) - B_3\cos(60^\circ) = B_1 - \frac{1}{2}B_2 - \frac{1}{2}B_3 \\
+B_y &= B_2\sin(60^\circ) - B_3\sin(60^\circ) = \frac{\sqrt{3}}{2}(B_2 - B_3)
+\end{align}
+</script>
+</font>
+将比例系数 $k$ 与 KCL 条件代入上式，可对多元变量进行消元简化，求得关系如下：
+<script type="math/tex; mode=display">
+\begin{equation}
+\begin{cases}
+B_x = \frac{3}{2} k \cdot i_1 \\
+B_y = \frac{\sqrt{3}}{2} k (i_1 + 2i_2)
+\end{cases}
+\end{equation}
+</script>
+</p>
+<p>&emsp;  </p>
+<p>为了使合成磁场 $B$ 成为幅值为 $m$ 的<span class="hl warn">逆时针匀速旋转矢量</span>，可将其写为复数指数或正交分量形式：
+<font color=purple>
+<script type="math/tex; mode=display">
+\begin{equation}
+B = m(\cos\omega t + j \sin\omega t)
+\end{equation}
+</script>
+</font></p>
+<p>由此可得各轴分量表达式：
+<script type="math/tex; mode=display">
+\begin{align}
+B_x &= m \cos\omega t \\
+B_y &= m \sin\omega t
+\end{align}
+</script>
+</p>
+<p>将目标分量与空间分解公式（4）联立求解，即可逆推出对应激励电流的时域解。</p>
+<details class="info">
+<summary>详细化简与推导过程</summary>
+<p>令常数项系数比值为 $n = \frac{m}{k}$，则联立方程组为：
+<script type="math/tex; mode=display">
+\begin{cases} 
+\cos\omega t = \frac{3}{2n} i_1 \\ 
+\sin\omega t = \frac{\sqrt{3}}{2n} (i_1 + 2i_2) 
+\end{cases}
+</script>
+</p>
+<ol>
+<li>
+<p>求解 $i_1$： 
+   <script type="math/tex; mode=display"> i_1 = \frac{2n}{3} \cos\omega t </script>
+</p>
+</li>
+<li>
+<p>求解 $i_2$：  <br />
+   将 $i_1$ 代入第二式中：
+   <script type="math/tex; mode=display"> \frac{2n}{\sqrt{3}}\sin\omega t = \frac{2n}{3}\cos\omega t + 2i_2 </script>
+<script type="math/tex; mode=display"> i_2 = \frac{2n}{3}\left( \frac{\sqrt{3}}{2}\sin\omega t - \frac{1}{2}\cos\omega t \right) </script>
+   利用三角函数和差化简：
+   <script type="math/tex; mode=display"> i_2 = \frac{2n}{3} \cos\left(\omega t + \frac{4\pi}{3}\right) = \frac{2n}{3} \cos\left(\omega t - \frac{2}{3}\pi\right) </script>
+</p>
+</li>
+<li>
+<p>求解 $i_3$：
+   根据 KCL 条件 $i_3 = -i_1 - i_2$，代入化简可得：
+   <script type="math/tex; mode=display"> i_3 = \frac{2n}{3} \cos\left(\omega t + \frac{2\pi}{3}\right) = \frac{2n}{3} \cos\left(\omega t - \frac{4\pi}{3}\right) </script>
+</p>
+</li>
+</ol>
+<p>为简化表达，设定幅值常数 $A = \frac{2n}{3}$</p>
+</details>
+<p>&emsp;  </p>
+<h3 id="_3"><font color=purple>最终结论</font><a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>若要在空间逆时针排布的线圈中产生<b>逆时针匀速旋转磁场</b>，其输入的三相激励电流必须在时间轴上互差 $120^\circ$ 滞后排列：</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{equation}
+\begin{cases} 
+i_1 = A \cos\omega t \\ 
+i_2 = A \cos\left(\omega t - \frac{2}{3}\pi\right) \\ 
+i_3 = A \cos\left(\omega t - \frac{4}{3}\pi\right) 
+\end{cases}
+\end{equation}
+</script>
+</p>
+<div class="hb tip">
+<b>物理本质总结：</b><br>
+空间几何排布上，线圈按 $i_1 \rightarrow i_2 \rightarrow i_3$ 呈逆时针排列；而在时域控制上，通过给公式引入相角减法（$-120^\circ$ 和 $-240^\circ$），使各相电流波峰按相同的顺序和节奏交替接力。<b>时间滞后顺序与空间旋转方向严格契合</b>，从而完美闭环驱动了旋转磁场的产生。
+</div>
+<p>波形如下    <br />
+<img alt="alt text" src="../img/image-52.png#img70" />  </p>
 
 
 
