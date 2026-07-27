@@ -1693,7 +1693,29 @@ U_N(t) = \frac{U_{dc}}{2} - \frac{\max(U_{UN}, U_{VN}, U_{WN}) + \min(U_{UN}, U_
 <br />
 在[0,$\pi/3$] 区间内形似一条直线（实际还是三角函数） <br />
 <img alt="alt text" src="../img/image-53.png#img50" />    </p>
-<p>得到了(29) $U_N$的表达式，也就容易可以知道UVW各相端电压的表达式，绘制在图像中，就得到了三相马鞍波(前面图里的figure4)，可以看到端电压保持在0~1个$U_{dc}$之间。</p>
+<p>得到了(29) $U_N$的表达式，加到(19)/(20)/(21)式，就可以得到三相端电压。绘制在图像中，就得到了三相马鞍波(前面图里的figure4)，可以看到端电压保持在0~1个$U_{dc}$之间。
+<script type="math/tex; mode=display">
+\begin{align}
+\begin{aligned}
+U_U = U_{UN} + U_N ={} & A\cos\omega t \\
+& +\frac{U_{dc}}{2} - \frac{\max(U_{UN}, U_{VN}, U_{WN}) + \min(U_{UN}, U_{VN}, U_{WN})}{2}
+\end{aligned} \\[1.5ex]
+\begin{aligned}
+U_V = U_{VN} + U_N ={} & A\cos\left(\omega t - \frac{2}{3}\pi\right) \\
+& +\frac{U_{dc}}{2} - \frac{\max(U_{UN}, U_{VN}, U_{WN}) + \min(U_{UN}, U_{VN}, U_{WN})}{2}
+\end{aligned} \\[1.5ex]
+\begin{aligned}
+U_W = U_{WN} + U_N ={} & A\cos\left(\omega t - \frac{4}{3}\pi\right) \\
+& +\frac{U_{dc}}{2} - \frac{\max(U_{UN}, U_{VN}, U_{WN}) + \min(U_{UN}, U_{VN}, U_{WN})}{2}
+\end{aligned}
+\end{align}
+</script>
+&emsp; <br />
+搭建simulink仿真如下 <br />
+很明显这是一个可逆的推导，左边部分就是我们是如何一步步推导出端电压的表达式的  <br />
+而右边则是施加马鞍波后，在每一相上会产生怎样的电压，这也是推导过程的验证   <br />
+&emsp; 
+<img alt="alt text" src="../img/image-55.png" /></p>
 <div class="hb tip">
 简而言之<br>      
 只要对UVW各端通入时间上按马鞍波形式变化的电压，UVW各相就可以得到幅值$A=\frac{U_{dc}}{\sqrt{3}}$的相位相差120度的正弦电压<br> 
