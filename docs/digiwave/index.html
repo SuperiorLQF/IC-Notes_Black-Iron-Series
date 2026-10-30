@@ -8,6 +8,14 @@
 <body>
 
 <div class="toolbar">
+    <button class="icon-btn" id="undoButton" onclick="undoProject()" title="撤销 Ctrl/Cmd+Z">↶</button>
+    <button class="icon-btn" id="redoButton" onclick="redoProject()" title="重做 Ctrl/Cmd+Shift+Z">↷</button>
+    <button class="icon-btn" onclick="restoreLocalProject(true)" title="恢复本地自动备份" aria-label="Restore backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6M12 7v5l3 2"/></svg></button>
+    <button class="icon-btn" onclick="generateClock()" title="生成时钟：周期、占空比、次数" aria-label="Generate clock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 17h4V7h6v10h6V7h4"/></svg></button>
+    <button class="icon-btn" onclick="fitWaveform()" id="fitButton" title="适配全部波形 (F)" aria-label="Fit all waveforms (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/><path d="M3 3l6 6M21 3l-6 6M3 21l6-6M21 21l-6-6"/></svg></button>
+    <label title="鼠标编辑吸附步长，单位 ns">网格 <input id="gridStep" type="number" min="0.001" step="any" value="1" style="width:55px" aria-label="网格步长 ns"></label>
+    <span id="saveStatus" role="status"></span>
+
     <div class="dropdown">
         <button class="icon-btn dropdown-btn" title="添加信号">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -93,6 +101,7 @@
     </div>
 </div>
 
+<div class="editor-help">View：点击吸附最近边沿 · E：编辑电平/拖动边沿 · I：插入 · Esc：返回 View · Shift+拖动框选 · Ctrl/Cmd+C/V 复制/覆盖粘贴 · Ctrl/Cmd+Shift+V 插入粘贴 · F：适配全部 · 中键拖动平移 · 滚轮上下 / Shift+滚轮左右 · Ctrl+滚轮缩放 · Alt+点击放置测量游标</div>
 <div class="statusbar" id="statusBar">
     <div class="status-left">
         <div id="statusMode" class="mode-btn view-mode">LAYER: WAVE</div>
@@ -121,7 +130,7 @@
 
 <div id="scaleModal" class="modal">
     <h3>设置波形缩放比例</h3><p class="modal-desc">单位: 像素 / 纳秒 (px/ns)</p>
-    <input type="number" id="scaleInput" autocomplete="off" min="1" max="1000">
+    <input type="number" id="scaleInput" autocomplete="off" min="0.001" max="1000" step="any">
     <div class="modal-btns">
         <button class="cancel" onclick="closeModal('scaleModal')">取消</button>
         <button class="primary" onclick="applyScaleModal()">确定</button>
@@ -153,6 +162,7 @@
 
 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
 
+<script src="editor_support.js"></script>
 <script src="wave_engine.js"></script>
 </body>
 </html>
