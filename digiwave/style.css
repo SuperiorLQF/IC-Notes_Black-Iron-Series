@@ -94,3 +94,7 @@ body.print-theme .modal-btns button.cancel { background: #eee; color: #000;}
 .attr-row label { width: 80px; flex-shrink: 0;}
 .attr-row input[type="color"] { padding: 0; width: 40px; height: 26px; border: none; cursor: pointer; }
 .attr-row textarea { resize: vertical; }
+.toolbar { flex-wrap: wrap; }
+.icon-btn:disabled { opacity: .3; cursor: default; }
+#saveStatus { font-size: 11px; color: #aaa; margin-left: auto; }
+.editor-help { font-size: 11px; padding: 5px 12px; color: #aaa; background: var(--panel-bg); }

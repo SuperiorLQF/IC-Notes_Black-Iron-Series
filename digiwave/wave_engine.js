@@ -63,14 +63,14 @@ const textInputOverlay = document.getElementById('textInputOverlay');
 
 // ================= 主题系统 =================
 function getTheme() {
-    let cursorBg = 'rgba(52, 152, 219, 0.3)';  
-    let cursorLine = 'rgba(52, 152, 219, 1)';
+    let cursorBg = 'rgba(70, 235, 255, 0.16)';
+    let cursorLine = '#70F5FF';
     if (state.mode === 'EDIT') {
-        cursorBg = 'rgba(192, 57, 43, 0.25)';   
-        cursorLine = 'rgba(192, 57, 43, 0.9)';
+        cursorBg = 'rgba(255, 95, 170, 0.16)';
+        cursorLine = '#FF80BD';
     } else if (state.mode === 'INSERT') {
-        cursorBg = 'rgba(230, 126, 34, 0.25)';  
-        cursorLine = 'rgba(230, 126, 34, 0.9)';
+        cursorBg = 'rgba(255, 215, 80, 0.16)';
+        cursorLine = '#FFE66D';
     }
     
     if (state.printMode) {
@@ -83,7 +83,7 @@ function getTheme() {
     } else {
         return {
             bg: '#1e1e1e', 
-            grid: 'rgba(255, 255, 255, 0.4)',
+            grid: 'rgba(255, 255, 255, 0.4)', // 【修改】大幅提高栅格亮度
             text: '#d4d4d4',
             cursorBg, cursorLine,
             xState: '#e74c3c', zState: '#7f8c8d', measureBase: null, tempMeasure: '#f1c40f', 
@@ -121,6 +121,8 @@ function getSelectedSignals() {
 }
 
 function moveNode(dragId, dropId) {
+    const source = findNodeAndParent(state.tree, dragId);
+    if (source && findNodeAndParent([source.node], dropId)) return;
     let srcInfo = findNodeAndParent(state.tree, dragId);
     if (!srcInfo) return;
     srcInfo.list.splice(srcInfo.index, 1);
@@ -158,9 +160,7 @@ function computeTrackLayout() {
             ctx.font = `14px Consolas, monospace`; textW = Math.min(ctx.measureText(m.text || 'Δt').width, pxWidth - 4); 
         } else if (pxWidth >= 10) textW = 6;
 
-        let minX = Math.min(absX1, absX2);
-        let maxX = Math.max(absX1, absX2);
-        trackIntervals[minTrackIdx].push({ m, min: minX + 0.1, max: maxX - 0.1 });
+        trackIntervals[minTrackIdx].push({ m, min: Math.min(absX1, absX2) - textW/2 - 5, max: Math.max(absX1, absX2) + textW/2 + 5 });
     });
 
     for (let tIdx in trackIntervals) {
@@ -184,17 +184,17 @@ function computeTrackLayout() {
         if (!textsByTrack[t.trackId]) textsByTrack[t.trackId] = [];
         textsByTrack[t.trackId].push(t);
         
-        ctx.font = `${t.size}px "Microsoft YaHei", SimHei, sans-serif`;
+        ctx.font = `${t.size}px Consolas, monospace`;
         let rawW = ctx.measureText(t.text || 'Note').width + (t.isSticky ? 28 : 8);
         let totalH = t.size;
         
         if (t.isSticky) {
             let lines = t.collapsed ? [] : (t.content || '').split('\n');
             if (!t.collapsed) {
-                ctx.font = `${t.size * 0.85}px "Microsoft YaHei", SimHei, sans-serif`;
+                ctx.font = `${t.size * 0.85}px Consolas, monospace`;
                 lines.forEach(l => { rawW = Math.max(rawW, ctx.measureText(l).width + 12); });
                 totalH = t.size + 12 + (lines.length * t.size * 0.9);
-                ctx.font = `${t.size}px "Microsoft YaHei", SimHei, sans-serif`;
+                ctx.font = `${t.size}px Consolas, monospace`;
             } else { totalH = t.size + 4; }
         }
         t.renderedHeight = totalH;
@@ -283,6 +283,16 @@ function getSignalValueAtTime(sig, t) {
     return val;
 }
 
+// The origin is a valid navigation boundary, including for an empty signal.
+// Exact midpoint ties choose the earlier boundary.
+function nearestSignalEdge(sig, t) {
+    let nearest = 0;
+    for (const event of sig?.data || []) {
+        if (Math.abs(event.t - t) < Math.abs(nearest - t)) nearest = event.t;
+    }
+    return nearest;
+}
+
 function getEdges(sig, t) {
     let prev = 0, next = Infinity;
     if(!sig || !sig.data) return { prev, next };
@@ -299,12 +309,11 @@ function parseDisplayStr(val, sig) {
     if (lower === 'z') return { str: 'z', isX: false, isZ: true };
     if (lower === 'x') return { str: 'x', isX: true, isZ: false };
     
-    let numVal = NaN;
-    if (lower.startsWith('0x')) numVal = parseInt(val, 16);
-    else if (/^-?\d+$/.test(val)) numVal = parseInt(val, 10);
-    
-    if (!isNaN(numVal)) {
-        if (sig.radix === 'hex') return { str: '0x' + numVal.toString(16).toUpperCase(), isX:false, isZ:false };
+    // Preserve wide bus values without IEEE-754 integer rounding.
+    let numVal = null;
+    if (/^0x[0-9a-f]+$/i.test(val) || /^-?\d+$/.test(val)) numVal = BigInt(val);
+    if (numVal !== null) {
+        if (sig.radix === 'hex') return { str: (numVal < 0n ? '-0x' : '0x') + (numVal < 0n ? -numVal : numVal).toString(16).toUpperCase(), isX:false, isZ:false };
         if (sig.radix === 'dec') return { str: numVal.toString(10), isX:false, isZ:false };
     }
     return { str: val, isX: false, isZ: false };
@@ -427,7 +436,7 @@ function cleanupDanglingObjects() {
 }
 
 window.clearCanvas = function() {
-    if (confirm("确定要清空画布吗？此操作不可恢复。")) {
+    if (confirm("确定要清空画布吗？可以使用撤销恢复。")) {
         state.tree = [];
         state.texts = [];
         state.measurements = [];
@@ -497,14 +506,15 @@ function togglePrintMode() {
 
 window.openScaleModal = function() {
     document.getElementById('scaleModal').style.display = 'flex';
-    document.getElementById('scaleInput').value = Math.round(state.scaleX);
+    document.getElementById('scaleInput').value = state.scaleX;
     setTimeout(() => { document.getElementById('scaleInput').focus(); document.getElementById('scaleInput').select(); }, 10);
 };
 
 window.applyScaleModal = function() {
     const val = parseFloat(document.getElementById('scaleInput').value);
-    if (!isNaN(val) && val > 0) {
-        state.scaleX = val;
+    if (Number.isFinite(val) && val >= 0.001 && val <= 1000) {
+        state.scaleX = boundedWaveformScale(val);
+        clampHorizontalOffset();
         updateUI();
     }
     closeModal('scaleModal');
@@ -523,11 +533,22 @@ function resizeCanvas() {
     canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
     canvas.style.width = `${rect.width}px`; canvas.style.height = `${rect.height}px`;
     ctx.scale(dpr, dpr);
+    if (projectHistory.initialized) {
+        state.scaleX = boundedWaveformScale(state.scaleX);
+        clampHorizontalOffset();
+    }
+    editorNeedsRender = true;
 }
 window.addEventListener('resize', resizeCanvas);
 
 function updateUI() {
+    editorNeedsRender = true;
+    checkpointProject();
     updateFlatTracks();
+    const cursorSignal = getSelectedSignals()[0];
+    if (cursorSignal && (state.mode === 'VIEW' || state.mode === 'EDIT')) {
+        state.cursorT = nearestSignalEdge(cursorSignal, state.cursorT);
+    }
     computeTrackLayout(); 
     
     const listEl = document.getElementById('signalList');
@@ -553,9 +574,10 @@ function updateUI() {
             iconHtml = `<div style="width:12px; height:12px; background:${state.printMode?'#000':sig.color}; border-radius:2px; flex-shrink:0; display:inline-block;"></div>`;
         }
         
-        let innerHtml = `${iconHtml}<span class="signal-name">${sig.name} ${sig.type==='multi'? `[${sig.radix}]`:''}</span>`;
+        let innerHtml = `${iconHtml}<span class="signal-name"></span>`;
         if (sig.type === 'group') innerHtml += `<button class="ungroup-btn" onclick="ungroup('${sig.id}', event)">Ungroup</button>`;
         row.innerHTML = innerHtml;
+        row.querySelector('.signal-name').textContent = `${sig.name} ${sig.type==='multi'? `[${sig.radix}]`:''}`;
 
         row.onclick = (e) => { 
             if (state.mode === 'TEXT') { state.boundTrackId = sig.id; updateUI(); return; }
@@ -612,7 +634,7 @@ function updateUI() {
     else if (state.subMode === 'VALUE') cursorLabel.innerText = `[Value] 输入数值并回车`;
     else cursorLabel.innerText = `光标位置: ${state.cursorT.toFixed(2)} ns`;
 
-    document.getElementById('statusZoom').innerText = `Scale: ${Math.round(state.scaleX)} px/ns`;
+    document.getElementById('statusZoom').innerText = `Scale: ${Number(state.scaleX.toPrecision(5))} px/ns`;
     const sigs = getSelectedSignals();
     document.getElementById('statusSelected').innerText = sigs.length > 0 ? `${sigs[0].name} ${sigs.length>1?'(Multiple)':''} selected` : '未选择信号';
 
@@ -631,7 +653,8 @@ function updateUI() {
 }
 
 function render() {
-    const width = canvas.width; const height = canvas.height;
+    editorNeedsRender = false;
+    const width = canvas.clientWidth; const height = canvas.clientHeight;
     const theme = getTheme();
     
     computeTrackLayout(); 
@@ -656,8 +679,8 @@ function render() {
         const snapSigInfo = findNodeAndParent(state.tree, state.snapTargetId);
         if (snapSigInfo && snapSigInfo.node.type !== 'group') {
             ctx.strokeStyle = theme.grid; 
-            ctx.lineWidth = 2;
-            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 2;              // 【修改】线宽从 1 加粗到 2
+            ctx.setLineDash([4, 4]);        // 【修改】虚线间距调大，更加清晰
             ctx.beginPath();
             snapSigInfo.node.data.forEach(e => {
                 let px = timeToPx(e.t) - state.offsetX;
@@ -711,7 +734,9 @@ function render() {
         
         if (sig.type === 'single') {
             ctx.beginPath();
-            let lastY = yMid; ctx.moveTo(timeToPx(0) - state.offsetX, lastY);
+            const firstVal = events[0].val;
+            let lastY = firstVal === '1' ? yHigh : firstVal === '0' ? yLow : yMid;
+            ctx.moveTo(timeToPx(events[0].t) - state.offsetX, lastY);
             for (let i = 0; i < events.length; i++) {
                 const curT = events[i].t;
                 const nextT = (i + 1 < events.length) ? events[i+1].t : rightMostVisibleT + 100; 
@@ -798,11 +823,25 @@ function render() {
             let showCursor = (state.mode === 'VIEW') ? true : (Math.floor(Date.now() / 500) % 2 === 0);
 
             if (showCursor) {
+                // Keep the event time at the centre of the cursor, independent of zoom.
+                const cursorLeft = cursorPxX - cursorWidth / 2;
+                const cursorTop = yHigh - 6;
+                const cursorHeight = yLow - yHigh + 12;
+                ctx.save();
                 ctx.fillStyle = theme.cursorBg;
+                ctx.fillRect(cursorLeft, cursorTop, cursorWidth, cursorHeight);
+                if (!state.printMode) {
+                    // Dark separation remains visible even over a matching waveform colour.
+                    ctx.strokeStyle = '#101820';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(cursorLeft, cursorTop, cursorWidth, cursorHeight);
+                    ctx.shadowColor = theme.cursorLine;
+                    ctx.shadowBlur = 8;
+                }
                 ctx.strokeStyle = theme.cursorLine;
-                ctx.lineWidth = 1;
-                ctx.fillRect(cursorPxX, yHigh - 6, cursorWidth, yLow - yHigh + 12);
-                ctx.strokeRect(cursorPxX, yHigh - 6, cursorWidth, yLow - yHigh + 12);
+                ctx.lineWidth = 2;
+                ctx.strokeRect(cursorLeft, cursorTop, cursorWidth, cursorHeight);
+                ctx.restore();
             }
 
             if (state.pendingVal && (state.subMode === 'NORMAL' || state.subMode === 'VALUE') && (state.mode === 'INSERT' || state.mode === 'EDIT')) {
@@ -961,7 +1000,7 @@ function render() {
                 ctx.fill();
             }
 
-            ctx.font = `${dSize}px "Microsoft YaHei", SimHei, sans-serif`; let titleStr = displayStr; let availableTitleW = boxPx - 20; 
+            ctx.font = `${dSize}px Consolas, monospace`; let titleStr = displayStr; let availableTitleW = boxPx - 20; 
             if (availableTitleW > 0) {
                 if (ctx.measureText(titleStr).width > availableTitleW) {
                     while (titleStr.length > 0 && ctx.measureText(titleStr + '...').width > availableTitleW) titleStr = titleStr.slice(0, -1);
@@ -972,7 +1011,7 @@ function render() {
             }
 
             if (!t.collapsed) {
-                ctx.fillStyle = state.printMode ? '#333333' : theme.text; ctx.font = `${dSize * 0.85}px "Microsoft YaHei", SimHei, sans-serif`;
+                ctx.fillStyle = state.printMode ? '#333333' : theme.text; ctx.font = `${dSize * 0.85}px Consolas, monospace`;
                 lines.forEach((l, i) => {
                     let lineStr = l; let availableLineW = boxPx - 10;
                     if (availableLineW > 0) {
@@ -985,7 +1024,7 @@ function render() {
                 });
             }
         } else {
-            ctx.font = `${dSize}px "Microsoft YaHei", SimHei, sans-serif`; ctx.fillStyle = state.printMode ? '#000000' : t.color;
+            ctx.font = `${dSize}px Consolas, monospace`; ctx.fillStyle = state.printMode ? '#000000' : t.color;
             ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; let availableW = boxPx - 4; 
             if (availableW > 0) {
                 if (ctx.measureText(displayStr).width > availableW) {
@@ -996,9 +1035,15 @@ function render() {
             }
         }
     });
+    renderEditorOverlay();
 }
 
-function loop() { render(); requestAnimationFrame(loop); }
+function loop(timestamp) {
+    const phase = Math.floor((timestamp || 0) / 500);
+    if (editorNeedsRender || ((state.mode === 'EDIT' || state.mode === 'INSERT') && phase !== editorBlinkPhase)) render();
+    editorBlinkPhase = phase;
+    requestAnimationFrame(loop);
+}
 
 // ================= 交互响应与高级模式支持 =================
 
@@ -1069,7 +1114,8 @@ waveContainer.addEventListener('mousemove', (e) => {
 
 window.addEventListener('mouseup', () => { 
     state.dragArrowConnId = null; 
-    isDraggingText = false; 
+    isDraggingText = false;
+    checkpointProject();
     render();
 });
 
@@ -1221,12 +1267,8 @@ waveContainer.addEventListener('mousedown', (e) => {
     } 
     
     if ((state.mode === 'VIEW' || ((state.mode === 'EDIT' || state.mode === 'INSERT') && (state.subMode === 'NORMAL' || state.subMode === 'VALUE'))) && sigs.length > 0) {
-        let closestEdge = null; let minDistancePx = Infinity;
-        sigs[0].data.forEach(event => {
-            const distPx = Math.abs(timeToPx(clickedT) - timeToPx(event.t));
-            if (distPx < minDistancePx) { minDistancePx = distPx; closestEdge = event; }
-        });
-        if (closestEdge && minDistancePx <= 10) state.cursorT = closestEdge.t;
+        const cursorSignal = hitTrack && sigs.some(sig => sig.id === hitTrack.node.id) ? hitTrack.node : sigs[0];
+        state.cursorT = nearestSignalEdge(cursorSignal, clickedT);
     }
     updateUI();
 });
@@ -1261,7 +1303,7 @@ window.addEventListener('keydown', (e) => {
     if (k === 'm') { e.preventDefault(); toggleMeasureMode(); return; }
     if (k === 'a') { e.preventDefault(); toggleArrowMode(); return; }
 
-    if (k === 'c') { 
+    if (k === 'c' && !e.ctrlKey && !e.metaKey) {
         if (state.mode === 'TEXT' && state.selectedTextId) { e.preventDefault(); openAttrModal(); return; }
         
         let selectedGroups = Array.from(state.selectedIds).map(id => findNodeAndParent(state.tree, id)?.node).filter(n => n?.type === 'group');
@@ -1288,7 +1330,8 @@ window.addEventListener('keydown', (e) => {
         if (state.selectedIds.size > 0) {
             let newGroup = { id: 'g_' + Date.now(), type: 'group', name: 'New Group', expanded: true, children: [] };
             let firstInfo = null; let nodesToGroup = [];
-            state.selectedIds.forEach(id => {
+            const roots = Array.from(state.selectedIds).filter(id => !Array.from(state.selectedIds).some(other => other !== id && findNodeAndParent([findNodeAndParent(state.tree, other)?.node].filter(Boolean), id)));
+            roots.forEach(id => {
                 let info = findNodeAndParent(state.tree, id);
                 if (info) { if (!firstInfo) firstInfo = info; nodesToGroup.push(info.node); info.list.splice(info.index, 1); }
             });
@@ -1321,7 +1364,7 @@ window.addEventListener('keydown', (e) => {
         if (sigs.length > 0 && (state.subMode === 'NORMAL' || state.subMode === 'VALUE')) {
             const edges = getEdges(sigs[0], state.cursorT);
             if (e.key === 'ArrowLeft') state.cursorT = edges.prev;
-            if (e.key === 'ArrowRight') state.cursorT = edges.next !== Infinity ? edges.next : state.cursorT + 10;
+            if (e.key === 'ArrowRight' && edges.next !== Infinity) state.cursorT = edges.next;
             const pxX = timeToPx(state.cursorT); const rect = waveContainer.getBoundingClientRect();
             if(pxX < state.offsetX || pxX > state.offsetX + rect.width) { state.offsetX = Math.max(0, pxX - rect.width/2); }
             updateUI();
@@ -1353,18 +1396,19 @@ window.addEventListener('keydown', (e) => {
         if (e.key === ' ' && state.pendingVal) {
             e.preventDefault();
             if (state.mode === 'INSERT') {
-                let dur = parseFloat(lastDurationValue) || 10;
+                let dur = parseDuration(lastDurationValue) || 10;
                 const snapInfo = findNodeAndParent(state.tree, state.snapTargetId);
                 if (snapInfo && snapInfo.node.type !== 'group') {
                     const edges = getEdges(snapInfo.node, state.cursorT);
                     if (edges.next !== Infinity) dur = edges.next - state.cursorT;
                 }
                 sigs.forEach(sig => applyDrawAction(sig, state.cursorT, dur, state.pendingVal));
-                state.cursorT += dur;
+                state.cursorT += dur; updateUI();
             }
         }
 
         if (e.key === 'Backspace') {
+            e.preventDefault();
             const edges = getEdges(mainSig, state.cursorT);
             if (edges.prev < state.cursorT) { sigs.forEach(sig => deleteAndPull(sig, edges.prev, state.cursorT)); state.cursorT = edges.prev; }
         }
@@ -1378,7 +1422,7 @@ busValueInput.addEventListener('keydown', (e) => {
     if (e.key === ' ') {
         e.preventDefault(); e.stopPropagation();
         if (state.mode === 'INSERT') {
-            let dur = parseFloat(lastDurationValue) || 10;
+            let dur = parseDuration(lastDurationValue) || 10;
             const snapInfo = findNodeAndParent(state.tree, state.snapTargetId);
             if (sigs.length > 0 && state.pendingVal) {
                 if (snapInfo && snapInfo.node.type !== 'group') {
@@ -1418,8 +1462,9 @@ waveContainer.addEventListener('wheel', (e) => {
         const zoomDelta = e.deltaY > 0 ? 0.8 : 1.25;
         const mouseX = e.clientX - waveContainer.getBoundingClientRect().left;
         const absoluteT = pxToTime(mouseX + state.offsetX);
-        state.scaleX = Math.max(1, Math.min(state.scaleX * zoomDelta, 400));
+        state.scaleX = boundedWaveformScale(state.scaleX * zoomDelta);
         state.offsetX = Math.max(0, timeToPx(absoluteT) - mouseX);
+        clampHorizontalOffset();
     } else { state.offsetX = Math.max(0, state.offsetX + e.deltaY); }
     updateUI();
 });
@@ -1433,7 +1478,9 @@ function closeModal(id) {
 }
 
 function confirmDuration() {
-    const raw = durationInput.value.trim().toLowerCase(); const match = raw.match(/^([\d.]+)\s*(ns|us|ms)?$/);
+    const raw = durationInput.value.trim().toLowerCase(); const duration = parseDuration(raw);
+    if (!Number.isFinite(duration) || duration <= 0) { alert('请输入有效的正时间，例如 10ns 或 0.5us'); return; }
+    const match = raw.match(/^(\d+(?:\.\d*)?|\.\d+)\s*(ns|us|ms)?$/);
     if (match) {
         lastDurationValue = durationInput.value.trim(); let val = parseFloat(match[1]); let unit = match[2] || 'ns';
         if (unit === 'us') val *= 1000; if (unit === 'ms') val *= 1000000;
@@ -1468,7 +1515,7 @@ function openAttrModal() {
     const contentRow = document.getElementById('contentRow');
     const bgColorRow = document.getElementById('bgColorRow'); 
     const radixRow = document.getElementById('radixRow');
-    const colorRow = document.getElementById('colorRow'); 
+    const colorRow = document.getElementById('colorRow'); // 获取Color配置行
     
     // 初始化隐藏所有高级选项
     if (stickyRow) stickyRow.style.display = 'none'; 
@@ -1477,7 +1524,7 @@ function openAttrModal() {
     if (arrowTypeRow) arrowTypeRow.style.display = 'none';
     if (radixRow) radixRow.style.display = 'none'; 
     if (thickRow) thickRow.style.display = 'none';
-    if (colorRow) colorRow.style.display = 'flex'; 
+    if (colorRow) colorRow.style.display = 'flex'; // 默认显示颜色选项
 
     document.getElementById('attrModal').style.display = 'flex';
     
@@ -1525,11 +1572,12 @@ function openAttrModal() {
         document.getElementById('modalTitle').innerText = 'Group Properties'; 
         const grp = selectedGroups[0];
         document.getElementById('modalName').value = grp.name; 
-        if (colorRow) colorRow.style.display = 'none'; 
+        if (colorRow) colorRow.style.display = 'none'; // 分组不需要调整颜色
     }
     // 6. 默认：编辑当前选中的已有信号
     else {
         const sigs = getSelectedSignals(); 
+        // 只有在这里（非添加模式下）没选中信号才关闭面板
         if (sigs.length === 0) { closeModal('attrModal'); return; }
         
         document.getElementById('modalTitle').innerText = 'Signal Properties'; 
@@ -1540,6 +1588,7 @@ function openAttrModal() {
         if (sig.type === 'multi') { radixRow.style.display = 'flex'; document.getElementById('modalRadix').value = sig.radix || 'hex'; }
     }
     
+    // 自动聚焦输入框
     setTimeout(() => { document.getElementById('modalName').focus(); document.getElementById('modalName').select(); }, 10);
 }
 
@@ -1606,13 +1655,7 @@ function applyAttrModal() {
 // 导出与导入功能 (JSON)
 // ==========================================
 function exportWaveform() {
-    const exportData = {
-        tree: state.tree,
-        texts: state.texts,
-        measurements: state.measurements,
-        connections: state.connections,
-        scaleX: state.scaleX
-    };
+    const exportData = projectData();
     const dataStr = JSON.stringify(exportData, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob); 
@@ -1622,6 +1665,8 @@ function exportWaveform() {
     document.body.appendChild(a); 
     a.click(); 
     URL.revokeObjectURL(url);
+    a.remove();
+    markProjectSaved();
 }
 
 function importWaveform() {
@@ -1635,20 +1680,9 @@ function handleFileImport(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const importedData = JSON.parse(e.target.result);
-            state.tree = importedData.tree || [];
-            state.texts = importedData.texts || [];
-            state.measurements = importedData.measurements || [];
-            state.connections = importedData.connections || [];
-            state.scaleX = importedData.scaleX || 10;
-            
-            // 重置视图状态
-            state.selectedIds.clear();
-            state.selectedTextId = null;
-            state.selectedMeasureId = null;
-            state.selectedConnId = null;
-            state.offsetX = 0; state.offsetY = 0;
-            
+            const importedData = validateProject(JSON.parse(e.target.result));
+            if (projectIsDirty() && !confirm('当前工程尚未导出，确定替换？本地备份只保留最近工程。')) return;
+            applyProject(importedData);
             updateUI();
         } catch (err) {
             alert("读取失败：文件损坏或格式不正确！\n" + err.message);
@@ -1665,20 +1699,24 @@ function loadDefaultWaveform() {
             return response.json();
         })
         .then(importedData => {
+            if (restoreLocalProject()) return;
             state.tree = importedData.tree || [];
             state.texts = importedData.texts || [];
             state.measurements = importedData.measurements || [];
             state.connections = importedData.connections || [];
             state.scaleX = importedData.scaleX || 10;
+            initializeHistory();
             updateUI();
         })
         .catch(e => {
             console.log("Could not load default digiwave_default.json. Initializing as empty.", e.message);
+            if (restoreLocalProject()) return;
             // 确保如果加载失败是全空
             state.tree = [];
             state.texts = [];
             state.measurements = [];
             state.connections = [];
+            initializeHistory();
             updateUI(); 
         });
 }
@@ -1688,6 +1726,7 @@ function addSignal(type) {
     openAttrModal();
 }
 
+installEditorInteractions();
 resizeCanvas(); 
 loadDefaultWaveform(); // 启动时加载默认波形
 requestAnimationFrame(loop);
