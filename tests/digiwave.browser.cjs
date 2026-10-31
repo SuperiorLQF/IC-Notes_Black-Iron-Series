@@ -138,8 +138,9 @@ try {
   let coloured=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]!==pixels[i+1]||pixels[i+1]!==pixels[i+2])coloured++;
   return coloured;
  });assert.equal(printPixels,0);console.log('Binary and bus X-state print rendering is entirely grayscale PASS');
- // Check browser-composited pixels too: canvas getImageData does not include CSS filters.
- await page.evaluate(()=>{ctx.fillStyle='#ff0000';ctx.fillRect(30,30,20,20);});
+ // Verify explicit drawing colours without a global CSS colour conversion.
+ assert.equal(await page.locator('#waveCanvas').evaluate(el=>getComputedStyle(el).filter),'none');
+ assert.deepEqual(await page.evaluate(()=>{const t=getTheme();return [t.getSigColor('#ff0000'),t.xState,t.xHatch,t.zState];}),['#000000','#888888','#888888','#888888']);
  const monochromeScreenshot=PNG.sync.read(await page.locator('#waveCanvas').screenshot());
  let colouredDisplayPixels=0;
  for(let i=0;i<monochromeScreenshot.data.length;i+=4) {
@@ -151,7 +152,7 @@ try {
  let redPixels=0;
  for(let i=0;i<colourScreenshot.data.length;i+=4)if(colourScreenshot.data[i]>colourScreenshot.data[i+1]+20)redPixels++;
  assert(redPixels>0);
- console.log('Actual browser screenshot: print mode removes all colour; normal X hatching stays red PASS');
+ console.log('Explicit print palette: ordinary signals black, X/Z gray, no grayscale filter PASS');
 
  assert.equal(errors.length,0,errors.join('\n'));console.log('browser errors: 0');
 } finally {await browser.close();await new Promise(r=>server.close(r));}
