@@ -108,13 +108,23 @@ function parseDuration(raw) {
     return match ? Number(match[1]) * ({ps:0.001, ns:1, us:1000, ms:1000000}[(match[2] || 'ns').toLowerCase()]) : NaN;
 }
 let editorGesture = null, editorSelection = null, editorClipboard = null, measurementCursors = [];
-function snapEditorTime(t) {
-    const step = Number(document.getElementById('gridStep').value);
-    let time = Math.max(0, t);
+function snapEditorTime(t, options = {}) {
+    const time = Math.max(0, t);
+    const min = options.min ?? 0, max = options.max ?? Infinity;
     const target = findNodeAndParent(state.tree, state.snapTargetId)?.node;
-    const near = target?.data?.reduce((a,e) => Math.abs(e.t-time) < Math.abs(a-time) ? e.t : a, Infinity);
-    if (Number.isFinite(near) && Math.abs(near-time)*state.scaleX <= 10) return near;
-    return Number.isFinite(step) && step > 0 ? Math.round(time / step) * step : time;
+    const edges = options.edges !== undefined ? options.edges : target?.data?.map(e => e.t);
+    if (edges) {
+        // Reference grids are mandatory, not just a 10-pixel proximity hint.
+        const candidates = edges.filter(edge => edge >= min && edge <= max);
+        return candidates.reduce((nearest, edge) => nearest === null || Math.abs(edge-time) < Math.abs(nearest-time) ? edge : nearest, null);
+    }
+    const step = Number(document.getElementById('gridStep').value);
+    if (Number.isFinite(step) && step > 0) {
+        const first = Math.ceil(min / step), last = Math.floor(max / step);
+        if (first > last) return null;
+        return Math.max(first, Math.min(last, Math.round(time / step))) * step;
+    }
+    return Math.max(min, Math.min(max, time));
 }
 function editorPoint(e) {
     const rect = waveContainer.getBoundingClientRect();
@@ -264,22 +274,22 @@ function installEditorInteractions() {
         if(e.button===1) {e.preventDefault();e.stopImmediatePropagation();editorGesture={kind:'pan',x:e.clientX,y:e.clientY,ox:state.offsetX,oy:state.offsetY};return;}
         if(e.button!==0 || !['VIEW','EDIT'].includes(state.mode) || state.subMode!=='NORMAL' || state.measureMode!=='IDLE' || state.arrowMode!=='IDLE')return;
         const p=editorPoint(e),track=state.flatTracks[p.row];
-        if(e.altKey){e.preventDefault();e.stopImmediatePropagation();if(measurementCursors.length===2)measurementCursors=[];measurementCursors.push(snapEditorTime(p.t));return;}
+        if(e.altKey){e.preventDefault();e.stopImmediatePropagation();if(measurementCursors.length===2)measurementCursors=[];measurementCursors.push(snapEditorTime(p.t)??p.t);return;}
         if(!track || track.node.type==='group' || p.y<state.topMargin)return;
-        if(e.shiftKey && state.mode==='VIEW'){e.preventDefault();e.stopImmediatePropagation();editorGesture={kind:'selection',row:p.row};editorSelection={a:snapEditorTime(p.t),b:snapEditorTime(p.t),ids:[track.node.id]};return;}
+        if(e.shiftKey && state.mode==='VIEW'){e.preventDefault();e.stopImmediatePropagation();editorGesture={kind:'selection',row:p.row};editorSelection={a:snapEditorTime(p.t)??nearestSignalEdge(track.node,p.t),b:snapEditorTime(p.t)??nearestSignalEdge(track.node,p.t),ids:[track.node.id]};return;}
         // View only selects/navigates. Edge changes require explicit Edit mode.
         if(state.mode!=='EDIT' || !state.selectedIds.has(track.node.id))return;
         const center=track.centerY+state.topMargin-state.offsetY;
         if(Math.abs(p.y-center)>23)return;
         const edge=track.node.data.findIndex(ev=>ev.t>0 && Math.abs(timeToPx(ev.t-p.t))<7);
-        if(edge>=0){e.preventDefault();e.stopImmediatePropagation();editorSelection=null;state.selectedIds=new Set([track.node.id]);editorGesture={kind:'edge',id:track.node.id,index:edge,before:JSON.parse(JSON.stringify(state.tree)),startX:e.clientX};}
+        if(edge>=0){e.preventDefault();e.stopImmediatePropagation();editorSelection=null;state.selectedIds=new Set([track.node.id]);editorGesture={kind:'edge',id:track.node.id,index:edge,before:JSON.parse(JSON.stringify(state.tree)),startX:e.clientX,edges:findNodeAndParent(state.tree,state.snapTargetId)?.node.data?.map(ev=>ev.t)};}
     },true);
     window.addEventListener('mousemove',e=>{
         if(!editorGesture)return;
         const g=editorGesture,p=editorPoint(e);
         if(g.kind==='pan'){state.offsetX=Math.max(0,g.ox+g.x-e.clientX);state.offsetY=Math.max(0,g.oy+g.y-e.clientY);}
-        if(g.kind==='selection') {editorSelection.b=snapEditorTime(p.t);editorSelection.ids=state.flatTracks.slice(Math.min(g.row,Math.max(0,p.row)),Math.max(g.row,Math.max(0,p.row))+1).filter(t=>t.node.type!=='group').map(t=>t.node.id);state.selectedIds=new Set(editorSelection.ids);state.cursorT=nearestSignalEdge(getSelectedSignals()[0], Math.min(editorSelection.a,editorSelection.b));}
-        if(g.kind==='edge' && Math.abs(e.clientX-g.startX)>2){const sig=findNodeAndParent(state.tree,g.id).node;const prev=sig.data[g.index-1].t,next=sig.data[g.index+1]?.t??Infinity;const t=snapEditorTime(p.t);if(t>prev+1e-6 && t<next-1e-6){sig.data[g.index].t=t;state.cursorT=t;}}
+        if(g.kind==='selection') {editorSelection.b=snapEditorTime(p.t)??editorSelection.b;editorSelection.ids=state.flatTracks.slice(Math.min(g.row,Math.max(0,p.row)),Math.max(g.row,Math.max(0,p.row))+1).filter(t=>t.node.type!=='group').map(t=>t.node.id);state.selectedIds=new Set(editorSelection.ids);state.cursorT=nearestSignalEdge(getSelectedSignals()[0], Math.min(editorSelection.a,editorSelection.b));}
+        if(g.kind==='edge' && Math.abs(e.clientX-g.startX)>2){const sig=findNodeAndParent(state.tree,g.id).node;const prev=sig.data[g.index-1].t,next=sig.data[g.index+1]?.t??Infinity;const t=snapEditorTime(p.t,{min:prev+1e-6,max:next-1e-6,edges:g.edges});if(t!==null && t>prev+1e-6 && t<next-1e-6){sig.data[g.index].t=t;state.cursorT=t;}}
         if(g.kind==='pan')clampHorizontalOffset();
         e.stopImmediatePropagation();updateUI();
     },true);
