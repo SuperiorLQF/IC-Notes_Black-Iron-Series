@@ -126,6 +126,13 @@ function snapEditorTime(t, options = {}) {
     }
     return Math.max(min, Math.min(max, time));
 }
+// Endpoints are identified by signal + edge time, preserving existing JSON projects.
+function retimeSignalAttachments(signalId, retime) {
+    for (const annotation of [...state.connections, ...state.measurements]) {
+        if (annotation.sigId1 === signalId) annotation.t1 = retime(annotation.t1);
+        if (annotation.sigId2 === signalId) annotation.t2 = retime(annotation.t2);
+    }
+}
 function editorPoint(e) {
     const rect = waveContainer.getBoundingClientRect();
     return { x: e.clientX-rect.left, y:e.clientY-rect.top, t: pxToTime(e.clientX-rect.left+state.offsetX), row: getTrackIdxAtY(e.clientY-rect.top+state.offsetY-state.topMargin) };
@@ -212,7 +219,7 @@ function pasteEditorSelection(insert) {
     if (!Number.isFinite(end)) { alert('粘贴时间超出范围'); return; }
     sigs.forEach((sig,i)=>{
         const tail=getSignalValueAtTime(sig,insert?start:end);
-        if(insert) sig.data.forEach(e=>{if(e.t>=start)e.t+=editorClipboard.duration;});
+        if(insert) {retimeSignalAttachments(sig.id,time=>time>=start?time+editorClipboard.duration:time);sig.data.forEach(e=>{if(e.t>=start)e.t+=editorClipboard.duration;});}
         else sig.data=sig.data.filter(e=>e.t<start || e.t>end);
         sig.data.push(...editorClipboard.signals[i].data.map(e=>({t:start+e.t,val:e.val})));
         if(!sig.data.some(e=>Math.abs(e.t-end)<1e-6)) sig.data.push({t:end,val:tail});
@@ -261,7 +268,15 @@ function installEditorInteractions() {
                 if(k==='v')pasteEditorSelection(e.shiftKey);
             }
         }
-        if(e.key==='Escape' && editorGesture) {if(editorGesture.before)state.tree=editorGesture.before;editorGesture=null;updateUI();}
+        if(e.key==='Escape' && editorGesture) {
+            if(editorGesture.before) {
+                state.tree=editorGesture.before;
+                state.connections=editorGesture.connectionsBefore;
+                state.measurements=editorGesture.measurementsBefore;
+                state.cursorT=editorGesture.cursorBefore;
+            }
+            editorGesture=null;updateUI();
+        }
     },true);
     waveContainer.addEventListener('wheel',e=>{
         if(e.ctrlKey || (state.mode==='TEXT' && state.selectedTextId && !e.shiftKey))return;
@@ -282,14 +297,14 @@ function installEditorInteractions() {
         const center=track.centerY+state.topMargin-state.offsetY;
         if(Math.abs(p.y-center)>23)return;
         const edge=track.node.data.findIndex(ev=>ev.t>0 && Math.abs(timeToPx(ev.t-p.t))<7);
-        if(edge>=0){e.preventDefault();e.stopImmediatePropagation();editorSelection=null;state.selectedIds=new Set([track.node.id]);editorGesture={kind:'edge',id:track.node.id,index:edge,before:JSON.parse(JSON.stringify(state.tree)),startX:e.clientX,edges:findNodeAndParent(state.tree,state.snapTargetId)?.node.data?.map(ev=>ev.t)};}
+        if(edge>=0){e.preventDefault();e.stopImmediatePropagation();editorSelection=null;state.selectedIds=new Set([track.node.id]);editorGesture={kind:'edge',id:track.node.id,index:edge,before:JSON.parse(JSON.stringify(state.tree)),connectionsBefore:JSON.parse(JSON.stringify(state.connections)),measurementsBefore:JSON.parse(JSON.stringify(state.measurements)),cursorBefore:state.cursorT,startX:e.clientX,edges:findNodeAndParent(state.tree,state.snapTargetId)?.node.data?.map(ev=>ev.t)};}
     },true);
     window.addEventListener('mousemove',e=>{
         if(!editorGesture)return;
         const g=editorGesture,p=editorPoint(e);
         if(g.kind==='pan'){state.offsetX=Math.max(0,g.ox+g.x-e.clientX);state.offsetY=Math.max(0,g.oy+g.y-e.clientY);}
         if(g.kind==='selection') {editorSelection.b=snapEditorTime(p.t)??editorSelection.b;editorSelection.ids=state.flatTracks.slice(Math.min(g.row,Math.max(0,p.row)),Math.max(g.row,Math.max(0,p.row))+1).filter(t=>t.node.type!=='group').map(t=>t.node.id);state.selectedIds=new Set(editorSelection.ids);state.cursorT=nearestSignalEdge(getSelectedSignals()[0], Math.min(editorSelection.a,editorSelection.b));}
-        if(g.kind==='edge' && Math.abs(e.clientX-g.startX)>2){const sig=findNodeAndParent(state.tree,g.id).node;const prev=sig.data[g.index-1].t,next=sig.data[g.index+1]?.t??Infinity;const t=snapEditorTime(p.t,{min:prev+1e-6,max:next-1e-6,edges:g.edges});if(t!==null && t>prev+1e-6 && t<next-1e-6){sig.data[g.index].t=t;state.cursorT=t;}}
+        if(g.kind==='edge' && Math.abs(e.clientX-g.startX)>2){const sig=findNodeAndParent(state.tree,g.id).node;const prev=sig.data[g.index-1].t,next=sig.data[g.index+1]?.t??Infinity;const t=snapEditorTime(p.t,{min:prev+1e-6,max:next-1e-6,edges:g.edges});if(t!==null && t>prev+1e-6 && t<next-1e-6){const oldTime=sig.data[g.index].t;retimeSignalAttachments(g.id,time=>Math.abs(time-oldTime)<=1e-6?t:time);sig.data[g.index].t=t;state.cursorT=t;}}
         if(g.kind==='pan')clampHorizontalOffset();
         e.stopImmediatePropagation();updateUI();
     },true);
