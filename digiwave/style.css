@@ -98,3 +98,7 @@ body.print-theme .modal-btns button.cancel { background: #eee; color: #000;}
 .icon-btn:disabled { opacity: .3; cursor: default; }
 #saveStatus { font-size: 11px; color: #aaa; margin-left: auto; }
 .editor-help { font-size: 11px; padding: 5px 12px; color: #aaa; background: var(--panel-bg); }
+
+.time-input { display: flex; gap: 6px; flex: 1; min-width: 0; }
+.time-input input { min-width: 0; flex: 1; }
+.time-input select { flex: 0 0 65px; }

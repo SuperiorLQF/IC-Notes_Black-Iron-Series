@@ -104,8 +104,8 @@ function restoreLocalProject(manual = false) {
     } catch (_) { if (manual) alert('本地备份不可用，请导入 JSON'); return false; }
 }
 function parseDuration(raw) {
-    const match = String(raw).trim().match(/^(\d+(?:\.\d*)?|\.\d+)\s*(ns|us|ms)?$/i);
-    return match ? Number(match[1]) * ({ns:1, us:1000, ms:1000000}[(match[2] || 'ns').toLowerCase()]) : NaN;
+    const match = String(raw).trim().match(/^(\d+(?:\.\d*)?|\.\d+)\s*(ps|ns|us|ms)?$/i);
+    return match ? Number(match[1]) * ({ps:0.001, ns:1, us:1000, ms:1000000}[(match[2] || 'ns').toLowerCase()]) : NaN;
 }
 let editorGesture = null, editorSelection = null, editorClipboard = null, measurementCursors = [];
 function snapEditorTime(t) {
@@ -145,23 +145,49 @@ function fitWaveform() {
 }
 
 function generateClock() {
-    const sigs = getSelectedSignals().filter(s => s.type === 'single');
-    if (!sigs.length) { alert('请先选择二值信号'); return; }
-    const periodRaw = prompt('周期（支持 ns/us/ms）', '10ns'); if (periodRaw === null) return;
-    const dutyRaw = prompt('高电平占空比（0～100，不能为端点）', '50'); if (dutyRaw === null) return;
-    const countRaw = prompt('周期数（1～10000）', '10'); if (countRaw === null) return;
-    const phaseRaw = prompt('相对编辑光标的相位延迟（支持 ns/us/ms）', '0ns'); if (phaseRaw === null) return;
-    const period=parseDuration(periodRaw), duty=Number(dutyRaw)/100, count=Number(countRaw), phase=parseDuration(phaseRaw);
-    if (!(period>0 && duty>0 && duty<1 && Number.isInteger(count) && count>0 && count<=10000 && phase>=0 && Number.isFinite(state.cursorT+phase+period*count))) { alert('参数无效'); return; }
-    const start = state.cursorT+phase, end=start+period*count;
-    for (const sig of sigs) {
-        const tail=getSignalValueAtTime(sig,end);
-        sig.data=sig.data.filter(e=>e.t<start || e.t>end);
-        for(let i=0;i<count;i++) sig.data.push({t:start+i*period,val:'1'},{t:start+i*period+period*duty,val:'0'});
-        sig.data.push({t:end,val:tail}); cleanUpEvents(sig);
-    }
-    updateUI();
+    const name = document.getElementById('clockName');
+    const names = new Set(state.flatTracks.map(t => t.node.name));
+    let index = 1, candidate = 'clk';
+    while (names.has(candidate)) candidate = `clk_${index++}`;
+    name.value = candidate;
+    document.getElementById('clockError').textContent = '';
+    document.getElementById('clockModal').style.display = 'flex';
+    name.focus(); name.select();
 }
+let nextClockId = 0;
+function uniqueClockId() {
+    let id;
+    do { id = `s_${Date.now()}_${nextClockId++}`; } while (findNodeAndParent(state.tree, id));
+    return id;
+}
+function clockTimeInput(id) {
+    const field = document.getElementById(id);
+    if (!field.value.trim()) return NaN;
+    return parseDuration(field.value + document.getElementById(id + 'Unit').value);
+}
+function confirmClock() {
+    const period = clockTimeInput('clockPeriod');
+    const duty = Number(document.getElementById('clockDuty').value) / 100;
+    const count = Number(document.getElementById('clockCount').value);
+    const start = clockTimeInput('clockStart');
+    const end = start + period * count;
+    if (!(period > 0 && duty > 0 && duty < 1 && Number.isInteger(count) && count > 0 && count <= 10000 && start >= 0 && Number.isFinite(end) && end > start && start + period*duty > start && start+period*duty < start+period)) {
+        document.getElementById('clockError').textContent = 'Enter a valid period, duty cycle, cycle count and start time.';
+        return;
+    }
+    // A clock is created as an ordinary editable binary signal, without a selection prerequisite.
+    const sig = { id: uniqueClockId(), name: document.getElementById('clockName').value.trim() || 'clk', type: 'single', color: '#2ecc71', thickness: 2, data: [] };
+    if (start > 0) sig.data.push({t:0, val:'0'});
+    for (let i = 0; i < count; i++) sig.data.push({t:start+i*period, val:'1'}, {t:start+i*period+period*duty, val:'0'});
+    sig.data.push({t:end, val:'z'});
+    state.tree.push(sig);
+    state.selectedIds = new Set([sig.id]); state.mode = 'VIEW'; state.subMode = 'NORMAL'; state.pendingVal = null; state.cursorT = start;
+    editorSelection = null;
+    updateUI();
+    closeModal('clockModal');
+    fitWaveform();
+}
+
 function copyEditorSelection() {
     if (!editorSelection || Math.abs(editorSelection.a-editorSelection.b)<1e-9) return;
     const start=Math.min(editorSelection.a,editorSelection.b), end=Math.max(editorSelection.a,editorSelection.b);
