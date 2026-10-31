@@ -127,12 +127,19 @@ body.print-theme .signal-row.selected {
 body.print-theme .signal-row.selected .signal-name { text-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .signal-row { transition: none; } }
 
-.editor-help { flex-shrink: 0; max-height: 160px; overflow-y: auto; padding: 8px 12px; border-top: 1px solid var(--border-color); line-height: 1.8; }
+.editor-help { font-size: 12px; flex-shrink: 0; max-height: 180px; overflow-y: auto; padding: 8px 12px; border-top: 1px solid var(--border-color); line-height: 1.8; }
 .help-mode { display: inline-block; color: #70f5ff; font-size: 11px; letter-spacing: .5px; margin-bottom: 4px; }
 .help-actions { display: flex; flex-wrap: wrap; gap: 5px 18px; }
 .help-action { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 5px; }
-.editor-help kbd { display: inline-block; padding: 0 5px; min-width: 21px; text-align: center; color: #e7eef6; background: #303a47; border: 1px solid #536175; border-bottom-width: 2px; border-radius: 4px; font: 11px/1.7 Consolas, monospace; }
+.editor-help kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 2px 7px; min-width: 27px; min-height: 25px;
+    color: #16202d; background: linear-gradient(#fff, #d4dce7);
+    border: 1px solid #f7faff; border-bottom: 3px solid #7b8ba0;
+    border-radius: 5px; box-shadow: inset 0 1px 0 #fff, 0 2px 2px rgba(0,0,0,.4);
+    font: 600 12px/1.4 Consolas, monospace; white-space: nowrap;
+}
 .editor-help summary { cursor: pointer; margin-top: 4px; color: #b9c6d7; }
 body.print-theme .editor-help { color: #000; }
 body.print-theme .help-mode, body.print-theme .editor-help summary { color: #000; }
-body.print-theme .editor-help kbd { color: #000; background: #fff; border-color: #999; }
+body.print-theme .editor-help kbd { color: #000; background: #fff; border-color: #888; border-bottom-color: #555; box-shadow: 0 1px 1px #bbb; }
