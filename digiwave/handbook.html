@@ -13,7 +13,7 @@
 <header><a href="index.html">← 打开 DigiWave 编辑器</a><h1>DigiWave Handbook</h1><p>波形编辑器操作手册 · 先选择信号，再用 E 编辑、I 插入，Esc 返回 View。</p></header>
 <main>
 <nav aria-label="手册目录">
-<a href="#quickstart">快速开始</a><a href="#modes">模式与光标</a><a href="#signals">信号与分组</a><a href="#clock">添加时钟</a><a href="#anchors">信号锚点</a><a href="#editing">编辑与插入</a><a href="#selection">框选与复制粘贴</a><a href="#navigation">缩放与吸附</a><a href="#annotations">测量与注释</a><a href="#files">保存与恢复</a><a href="#printing">黑白打印配色</a><a href="#shortcuts">快捷键速查</a><a href="#troubleshooting">常见问题</a>
+<a href="#quickstart">快速开始</a><a href="#modes">模式与光标</a><a href="#signals">信号与分组</a><a href="#clock">添加时钟</a><a href="#anchors">信号锚点</a><a href="#editing">编辑与插入</a><a href="#selection">框选与复制粘贴</a><a href="#navigation">缩放与吸附</a><a href="#annotations">测量与注释</a><a href="#files">保存与恢复</a><a href="#examples">协议示例</a><a href="#printing">黑白打印配色</a><a href="#shortcuts">快捷键速查</a><a href="#troubleshooting">常见问题</a>
 </nav>
 <article>
 <section id="quickstart"><h2>快速开始</h2>
@@ -31,7 +31,7 @@
 <p>例如 Period = 10 ns、Duty = 25、Cycles = 4、Start time = 2 ns：时钟从 2 ns 开始，每周期高电平持续 2.5 ns，结束于 42 ns。</p>
 <p>点击 <strong>Add</strong> 或在输入框按回车创建。不需要预先选择信号，也不会覆盖已有信号。开始前为低电平，设定周期结束后为 Z。新建结果是普通二值信号，可继续编辑，并支持撤销。</p></section>
 <section id="anchors"><h2>信号锚点：同电平段中的连接位置</h2>
-<p>锚点是一条短竖线，可以放在高电平或低电平的中间，作为箭头或标尺端点。它不改变电平，也不制造额外跳变；自动合并相同电平时会保留明确添加的锚点。</p>
+<p>锚点是一条短竖线，可以放在高电平或低电平的中间，作为箭头或标尺端点。它不改变电平，也不制造额外跳变；自动合并相同电平时会保留明确添加的锚点；有连线或标尺依附的消失边沿也会自动保留为可见锚点。</p>
 <ol><li>选择信号，按 <kbd>K</kbd> 或点击工具栏的小竖线加号图标，进入放置模式（会进入 Edit）。</li><li>点击当前信号需要标记的位置，按当前网格规则放置锚点；按 Esc 可取消。</li><li>按 <kbd>A</kbd>，依次点击两个边沿或锚点创建连接线。箭头在锚点处会落到实际高/低电平线上。</li></ol>
 <p>View 中可通过点击或左右方向键定位锚点；Edit 中可拖动锚点，关联连线和标尺一起移动。锚点随工程 JSON 保存，支持复制粘贴、重复片段、撤销和重做。</p>
 <p>选中锚点后按 <kbd>Shift+K</kbd> 移除锚点，同时移除依附该锚点的连线和标尺；可用 Ctrl+Z 撤销。编辑波形的值仍按真实波形段处理，锚点只是独立的连接标记。</p></section>
@@ -54,10 +54,16 @@
 <section id="annotations"><h2>测量、事件连线和注释</h2>
 <ul><li><strong>双游标：</strong>Alt+点击放置两个时间游标，底部显示 Δt；第三次点击开始新一组。</li><li><strong>测量标尺：</strong>按 M 或点标尺图标，再依次点击两个边沿创建测量；测量端点也跟随所绑定边沿移动。</li><li><strong>事件连线：</strong>按 A 或点弧线箭头图标，依次选择两个边沿；端点吸附到所选信号边沿，Edit 拖动该边沿时连接线端点实时跟随；插入波形向后推移边沿时也会同步移动。可拖动连线文字调整位置。</li><li><strong>注释：</strong>按 T，在左侧选择绑定信号，点击波形区域输入注释，回车确认。可拖动注释；选中注释后滚轮调整字号。</li><li><strong>属性：</strong>选中标尺、连线或注释后按 C。注释可设置 Sticky Note 便签内容；点击便签的折叠控件展开或收起。</li></ul></section>
 <section id="files"><h2>保存、导入与恢复</h2>
-<p>保存图标导出 JSON，文件夹箭头图标导入 JSON。工程包含信号、分组、注释、标尺、连线和缩放比例。导入会替换当前工程；未导出时会提示确认，无效数据会拒绝导入。</p>
+<p>保存图标导出 JSON，文件夹箭头图标打开导入与协议示例面板。工程包含信号、分组、注释、标尺、连线和缩放比例。导入会替换当前工程；未导出时会提示确认，无效数据会拒绝导入。</p>
 <p>Ctrl+Z 撤销，Ctrl+Shift+Z 或 Ctrl+Y 重做。当前最多保存 100 个历史状态，刷新页面后不会恢复撤销历史。</p>
 <p>修改后会尝试保存浏览器本地备份；重新打开时可选择恢复，也可点击工具栏的恢复图标。浏览器权限、隐私模式、清理站点数据或更换打开位置都可能影响备份。</p>
 <p class="note">本地备份不是导出的文件。重要工程请主动导出 JSON。离开未导出的页面时，浏览器可能显示确认提醒。</p></section>
+<section id="examples"><h2>导入协议示例</h2>
+<p>点击工具栏的导入图标，打开 <strong>Import / Protocol Examples</strong>。可选择本地 JSON，也可加载以下内置工程：</p>
+<ul><li><strong>AXI4-Lite：</strong>一次写入和一次读回，AW 与 W 独立握手，带延迟响应。</li><li><strong>AXI4 INCR Burst：</strong>四拍、32-bit 突发写入与读回，包含 LEN/SIZE/BURST/ID、背压和 LAST。</li><li><strong>AXI-Stream：</strong>四拍数据包，包含 TREADY 背压、TKEEP 和 TLAST。</li><li><strong>APB：</strong>Setup、Access、Wait 和寄存器读写。</li><li><strong>SPI Mode 0：</strong>CPOL=0、CPHA=0，MSB first，MOSI/MISO 全双工。</li><li><strong>UART 8N1：</strong>115200 baud，两帧数据，包含起始位、数据和停止位。</li></ul>
+<p><strong>Load</strong> 将替换当前工程；未导出时先确认，可用 Ctrl+Z 撤销。<strong>JSON ↓</strong> 仅下载该示例，不改变当前工程。</p>
+<p>示例使用真实文本便签标注 transaction。按 T 后点击便签折叠控件可展开说明，按 C 可修改注释。用滚轮浏览更多信号，部分 AXI 读通道默认折叠，点击组名前三角展开。</p>
+<p>示例用于学习和编辑波形，不会自动解码协议。<a href="interaction-review/">查看当前交互评估与改进优先级</a>。</p></section>
 <section id="printing"><h2>黑白打印配色</h2>
 <p>点击打印机图标切换配色，再点一次返回彩色：</p>
 <ul><li>普通 0/1 波形、总线数值、文字、标尺、连线和游标边框使用黑色。</li><li>X 态边框及斜线使用灰色，二值 X 态区域使用浅灰底。</li><li>Z 态使用灰色中间水平线。</li><li>采用明确的状态配色，没有整幅画布的灰度转换滤镜。</li></ul>

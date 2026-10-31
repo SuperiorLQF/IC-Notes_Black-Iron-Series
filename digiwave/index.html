@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>DigiWave</title>
-    <link rel="stylesheet" href="style.css?v=656942260088">
+    <link rel="stylesheet" href="style.css?v=786d20045d94">
 </head>
 <body>
 
@@ -84,7 +84,7 @@
         </svg>
     </button>
 
-    <button class="icon-btn" onclick="importWaveform()" title="导入 JSON 波形">
+    <button class="icon-btn" id="importButton" onclick="openImportDialog()" title="导入 JSON / 协议示例">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
             <line x1="12" y1="11" x2="12" y2="17"></line>
@@ -164,6 +164,15 @@
     <div class="modal-btns"><button class="cancel" onclick="closeModal('attrModal')">Cancel</button><button class="primary" onclick="applyAttrModal()">Apply</button></div>
 </div>
 
+<div id="importModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="importTitle" onkeydown="if(event.key==='Escape'){event.preventDefault();closeModal('importModal')}">
+    <h3 id="importTitle">Import / Protocol Examples</h3>
+    <p class="modal-desc">导入已有工程，或选择一个可编辑的协议示例。加载示例会替换当前内容；未导出时会先提示，之后也可撤销。</p>
+    <button id="importFileButton" type="button" class="primary" onclick="closeModal('importModal');importWaveform()">Import JSON File…</button>
+    <p class="modal-desc">示例用于时序绘图，不是协议解码器。用滚轮浏览通道、展开信号组；按 T 后点击便签图标可查看 transaction 详注。</p>
+    <div id="exampleList" class="example-grid"></div>
+    <p id="importError" role="alert"></p>
+    <div class="modal-btns"><button type="button" class="cancel" onclick="closeModal('importModal')">Cancel</button></div>
+</div>
 <form id="clockModal" class="modal" novalidate onkeydown="if(event.key==='Escape'){event.preventDefault();closeModal('clockModal')}">
     <h3>Add Clock Signal</h3>
     <div class="attr-row"><label for="clockName">Name</label><input type="text" id="clockName" value="clk" required></div>
@@ -177,7 +186,9 @@
 </form>
 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
 
-<script src="editor_support.js?v=aefdddf6b874"></script>
-<script src="wave_engine.js?v=4efa9b52e851"></script>
+<script src="examples.js?v=27e60fe321f0"></script>
+<script src="example_library.js?v=a8ba93bc7d1b"></script>
+<script src="editor_support.js?v=7dccf9156425"></script>
+<script src="wave_engine.js?v=9ddbea9b0e28"></script>
 </body>
 </html>
