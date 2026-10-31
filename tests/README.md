@@ -29,3 +29,8 @@ The generator updates both the built-in offline catalog and the downloadable JSO
 projects. Checks cover AXI handshakes, stalled payload stability, burst lengths
 and LAST, APB completion, SPI sampled bytes and UART framing. Browser checks also
 exercise the import/example dialog, cancellation, downloads and undo.
+
+Paint regression checks cover literal Bus labels (including spaces and leading
+zeros), blank-area deselection, real-edge/K ranges, high/low half-height and
+Bus full-height rendering, default/custom/clear colours, gray print pixels,
+undo/redo, JSON roundtrips and fill movement/copying.

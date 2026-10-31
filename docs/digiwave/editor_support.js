@@ -71,6 +71,7 @@ function validateProject(input) {
             if (n.type === 'group') { if (!Array.isArray(n.children)) throw new Error('分组无效'); walk(n.children, depth + 1); }
             else {
                 if (!Array.isArray(n.data)) throw new Error('波形数据无效');
+                if (n.fills != null && (!Array.isArray(n.fills) || n.fills.some(f => !f || !finite(f.start) || !finite(f.end) || f.start < 0 || f.end <= f.start || !(f.color === 'default' || /^#[0-9a-f]{6}$/i.test(f.color))))) throw new Error('信号填充无效');
                 if (n.anchors != null && (!Array.isArray(n.anchors) || n.anchors.some(t => !finite(t) || t < 0) || new Set(n.anchors).size !== n.anchors.length)) throw new Error('信号锚点无效');
                 let prev = -1;
                 for (const ev of n.data) {
@@ -129,6 +130,8 @@ function snapEditorTime(t, options = {}) {
 }
 // Endpoints are identified by signal + edge time, preserving existing JSON projects.
 function retimeSignalAttachments(signalId, retime) {
+    const signal=findNodeAndParent(state.tree,signalId)?.node;
+    if(signal?.fills)signal.fills=signal.fills.map(fill=>({...fill,start:retime(fill.start),end:retime(fill.end)})).filter(fill=>fill.end>fill.start);
     for (const annotation of [...state.connections, ...state.measurements]) {
         if (annotation.sigId1 === signalId) annotation.t1 = retime(annotation.t1);
         if (annotation.sigId2 === signalId) annotation.t2 = retime(annotation.t2);
@@ -150,7 +153,7 @@ function signalBoundaryTimes(sig) {
 function signalEndpointY(track, time) {
     const isAnchor = track.node.anchors?.some(t => Math.abs(t-time) <= 1e-6);
     const val = getSignalValueAtTime(track.node, time);
-    const dy = isAnchor && track.node.type === 'single' ? (val === '1' ? -14 : val === '0' ? 14 : 0) : 0;
+    const dy = isAnchor ? (track.node.type === 'multi' ? -14 : val === '1' ? -14 : val === '0' ? 14 : 0) : 0;
     return track.centerY + state.topMargin + dy;
 }
 function retimeAnchors(sig, retime) {
@@ -249,7 +252,7 @@ function confirmClock() {
 function copyEditorSelection() {
     if (!editorSelection || Math.abs(editorSelection.a-editorSelection.b)<1e-9) return;
     const start=Math.min(editorSelection.a,editorSelection.b), end=Math.max(editorSelection.a,editorSelection.b);
-    editorClipboard={duration:end-start, signals:editorSelection.ids.map(id=>findNodeAndParent(state.tree,id)?.node).filter(n=>n && n.type!=='group').map(sig=>({type:sig.type, anchors:(sig.anchors||[]).filter(t=>t>=start && t<end).map(t=>t-start), data:[{t:0,val:getSignalValueAtTime(sig,start)},...sig.data.filter(e=>e.t>start && e.t<end).map(e=>({t:e.t-start,val:e.val}))]}))};
+    editorClipboard={duration:end-start, signals:editorSelection.ids.map(id=>findNodeAndParent(state.tree,id)?.node).filter(n=>n && n.type!=='group').map(sig=>({type:sig.type, fills:captureFills(sig,start,end), anchors:(sig.anchors||[]).filter(t=>t>=start && t<end).map(t=>t-start), data:[{t:0,val:getSignalValueAtTime(sig,start)},...sig.data.filter(e=>e.t>start && e.t<end).map(e=>({t:e.t-start,val:e.val}))]}))};
     updateSaveStatus('选区已复制（编辑器内部）');
 }
 function pasteEditorSelection(insert) {
@@ -262,6 +265,8 @@ function pasteEditorSelection(insert) {
         const tail=getSignalValueAtTime(sig,insert?start:end);
         if(insert) {retimeAnchors(sig,time=>time>=start?time+editorClipboard.duration:time);retimeSignalAttachments(sig.id,time=>time>=start?time+editorClipboard.duration:time);sig.data.forEach(e=>{if(e.t>=start)e.t+=editorClipboard.duration;});}
         else {sig.data=sig.data.filter(e=>e.t<start || e.t>end);if(sig.anchors)sig.anchors=sig.anchors.filter(t=>t<start || t>end);}
+        if(insert)pasteFills(sig,start,editorClipboard.signals[i].fills||[]);
+        else replaceFillRange(sig,start,end,(editorClipboard.signals[i].fills||[]).map(f=>({...f,start:start+f.start,end:start+f.end})));
         const pastedAnchors=(editorClipboard.signals[i].anchors||[]).map(t=>start+t);
         if(pastedAnchors.length)sig.anchors=[...new Set([...(sig.anchors||[]),...pastedAnchors])].sort((a,b)=>a-b);
         sig.data.push(...editorClipboard.signals[i].data.map(e=>({t:start+e.t,val:e.val})));
@@ -293,6 +298,9 @@ function updateEditorHelp() {
         add('鼠标', '选择绑定通道，点击添加文字；拖动注释移动');
         add('↵ Enter', '确认输入的注释');add('滚轮', '选中注释时调整字号');
         add('C', '注释属性 / 便签设置');add('Delete', '删除所选注释');add('⎋ Esc', '取消输入或返回 View');
+    } else if (state.subMode === 'PAINT') {
+        title='EDIT · FILL';add('鼠标点击', '填充边沿 / K 锚点之间的一段；Bus 全高，1 上半、0 下半');add('颜色', 'Default 默认色 / Custom 自选色 / Clear 清除');add('B', '关闭油漆桶');add('⎋ Esc', '退出填充工具');
+        if(paintMessage)add('提示',paintMessage);
     } else if (state.subMode === 'ANCHOR') {
         title = 'EDIT · ANCHOR';add('鼠标', '点击当前信号插入小竖线锚点，不改变电平');add('⎋ Esc', '取消放置锚点');
     } else if (state.subMode.startsWith('REPEAT')) {
@@ -303,15 +311,15 @@ function updateEditorHelp() {
         add('⎋ Esc', '取消片段选择；次数面板可点 Cancel');
         add('目标', inserting ? '在编辑光标处重复插入，后续波形后移' : '在编辑光标处重复覆盖，光标不移动');
     } else if ((editing || inserting) && state.subMode === 'VALUE') {
-        title = `${state.mode} · BUS VALUE`;
-        add('输入', '十进制 / 0x 十六进制 / X / Z');
+        title = `${state.mode} · BUS TEXT`;
+        add('输入', '任意字符、数字和空格，全部原样显示，不转换进制');
         add('↵ Enter', inserting ? '打开持续时间面板，确认后插入' : '应用当前总线值并结束数值输入');
-        if (inserting) add('␣ Space', '按参考信号下一边沿或上次时长插入');
+        add('␣ Space', '在输入框中输入空格');
         add('⌫ Backspace', '删除输入框中的字符，不删除波形');
         add('⎋ Esc', '退出数值输入，保留当前编辑模式');
     } else if ((editing || inserting) && sig) {
         title = `${state.mode} · ${isBus ? 'BUS' : 'BINARY'}`;
-        if (isBus) { add('V', '打开总线数值输入框（十进制 / 0x 十六进制）');add(['X','Z'], '设置总线待写状态'); }
+        if (isBus) { add('V', '输入总线字符（数字也按字符原样显示）');add(['X','Z'], '设置字面字符 X / Z'); }
         else add(['0','1','X','Z'], '设置待写电平 / 状态（回车后应用）');
         add('↵ Enter', editing ? '修改光标所在波形段的值' : '输入持续时间，插入并后推后续波形');
         if (inserting) {
@@ -320,8 +328,9 @@ function updateEditorHelp() {
         } else add('鼠标拖动', '移动所选信号边沿；遵守网格吸附，连接线和标尺随动');
         add('⌫ Backspace', '删除光标与前一边沿之间的波形，后续内容前移');
         if (editing) {add('K', '点击放置独立锚点，可作为连线端点');add('Shift+K', '移除光标所在锚点');}
+        add('B', '油漆桶：填充边沿 / K 之间的区域');
         add('R', inserting ? '选择片段并重复插入' : '选择片段并重复覆盖');
-        add(['←','→'], '定位前后边沿');add('C', isBus ? '名称 / 颜色 / 线宽 / 总线进制属性' : '名称 / 颜色 / 线宽属性');
+        add(['←','→'], '定位前后边沿');add('C', '名称 / 颜色 / 线宽属性');
         add('⎋ Esc', '返回 View');
     } else if (editing || inserting) {
         title = `${state.mode} · 未选择信号`;
@@ -386,6 +395,7 @@ function installEditorInteractions() {
     document.addEventListener('visibilitychange',()=>{if(document.hidden && projectHistory.initialized)writeBackup();});
     window.addEventListener('keydown',e=>{
         if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName) || document.querySelector('.modal[style*="flex"]')) return;
+        if(e.key.toLowerCase()==='b' && !e.ctrlKey && !e.metaKey && !e.altKey) {e.preventDefault();e.stopImmediatePropagation();togglePaintMode();return;}
         if(e.key.toLowerCase()==='k' && !e.ctrlKey && !e.metaKey && (state.mode==='VIEW'||state.mode==='EDIT')) {e.preventDefault();e.stopImmediatePropagation();if(e.shiftKey)removeCurrentAnchor();else toggleAnchorMode();return;}
         if(e.key.toLowerCase()==='f' && !e.ctrlKey && !e.metaKey && !e.altKey) {
             e.preventDefault();e.stopImmediatePropagation();fitWaveform();return;
@@ -417,7 +427,14 @@ function installEditorInteractions() {
         else {const last=state.flatTracks.at(-1);const total=last?last.yOffset+last.height:0;state.offsetY=Math.max(0,Math.min(Math.max(0,total-waveContainer.clientHeight+state.topMargin),state.offsetY+e.deltaY));}
         clampHorizontalOffset();updateUI();
     },{capture:true,passive:false});
+    document.getElementById('signalList').addEventListener('mousedown', e=>{if(e.button===0 && e.target.id==='signalList' && !document.querySelector('.modal[style*="flex"]'))clearRowSelection();});
     waveContainer.addEventListener('mousedown',e=>{
+        if(document.querySelector('.modal[style*="flex"]'))return;
+        if(e.button===0) {
+            const point=editorPoint(e),track=state.flatTracks[point.row];
+            if(point.y>=state.topMargin && !track) {e.preventDefault();e.stopImmediatePropagation();clearRowSelection();return;}
+            if(state.subMode==='PAINT') {e.preventDefault();e.stopImmediatePropagation();if(track?.node.type!=='group')paintSignalSegment(track.node,point.t);return;}
+        }
         if(e.button===1) {e.preventDefault();e.stopImmediatePropagation();editorGesture={kind:'pan',x:e.clientX,y:e.clientY,ox:state.offsetX,oy:state.offsetY};return;}
         if(e.button===0 && state.mode==='EDIT' && state.subMode==='ANCHOR') {
             e.preventDefault();e.stopImmediatePropagation();

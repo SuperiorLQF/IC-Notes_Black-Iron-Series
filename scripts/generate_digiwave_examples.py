@@ -12,7 +12,6 @@ def signal(name, events, bus=False, anchors=()):
         if data and data[-1]['t']==event['t']: data[-1]=event
         elif not data or data[-1]['val']!=event['val']: data.append(event)
     out={'id':name,'name':name,'type':'multi' if bus else 'single','color':PALETTE[len(name)%len(PALETTE)],'thickness':2,'data':data}
-    if bus: out['radix']='hex'
     if anchors: out['anchors']=sorted(set(round(t,6) for t in anchors))
     return out
 

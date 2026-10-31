@@ -28,7 +28,7 @@ try {
  await page.evaluate(()=>{state.tree.push({id:'hint-bus',type:'multi',name:'bus',color:'#a5f',radix:'hex',data:[{t:0,val:'0'}]});state.selectedIds=new Set(['hint-bus']);updateUI();});
  assert.equal(await page.locator('#editorHelp kbd').filter({hasText:/^V$/}).count(),1);
  await page.locator('#waveContainer').focus();await page.keyboard.press('v');
- assert(await page.locator('#editorHelp').textContent().then(t=>t.includes('BUS VALUE')&&t.includes('删除输入框中的字符')));
+ assert(await page.locator('#editorHelp').textContent().then(t=>t.includes('BUS TEXT')&&t.includes('删除输入框中的字符')));
  assert.equal(await page.locator('#editorHelp kbd').filter({hasText:/^R$/}).count(),0);
  await page.keyboard.press('Escape');
  await page.evaluate(()=>{state.tree=state.tree.filter(s=>s.id!=='hint-bus');state.selectedIds=new Set(['a']);state.mode='INSERT';state.subMode='NORMAL';state.pendingVal='1';updateUI();});
@@ -96,7 +96,7 @@ try {
  await page.evaluate(()=>{writeBackup();validateProject(projectData());});
  const recoverySnapshot=await page.evaluate(()=>{markProjectSaved();return projectSnapshot();});page.once('dialog',d=>d.accept());await page.reload(); // handle restore after fetch
  await page.waitForFunction(()=>projectHistory.initialized);assert.equal(await page.evaluate(()=>projectSnapshot()),recoverySnapshot);console.log('backup recovery PASS');
- assert.equal(await page.evaluate(()=>parseDisplayStr('0xFFFFFFFFFFFFFFFF',{radix:'dec'}).str),'18446744073709551615');console.log('64-bit bus display PASS');
+ assert.equal(await page.evaluate(()=>parseDisplayStr('0xFFFFFFFFFFFFFFFF',{radix:'dec'}).str),'0xFFFFFFFFFFFFFFFF');console.log('Bus labels preserve numeric characters without radix conversion PASS');
  const before=await page.evaluate(()=>projectSnapshot());
  assert(await page.evaluate(()=>{try{validateProject({tree:[{id:'x',name:'x',type:'single',data:[{t:-1,val:'1'}]}]});return false;}catch{return true;}}));
  assert.equal(await page.evaluate(()=>projectSnapshot()),before);console.log('invalid project rejected PASS');
@@ -286,6 +286,56 @@ try {
  assert.deepEqual(await page.evaluate(()=>findNodeAndParent(state.tree,'kept').node.anchors),[10,20]);
  assert.deepEqual(await page.evaluate(()=>signalBoundaryTimes(findNodeAndParent(state.tree,'kept').node)),[0,10,20,30]);
  console.log('Hidden-group annotations survive other deletions; merged annotated edges become explicit anchors PASS');
+
+ await page.evaluate(()=>{state.tree=[{id:'fill-single',name:'fill-single',type:'single',color:'#0088cc',thickness:2,data:[{t:0,val:'1'},{t:20,val:'0'},{t:40,val:'1'},{t:60,val:'0'}],anchors:[5,10,25,30]},{id:'fill-bus',name:'fill-bus',type:'multi',color:'#cc6600',data:[{t:0,val:'0012'},{t:40,val:'0x10'},{t:60,val:'X'}],anchors:[10,20]}];state.connections=[];state.measurements=[];state.texts=[];state.selectedIds=new Set(['fill-bus']);state.mode='VIEW';state.subMode='NORMAL';state.snapTargetId=null;state.scaleX=10;state.offsetX=state.offsetY=0;editorSelection=null;measurementCursors=[];updateUI();});
+ await page.locator('#waveContainer').focus();await page.keyboard.press('e');await page.keyboard.press('v');
+ await page.locator('#busValueInput').fill(' 0012 0x10 X Z ');await page.locator('#busValueInput').press('Enter');
+ assert.equal(await page.evaluate(()=>state.tree[1].data[0].val),' 0012 0x10 X Z ');
+ await page.locator('#waveContainer').focus();await page.keyboard.press('v');await page.locator('#busValueInput').fill('');await page.locator('#busValueInput').press('Enter');assert.equal(await page.evaluate(()=>state.tree[1].data[0].val),'');
+ await page.locator('#waveContainer').focus();await page.keyboard.press('v');await page.locator('#busValueInput').fill(' 0012 0x10 X Z ');await page.locator('#busValueInput').press('Enter');
+ assert.equal(await page.evaluate(()=>parseDisplayStr('0012',{radix:'hex'}).str),'0012');
+ assert.equal(await page.evaluate(()=>parseDisplayStr('X').isX),false);
+ assert.equal(await page.locator('#radixRow').count(),0);
+ await page.evaluate(()=>{state.tree[1].data=[state.tree[1].data[0]];state.tree[1].anchors=[10,20,60];updateUI();});
+ const fillPoints=await page.evaluate(()=>{const r=waveContainer.getBoundingClientRect();return state.flatTracks.map(t=>({x:r.left,y:r.top+t.centerY+state.topMargin}));});
+ await page.locator('#paintButton').click();
+ for(const t of [2,7,27,50])await page.mouse.click(fillPoints[0].x+t*10,fillPoints[0].y);
+ await page.mouse.click(fillPoints[1].x+150,fillPoints[1].y);
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].fills.map(f=>[f.start,f.end])),[[0,5],[5,10],[25,30],[40,60]]);
+ assert.deepEqual(await page.evaluate(()=>state.tree[1].fills),[{start:10,end:20,color:'default'}]);
+ await page.locator('#fillColorMode').selectOption('custom');await page.evaluate(()=>{document.getElementById('fillColorInput').value='#ff0000';});
+ await page.mouse.click(fillPoints[0].x+120,fillPoints[0].y);
+ assert.equal(await page.evaluate(()=>state.tree[0].fills.find(f=>f.start===10).color),'#ff0000');
+ await page.locator('#fillColorMode').selectOption('clear');await page.mouse.click(fillPoints[0].x+120,fillPoints[0].y);
+ assert.equal(await page.evaluate(()=>state.tree[0].fills.some(f=>f.start===10)),false);
+ await page.locator('#fillColorMode').selectOption('custom');await page.mouse.click(fillPoints[0].x+500,fillPoints[0].y);
+ assert.equal(await page.evaluate(()=>state.tree[0].fills.find(f=>f.start===40).color),'#ff0000');
+ await page.locator('#fillColorMode').selectOption('default');assert.equal(await page.locator('#fillColorInput').isDisabled(),true);
+ const filledSnapshot=await page.evaluate(()=>projectSnapshot());
+ await page.mouse.click(fillPoints[0].x+650,fillPoints[0].y);
+ assert.equal(await page.evaluate(()=>projectSnapshot()),filledSnapshot);assert(await page.locator('#editorHelp').textContent().then(t=>t.includes('结束锚点')));
+ await page.locator('#waveContainer').focus();await page.keyboard.press('Control+z');await page.keyboard.press('Control+Shift+z');
+ assert.equal(await page.evaluate(()=>projectSnapshot()),filledSnapshot);
+ await page.evaluate(()=>{const data=validateProject(projectData());applyProject(data);state.selectedIds.clear();if(!state.printMode)togglePrintMode();updateUI();render();});
+ const paintedPixels=await page.evaluate(()=>{const scale=ctx.getTransform().a;const sample=(row,t,dy)=>Array.from(ctx.getImageData(Math.floor((t*state.scaleX-state.offsetX)*scale),Math.floor((state.flatTracks[row].centerY+state.topMargin+dy-state.offsetY)*scale),1,1).data).slice(0,3);return [sample(0,7,-7),sample(0,7,7),sample(0,27,7),sample(0,27,-7),sample(1,15,-11),sample(1,15,11),sample(0,50,-7),sample(1,19.8,-11)];});
+ assert.deepEqual(paintedPixels,[[216,216,216],[255,255,255],[216,216,216],[255,255,255],[216,216,216],[216,216,216],[216,216,216],[216,216,216]]);
+ const blank=await page.evaluate(()=>{const r=waveContainer.getBoundingClientRect();const last=state.flatTracks.at(-1);return{x:r.left+40,y:r.top+last.yOffset+last.height+state.topMargin+15};});
+ await page.evaluate(()=>{state.selectedIds=new Set(['fill-single','fill-bus']);state.mode='EDIT';updateUI();});await page.mouse.click(blank.x,blank.y);
+ assert.equal(await page.evaluate(()=>state.selectedIds.size),0);assert.equal(await page.evaluate(()=>state.mode),'VIEW');
+ await page.evaluate(()=>{state.selectedIds=new Set(['fill-single']);updateUI();});
+ const listRect=await page.locator('#signalList').boundingBox();await page.mouse.click(listRect.x+30,blank.y);assert.equal(await page.evaluate(()=>state.selectedIds.size),0);
+ console.log('Literal Bus labels, blank deselection, edge/K paint bounds, default/custom/clear, undo/JSON and print fill heights PASS');
+ await page.evaluate(()=>{state.selectedIds=new Set(['fill-single']);state.mode='EDIT';state.subMode='NORMAL';updateUI();});
+ const fillDragPoint=await page.evaluate(()=>{const r=waveContainer.getBoundingClientRect();return{x:r.left+50,y:r.top+state.flatTracks[0].centerY+state.topMargin-14};});
+ await page.mouse.move(fillDragPoint.x,fillDragPoint.y);await page.mouse.down();await page.mouse.move(fillDragPoint.x+10,fillDragPoint.y,{steps:3});await page.mouse.up();
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].fills.slice(0,2).map(f=>[f.start,f.end])),[[0,6],[6,10]]);
+ await page.evaluate(()=>{editorSelection={a:0,b:10,ids:['fill-single']};state.cursorT=40;updateUI();});
+ await page.locator('#waveContainer').focus();await page.keyboard.press('Control+c');await page.keyboard.press('Control+v');
+ assert(await page.evaluate(()=>state.tree[0].fills.some(f=>f.start===40&&f.end===46&&f.color==='default')));
+ assert(await page.evaluate(()=>state.tree[0].fills.some(f=>f.start===46&&f.end===50&&f.color==='default')));
+ assert(await page.evaluate(()=>state.tree[0].anchors.includes(46)));
+ console.log('Paint follows moved K boundaries and is preserved by waveform copy/paste PASS');
+
 
  const printPixels=await page.evaluate(()=>{
   state.tree=[{id:'print-single',name:'single',type:'single',color:'#ff0000',data:[{t:0,val:'x'},{t:20,val:'0'}]},{id:'print-bus',name:'bus',type:'multi',color:'#ff0000',radix:'hex',data:[{t:0,val:'x'},{t:20,val:'0'}]}];
