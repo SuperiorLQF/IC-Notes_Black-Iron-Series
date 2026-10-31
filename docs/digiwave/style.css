@@ -104,3 +104,29 @@ body.print-theme .modal-btns button.cancel { background: #eee; color: #000;}
 .time-input select { flex: 0 0 65px; }
 
 a.icon-btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* Reserve the button outline so selecting a name does not shift the label. */
+.signal-name {
+    min-width: 0;
+    padding: 4px 8px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+.signal-row.selected .signal-name {
+    color: #e8f7ff;
+    background: linear-gradient(#15232e, #213a4b);
+    border-color: #101b24 #3a5364 #4d697b #101b24;
+    box-shadow: inset 2px 3px 5px rgba(0,0,0,.65), inset -1px -1px 1px rgba(255,255,255,.07), 0 1px 0 rgba(255,255,255,.08);
+    transform: translateY(1px);
+    text-shadow: 0 1px 1px #000;
+}
+body.print-theme .signal-row.selected { background-color: #eee; border-left-color: #000; }
+body.print-theme .signal-row.selected .signal-name {
+    color: #000;
+    background: linear-gradient(#d4d4d4, #eee);
+    border-color: #888 #fff #fff #888;
+    box-shadow: inset 2px 3px 4px rgba(0,0,0,.22), inset -1px -1px 1px #fff;
+    text-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) { .signal-name { transition: none; } }
