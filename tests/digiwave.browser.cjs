@@ -66,7 +66,7 @@ try {
  await page.evaluate(()=>{state.selectedIds.clear();});
  await page.getByTitle('添加信号',{exact:true}).hover();await page.locator('#addClockButton').click();
  await page.locator('#clockPeriod').fill('10');await page.locator('#clockDuty').fill('25');await page.locator('#clockCount').fill('4');await page.locator('#clockStart').fill('102');
- await page.locator('#clockModal button[type="submit"]').click();
+ await page.locator('#clockAddButton').click();
  assert(await page.evaluate(()=>state.tree.at(-1).data.some(e=>e.t===104.5 && e.val==='0')));
  assert.equal(await page.evaluate(()=>state.tree.at(-1).data.at(-1).t),142);
  assert.equal(await page.evaluate(()=>JSON.stringify(state.tree.slice(0,-1))),originalSignals);
@@ -102,10 +102,10 @@ try {
  console.log('F/button fit 100%, zoom-out limited to 120%, pan/manual scale/resize limits PASS');
  await page.evaluate(()=>{state.tree=[];state.texts=[];state.measurements=[];state.connections=[];state.selectedIds.clear();updateUI();});
  await page.getByTitle('添加信号',{exact:true}).hover();await page.locator('#addClockButton').click();
- await page.locator('#clockPeriod').fill('0');await page.locator('#clockModal button[type="submit"]').click();
+ await page.locator('#clockPeriod').fill('0');await page.locator('#clockAddButton').click();
  assert.equal(await page.evaluate(()=>state.tree.length),0);assert(await page.locator('#clockError').textContent());
  await page.locator('#clockPeriod').fill('10');await page.locator('#clockStart').fill('0');await page.locator('#clockCount').fill('1');
- await page.locator('#clockModal button[type="submit"]').click();
+ await page.locator('#clockAddButton').click();
  assert.equal(await page.evaluate(()=>state.tree.length),1);assert.equal(await page.evaluate(()=>state.tree[0].type),'single');
  assert.equal(await page.evaluate(()=>state.tree[0].data.at(-1).t),10);
  console.log('Empty project clock creation and invalid parameter protection PASS');
@@ -114,12 +114,20 @@ try {
   await page.getByTitle('添加信号',{exact:true}).hover();await page.locator('#addClockButton').click();
   await page.locator('#clockPeriod').fill(value);await page.locator('#clockPeriodUnit').selectOption(unit);
   await page.locator('#clockStart').fill('1000');await page.locator('#clockStartUnit').selectOption('ps');
-  await page.locator('#clockCount').fill('2');await page.locator('#clockModal button[type="submit"]').click();
+  await page.locator('#clockCount').fill('2');await page.locator('#clockAddButton').click();
   assert.equal(await page.evaluate(()=>state.tree.length),previousCount+1);
   assert.equal(await page.evaluate(()=>state.tree.at(-1).data.at(-1).t),1+2*expected);
  }
  assert.equal(await page.evaluate(()=>new Set(state.tree.map(s=>s.id)).size),await page.evaluate(()=>state.tree.length));
  console.log('Numeric time inputs, ps/ns/us/ms conversion and creation without crypto.randomUUID PASS');
+ await page.getByTitle('添加信号',{exact:true}).hover();await page.locator('#addClockButton').click();
+ const beforeEnter=await page.evaluate(()=>state.tree.length);
+ await page.locator('#clockPeriod').fill('');await page.locator('#clockAddButton').click();
+ assert.equal(await page.evaluate(()=>state.tree.length),beforeEnter);assert(await page.locator('#clockError').isVisible());
+ await page.locator('#clockPeriod').fill('1e-3');await page.locator('#clockPeriodUnit').selectOption('ms');
+ await page.locator('#clockPeriod').press('Enter');assert.equal(await page.evaluate(()=>state.tree.length),beforeEnter+1);
+ console.log('Direct Add click, blank-value feedback and Enter creation PASS');
+
 
  assert.equal(errors.length,0,errors.join('\n'));console.log('browser errors: 0');
 } finally {await browser.close();await new Promise(r=>server.close(r));}
