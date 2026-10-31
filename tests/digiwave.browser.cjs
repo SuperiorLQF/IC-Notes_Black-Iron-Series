@@ -190,6 +190,29 @@ try {
  assert.deepEqual(await page.evaluate(()=>[state.connections[0].t1,state.connections[0].t2,state.measurements[0].t1]),[19,10,19]);
  console.log('Attached connections and measurements follow edges live, undo/redo, Escape and insertion PASS');
 
+ // Delete the low section in high-low-high: its two coincident events must
+ // collapse into one continuous high section with no selectable ghost edge.
+ await page.evaluate(()=>{
+  state.tree=[{id:'merge',name:'merge',type:'single',color:'#5cf',data:[{t:0,val:'1'},{t:10,val:'0'},{t:20,val:'1'},{t:30,val:'0'}]}];
+  state.connections=[];state.measurements=[];state.texts=[];state.selectedIds=new Set(['merge']);state.mode='EDIT';state.subMode='NORMAL';state.cursorT=20;state.scaleX=10;state.offsetX=state.offsetY=0;state.snapTargetId=null;updateUI();
+ });
+ await page.locator('#waveContainer').focus();await page.keyboard.press('Backspace');
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].data),[{t:0,val:'1'},{t:20,val:'0'}]);
+ assert.equal(await page.evaluate(()=>state.cursorT),0);
+ await page.keyboard.press('ArrowRight');assert.equal(await page.evaluate(()=>state.cursorT),20);
+ await page.keyboard.press('ArrowLeft');assert.equal(await page.evaluate(()=>state.cursorT),0);
+ const mergePoint=await page.evaluate(()=>{const r=waveContainer.getBoundingClientRect();return{x:r.left+100,y:r.top+state.flatTracks[0].centerY+state.topMargin};});
+ await page.keyboard.press('Escape');await page.mouse.click(mergePoint.x,mergePoint.y);
+ assert.equal(await page.evaluate(()=>state.cursorT),0);
+ await page.keyboard.press('Control+z');
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].data.map(e=>e.t)),[0,10,20,30]);
+ await page.evaluate(()=>{state.selectedIds=new Set(['merge']);state.mode='INSERT';state.cursorT=20;updateUI();});
+ await page.keyboard.press('Backspace');assert.equal(await page.evaluate(()=>state.cursorT),0);
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].data.map(e=>e.t)),[0,20]);
+ await page.evaluate(()=>{state.tree[0].data=[{t:0,val:'1'},{t:10,val:'0'},{t:20,val:'1'},{t:30,val:'0'}];editCurrentSegment(state.tree[0],10,'1');updateUI();});
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].data),[{t:0,val:'1'},{t:30,val:'0'}]);
+ console.log('Adjacent equal sections merge after deletion/edit; ghost boundary cannot be selected; undo restores boundaries PASS');
+
  const printPixels=await page.evaluate(()=>{
   state.tree=[{id:'print-single',name:'single',type:'single',color:'#ff0000',data:[{t:0,val:'x'},{t:20,val:'0'}]},{id:'print-bus',name:'bus',type:'multi',color:'#ff0000',radix:'hex',data:[{t:0,val:'x'},{t:20,val:'0'}]}];
   state.texts=[];state.measurements=[];state.connections=[];state.selectedIds.clear();state.mode='VIEW';state.subMode='NORMAL';state.hoverEdgeT=null;editorSelection=null;measurementCursors=[];state.offsetX=state.offsetY=0;state.scaleX=10;

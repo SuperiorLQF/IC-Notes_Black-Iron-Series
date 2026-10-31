@@ -414,16 +414,22 @@ function deleteAndPull(sig, startT, endT) {
 }
 
 function cleanUpEvents(sig) {
-    sig.data.sort((a, b) => a.t - b.t);
-    let cleaned = [];
-    for (let i = 0; i < sig.data.length; i++) {
-        if (i === 0 || sig.data[i].val !== sig.data[i-1].val) {
-            if (cleaned.length > 0 && Math.abs(cleaned[cleaned.length-1].t - sig.data[i].t) <= 1e-6) {
-                cleaned[cleaned.length-1].val = sig.data[i].val;
-            } else { cleaned.push({...sig.data[i]}); }
-        }
+    // Resolve coincident events first: insertion/deletion may place two values
+    // at the same time. The later event owns that boundary.
+    const boundaries = [];
+    for (const event of [...sig.data].sort((a, b) => a.t - b.t)) {
+        const value = /^[xz]$/i.test(event.val) ? event.val.toLowerCase() : event.val;
+        const normalized = {...event, val: value};
+        if (boundaries.length && Math.abs(boundaries.at(-1).t - event.t) <= 1e-6) boundaries[boundaries.length - 1] = normalized;
+        else boundaries.push(normalized);
     }
-    if (cleaned.length > 0 && cleaned[0].t > 1e-6) cleaned.unshift({t: 0, val: 'z'});
+    if (boundaries.length && boundaries[0].t > 1e-6) boundaries.unshift({t:0, val:'z'});
+    // Compare against the resolved output, never the original predecessor.
+    // Otherwise replacing a coincident event can leave a same-value ghost edge.
+    const cleaned = [];
+    for (const event of boundaries) {
+        if (!cleaned.length || cleaned.at(-1).val !== event.val) cleaned.push(event);
+    }
     sig.data = cleaned;
 }
 
@@ -1422,7 +1428,7 @@ window.addEventListener('keydown', (e) => {
         if (e.key === 'Backspace') {
             e.preventDefault();
             const edges = getEdges(mainSig, state.cursorT);
-            if (edges.prev < state.cursorT) { sigs.forEach(sig => deleteAndPull(sig, edges.prev, state.cursorT)); state.cursorT = edges.prev; }
+            if (edges.prev < state.cursorT) { sigs.forEach(sig => deleteAndPull(sig, edges.prev, state.cursorT)); state.cursorT = nearestSignalEdge(mainSig, edges.prev); }
         }
     }
 });
