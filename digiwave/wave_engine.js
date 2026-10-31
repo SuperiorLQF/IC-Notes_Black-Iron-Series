@@ -75,7 +75,7 @@ function getTheme() {
     
     if (state.printMode) {
         return {
-            bg: '#ffffff', grid: '#000000', text: '#000000',
+            bg: '#ffffff', grid: '#d6d6d6', text: '#000000',
             cursorBg: 'rgba(0,0,0,0.05)', cursorLine: '#000000',
             xState: '#888888', xFill: '#eeeeee', xHatch: '#888888', zState: '#888888', measureBase: '#000000', tempMeasure: '#000000',
             gapLine: '#000000', getSigColor: () => '#000000'
@@ -699,7 +699,7 @@ function render() {
     // 吸附线 (Measure/Arrow/Repeat)
     if (state.hoverEdgeT !== null && (state.subMode === 'REPEAT_START' || state.subMode === 'REPEAT_END' || state.arrowMode === 'ARROW_P2' || state.measureMode === 'MEASURE_P2')) {
         let px = timeToPx(state.hoverEdgeT) - state.offsetX;
-        ctx.strokeStyle = theme.getSigColor('#e74c3c'); ctx.lineWidth = 1; ctx.setLineDash([5, 5]); ctx.beginPath();
+        ctx.strokeStyle = state.printMode ? theme.grid : theme.getSigColor('#e74c3c'); ctx.lineWidth = 1; ctx.setLineDash([5, 5]); ctx.beginPath();
         ctx.moveTo(px, 0); ctx.lineTo(px, height); ctx.stroke(); ctx.setLineDash([]);
     }
 
@@ -708,7 +708,7 @@ function render() {
         const snapSigInfo = findNodeAndParent(state.tree, state.snapTargetId);
         if (snapSigInfo && snapSigInfo.node.type !== 'group') {
             ctx.strokeStyle = theme.grid; 
-            ctx.lineWidth = 2;              // 【修改】线宽从 1 加粗到 2
+            ctx.lineWidth = state.printMode ? 1 : 2;
             ctx.setLineDash([4, 4]);        // 【修改】虚线间距调大，更加清晰
             ctx.beginPath();
             signalBoundaryTimes(snapSigInfo.node).forEach(time => {
