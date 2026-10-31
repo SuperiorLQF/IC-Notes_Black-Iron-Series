@@ -129,6 +129,14 @@ try {
  console.log('Direct Add click, blank-value feedback and Enter creation PASS');
 
 
+ const printPixels=await page.evaluate(()=>{
+  state.tree=[{id:'print-single',name:'single',type:'single',color:'#ff0000',data:[{t:0,val:'x'},{t:20,val:'0'}]},{id:'print-bus',name:'bus',type:'multi',color:'#ff0000',radix:'hex',data:[{t:0,val:'x'},{t:20,val:'0'}]}];
+  state.texts=[];state.measurements=[];state.connections=[];state.selectedIds.clear();state.mode='VIEW';state.subMode='NORMAL';state.hoverEdgeT=null;editorSelection=null;measurementCursors=[];state.offsetX=state.offsetY=0;state.scaleX=10;
+  if(!state.printMode)togglePrintMode();updateUI();render();
+  const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  let coloured=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]!==pixels[i+1]||pixels[i+1]!==pixels[i+2])coloured++;
+  return coloured;
+ });assert.equal(printPixels,0);console.log('Binary and bus X-state print rendering is entirely grayscale PASS');
  assert.equal(errors.length,0,errors.join('\n'));console.log('browser errors: 0');
 } finally {await browser.close();await new Promise(r=>server.close(r));}
 })();

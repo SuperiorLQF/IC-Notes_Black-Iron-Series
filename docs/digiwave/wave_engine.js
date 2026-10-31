@@ -77,7 +77,7 @@ function getTheme() {
         return {
             bg: '#ffffff', grid: '#dddddd', text: '#000000',
             cursorBg: 'rgba(0,0,0,0.05)', cursorLine: '#000000',
-            xState: '#666666', zState: '#aaaaaa', measureBase: '#000000', tempMeasure: '#333333', 
+            xState: '#666666', xFill: 'rgba(0, 0, 0, 0.10)', xHatch: 'rgba(0, 0, 0, 0.6)', zState: '#aaaaaa', measureBase: '#000000', tempMeasure: '#333333',
             gapLine: '#555555', getSigColor: () => '#000000'
         };
     } else {
@@ -86,7 +86,7 @@ function getTheme() {
             grid: 'rgba(255, 255, 255, 0.4)', // 【修改】大幅提高栅格亮度
             text: '#d4d4d4',
             cursorBg, cursorLine,
-            xState: '#e74c3c', zState: '#7f8c8d', measureBase: null, tempMeasure: '#f1c40f', 
+            xState: '#e74c3c', xFill: 'rgba(231, 76, 60, 0.25)', xHatch: 'rgba(231, 76, 60, 0.6)', zState: '#7f8c8d', measureBase: null, tempMeasure: '#f1c40f',
             gapLine: '#555555', getSigColor: (c) => c
         };
     }
@@ -753,11 +753,11 @@ function render() {
                     ctx.beginPath(); ctx.strokeStyle = theme.getSigColor(sig.color); ctx.moveTo(endX, yMid); lastY = yMid;
                 } else if (val === 'x') {
                     ctx.lineTo(startX, yMid); ctx.stroke(); ctx.beginPath();
-                    ctx.strokeStyle = theme.xState; ctx.fillStyle = 'rgba(231, 76, 60, 0.25)'; 
+                    ctx.strokeStyle = theme.xState; ctx.fillStyle = theme.xFill;
                     ctx.rect(startX, yHigh, endX - startX, yLow - yHigh);
                     ctx.fill(); ctx.stroke();
                     ctx.save(); ctx.beginPath(); ctx.rect(startX, yHigh, endX - startX, yLow - yHigh); ctx.clip();
-                    ctx.beginPath(); ctx.strokeStyle = 'rgba(231, 76, 60, 0.6)'; ctx.lineWidth = 1;
+                    ctx.beginPath(); ctx.strokeStyle = theme.xHatch; ctx.lineWidth = 1;
                     for (let lx = startX - 20; lx < endX; lx += 8) { ctx.moveTo(lx, yLow); ctx.lineTo(lx + 12, yHigh); }
                     ctx.stroke(); ctx.restore();
                     ctx.beginPath(); ctx.strokeStyle = theme.getSigColor(sig.color); ctx.moveTo(endX, yMid); lastY = yMid;
@@ -788,7 +788,7 @@ function render() {
 
                     if (parsed.isX) {
                         ctx.strokeStyle = theme.xState; ctx.stroke();
-                        ctx.save(); ctx.clip(); ctx.beginPath(); ctx.strokeStyle = 'rgba(231, 76, 60, 0.6)'; ctx.lineWidth = 1;
+                        ctx.save(); ctx.clip(); ctx.beginPath(); ctx.strokeStyle = theme.xHatch; ctx.lineWidth = 1;
                         for (let lx = startX - 20; lx < endX; lx += 8) { ctx.moveTo(lx, yLow); ctx.lineTo(lx + 12, yHigh); }
                         ctx.stroke(); ctx.restore();
                     } else {
