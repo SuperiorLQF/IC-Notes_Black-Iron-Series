@@ -11,8 +11,7 @@
     <button class="icon-btn" id="undoButton" onclick="undoProject()" title="撤销 Ctrl/Cmd+Z">↶</button>
     <button class="icon-btn" id="redoButton" onclick="redoProject()" title="重做 Ctrl/Cmd+Shift+Z">↷</button>
     <button class="icon-btn" onclick="restoreLocalProject(true)" title="恢复本地自动备份" aria-label="Restore backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6M12 7v5l3 2"/></svg></button>
-    <button class="icon-btn" onclick="generateClock()" title="生成时钟：周期、占空比、次数" aria-label="Generate clock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 17h4V7h6v10h6V7h4"/></svg></button>
-    <button class="icon-btn" onclick="fitWaveform()" id="fitButton" title="适配全部波形 (F)" aria-label="Fit all waveforms (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/><path d="M3 3l6 6M21 3l-6 6M3 21l6-6M21 21l-6-6"/></svg></button>
+    <button class="icon-btn" onclick="fitWaveform()" id="fitButton" title="适配全部波形 (F)" aria-label="Fit all waveforms (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14M21 5v14M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg></button>
     <label title="鼠标编辑吸附步长，单位 ns">网格 <input id="gridStep" type="number" min="0.001" step="any" value="1" style="width:55px" aria-label="网格步长 ns"></label>
     <span id="saveStatus" role="status"></span>
 
@@ -22,6 +21,7 @@
             <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" class="caret"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="dropdown-content">
+            <a href="#" id="addClockButton" onclick="event.preventDefault();generateClock()"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 17h4V7h6v10h6V7h4"/></svg> Clock Signal</a>
             <a href="#" onclick="addSignal('single')"><svg viewBox="0 0 24 12" width="16" height="12"><path d="M0,10 L8,10 L8,2 L16,2 L16,10 L24,10" fill="none" stroke="currentColor" stroke-width="2"/></svg> Binary Signal</a>
             <a href="#" onclick="addSignal('multi')"><svg viewBox="0 0 24 12" width="16" height="12"><polygon points="2,2 14,2 16,6 14,10 2,10 0,6" fill="none" stroke="currentColor" stroke-width="2"/></svg> Bus Signal</a>
         </div>
@@ -160,6 +160,17 @@
     <div class="modal-btns"><button class="cancel" onclick="closeModal('attrModal')">Cancel</button><button class="primary" onclick="applyAttrModal()">Apply</button></div>
 </div>
 
+<form id="clockModal" class="modal" onsubmit="event.preventDefault();confirmClock()" onkeydown="if(event.key==='Escape'){event.preventDefault();closeModal('clockModal')}">
+    <h3>Add Clock Signal</h3>
+    <div class="attr-row"><label for="clockName">Name</label><input type="text" id="clockName" value="clk" required></div>
+    <div class="attr-row"><label for="clockPeriod">Period</label><div class="time-input"><input type="number" id="clockPeriod" min="0" step="any" value="10" required><select id="clockPeriodUnit" aria-label="Clock period unit"><option value="ps">ps</option><option value="ns" selected>ns</option><option value="us">us</option><option value="ms">ms</option></select></div></div>
+    <div class="attr-row"><label for="clockDuty">Duty (%)</label><input id="clockDuty" type="number" min="0.001" max="99.999" step="any" value="50" required></div>
+    <div class="attr-row"><label for="clockCount">Cycles</label><input id="clockCount" type="number" min="1" max="10000" value="10" required></div>
+    <div class="attr-row"><label for="clockStart">Start time</label><div class="time-input"><input type="number" id="clockStart" min="0" step="any" value="0" required><select id="clockStartUnit" aria-label="Clock start time unit"><option value="ps">ps</option><option value="ns" selected>ns</option><option value="us">us</option><option value="ms">ms</option></select></div></div>
+    <p class="modal-desc">Enter a number and select its time unit.</p>
+    <p id="clockError" role="alert" style="color:#ff80bd"></p>
+    <div class="modal-btns"><button type="button" class="cancel" onclick="closeModal('clockModal')">Cancel</button><button type="submit" class="primary">Add</button></div>
+</form>
 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
 
 <script src="editor_support.js"></script>

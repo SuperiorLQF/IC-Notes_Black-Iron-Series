@@ -7,6 +7,7 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH || '/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 try {
  const page=await browser.newPage({viewport:{width:1500,height:900},deviceScaleFactor:2});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.addInitScript(()=>{Object.defineProperty(crypto,'randomUUID',{value:undefined,configurable:true});});
  await page.goto(`http://127.0.0.1:${server.address().port}/`);await page.waitForFunction(()=>projectHistory.initialized);
  console.log('default loaded',await page.evaluate(()=>state.tree.length));
  await page.evaluate(()=>{
@@ -61,12 +62,23 @@ try {
  const before=await page.evaluate(()=>projectSnapshot());
  assert(await page.evaluate(()=>{try{validateProject({tree:[{id:'x',name:'x',type:'single',data:[{t:-1,val:'1'}]}]});return false;}catch{return true;}}));
  assert.equal(await page.evaluate(()=>projectSnapshot()),before);console.log('invalid project rejected PASS');
- const answers=['10ns','25','4','2ns']; const clockDialog=async d=>{await d.accept(answers.shift());};page.on('dialog',clockDialog);
- await page.evaluate(()=>{state.selectedIds=new Set(['a']);state.cursorT=100;generateClock();});page.off('dialog',clockDialog);
- assert(await page.evaluate(()=>state.tree[0].data.some(e=>e.t===104.5 && e.val==='0')));console.log('clock generator PASS');
+ const originalSignals = await page.evaluate(()=>JSON.stringify(state.tree));
+ await page.evaluate(()=>{state.selectedIds.clear();});
+ await page.getByTitle('添加信号',{exact:true}).hover();await page.locator('#addClockButton').click();
+ await page.locator('#clockPeriod').fill('10');await page.locator('#clockDuty').fill('25');await page.locator('#clockCount').fill('4');await page.locator('#clockStart').fill('102');
+ await page.locator('#clockModal button[type="submit"]').click();
+ assert(await page.evaluate(()=>state.tree.at(-1).data.some(e=>e.t===104.5 && e.val==='0')));
+ assert.equal(await page.evaluate(()=>state.tree.at(-1).data.at(-1).t),142);
+ assert.equal(await page.evaluate(()=>JSON.stringify(state.tree.slice(0,-1))),originalSignals);
+ assert.equal(await page.locator('#clockModal').isVisible(),false);
+ await page.locator('#waveContainer').focus();await page.keyboard.press('Control+z');
+ assert.equal(await page.evaluate(()=>JSON.stringify(state.tree)),originalSignals);
+ await page.keyboard.press('Control+Shift+z');
+ console.log('Add Clock menu, new signal without selection, exact timing and undo/redo PASS');
  const download=page.waitForEvent('download');await page.evaluate(()=>exportWaveform());const saved=await download;
- const exportPath=await saved.path();const exported=JSON.parse(fs.readFileSync(exportPath,'utf8'));assert.equal(exported.formatVersion,1);assert.equal(exported.tree.length,2);
+ const exportPath=await saved.path();const exported=JSON.parse(fs.readFileSync(exportPath,'utf8'));assert.equal(exported.formatVersion,1);assert.equal(exported.tree.length,3);
  assert.equal(await page.evaluate(()=>projectIsDirty()),false);console.log('JSON export + saved marker PASS');
+ await page.evaluate(()=>{state.scaleX=10;state.offsetX=0;updateUI();});
  await page.keyboard.down('Alt');await page.mouse.click(point.x,point.y);await page.mouse.click(point.x+50,point.y);await page.keyboard.up('Alt');
  assert.equal(await page.evaluate(()=>measurementCursors.length),2);console.log('measurement cursors PASS');
  await page.screenshot({path:'/tmp/digiwave-editor.png'});
@@ -88,6 +100,27 @@ try {
  await page.setViewportSize({width:1800,height:900});await page.waitForTimeout(100);
  assert(await page.evaluate(()=>waveContainer.clientWidth/state.scaleX)<=120.000001);
  console.log('F/button fit 100%, zoom-out limited to 120%, pan/manual scale/resize limits PASS');
+ await page.evaluate(()=>{state.tree=[];state.texts=[];state.measurements=[];state.connections=[];state.selectedIds.clear();updateUI();});
+ await page.getByTitle('添加信号',{exact:true}).hover();await page.locator('#addClockButton').click();
+ await page.locator('#clockPeriod').fill('0');await page.locator('#clockModal button[type="submit"]').click();
+ assert.equal(await page.evaluate(()=>state.tree.length),0);assert(await page.locator('#clockError').textContent());
+ await page.locator('#clockPeriod').fill('10');await page.locator('#clockStart').fill('0');await page.locator('#clockCount').fill('1');
+ await page.locator('#clockModal button[type="submit"]').click();
+ assert.equal(await page.evaluate(()=>state.tree.length),1);assert.equal(await page.evaluate(()=>state.tree[0].type),'single');
+ assert.equal(await page.evaluate(()=>state.tree[0].data.at(-1).t),10);
+ console.log('Empty project clock creation and invalid parameter protection PASS');
+ for (const [unit, value, expected] of [['ps','500',0.5],['ns','2',2],['us','0.25',250],['ms','0.001',1000]]) {
+  const previousCount=await page.evaluate(()=>state.tree.length);
+  await page.getByTitle('添加信号',{exact:true}).hover();await page.locator('#addClockButton').click();
+  await page.locator('#clockPeriod').fill(value);await page.locator('#clockPeriodUnit').selectOption(unit);
+  await page.locator('#clockStart').fill('1000');await page.locator('#clockStartUnit').selectOption('ps');
+  await page.locator('#clockCount').fill('2');await page.locator('#clockModal button[type="submit"]').click();
+  assert.equal(await page.evaluate(()=>state.tree.length),previousCount+1);
+  assert.equal(await page.evaluate(()=>state.tree.at(-1).data.at(-1).t),1+2*expected);
+ }
+ assert.equal(await page.evaluate(()=>new Set(state.tree.map(s=>s.id)).size),await page.evaluate(()=>state.tree.length));
+ console.log('Numeric time inputs, ps/ns/us/ms conversion and creation without crypto.randomUUID PASS');
+
  assert.equal(errors.length,0,errors.join('\n'));console.log('browser errors: 0');
 } finally {await browser.close();await new Promise(r=>server.close(r));}
 })();
