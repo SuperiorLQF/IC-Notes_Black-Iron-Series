@@ -120,7 +120,7 @@ function getSelectedSignals() {
     return state.flatTracks.filter(t => state.selectedIds.has(t.node.id) && t.node.type !== 'group').map(t => t.node);
 }
 
-function moveNode(dragId, dropId) {
+function moveNode(dragId, dropId, placement = 'before') {
     const source = findNodeAndParent(state.tree, dragId);
     if (source && findNodeAndParent([source.node], dropId)) return;
     let srcInfo = findNodeAndParent(state.tree, dragId);
@@ -130,8 +130,8 @@ function moveNode(dragId, dropId) {
     let dstInfo = findNodeAndParent(state.tree, dropId);
     if (!dstInfo) { state.tree.push(srcInfo.node); return; }
 
-    if (dstInfo.node.type === 'group' && dstInfo.node.expanded) dstInfo.node.children.unshift(srcInfo.node); 
-    else dstInfo.list.splice(dstInfo.index, 0, srcInfo.node); 
+    if (placement === 'inside' && dstInfo.node.type === 'group') { dstInfo.node.children.unshift(srcInfo.node); dstInfo.node.expanded = true; }
+    else dstInfo.list.splice(dstInfo.index + (placement === 'after' ? 1 : 0), 0, srcInfo.node);
 }
 
 // ================= 动态高度与碰撞检测 =================
@@ -287,8 +287,8 @@ function getSignalValueAtTime(sig, t) {
 // Exact midpoint ties choose the earlier boundary.
 function nearestSignalEdge(sig, t) {
     let nearest = 0;
-    for (const event of sig?.data || []) {
-        if (Math.abs(event.t - t) < Math.abs(nearest - t)) nearest = event.t;
+    for (const time of signalBoundaryTimes(sig)) {
+        if (Math.abs(time - t) < Math.abs(nearest - t)) nearest = time;
     }
     return nearest;
 }
@@ -296,9 +296,9 @@ function nearestSignalEdge(sig, t) {
 function getEdges(sig, t) {
     let prev = 0, next = Infinity;
     if(!sig || !sig.data) return { prev, next };
-    for (let e of sig.data) {
-        if (e.t < t - 1e-6) prev = Math.max(prev, e.t);
-        if (e.t > t + 1e-6) next = Math.min(next, e.t);
+    for (const time of signalBoundaryTimes(sig)) {
+        if (time < t - 1e-6) prev = Math.max(prev, time);
+        if (time > t + 1e-6) next = Math.min(next, time);
     }
     return { prev, next };
 }
@@ -335,6 +335,7 @@ function insertAndPush(sig, startT, duration, val) {
     if (duration <= 0) return;
     let valAtStart = getSignalValueAtTime(sig, startT);
     retimeSignalAttachments(sig.id, time => time >= startT - 1e-6 ? time + duration : time);
+    retimeAnchors(sig, time => time >= startT - 1e-6 ? time + duration : time);
 
     sig.data.forEach(e => { if (e.t > startT + 1e-6) e.t += duration; });
     sig.data.forEach(e => { if (Math.abs(e.t - startT) <= 1e-6) e.t += duration; });
@@ -360,6 +361,7 @@ function editCurrentSegment(sig, t, newVal) {
 function insertPatternAndPush(sig, insertT, startT, endT, count) {
     let patternDur = endT - startT;
     if (patternDur <= 0 || count <= 0) return;
+    const patternAnchors=(sig.anchors||[]).filter(t=>t>=startT && t<endT).map(t=>t-startT);
     let pattern = [];
     pattern.push({ t: 0, val: getSignalValueAtTime(sig, startT) });
     sig.data.forEach(e => { if (e.t > startT + 1e-6 && e.t < endT - 1e-6) pattern.push({ t: e.t - startT, val: e.val }); });
@@ -367,6 +369,7 @@ function insertPatternAndPush(sig, insertT, startT, endT, count) {
     let totalPush = patternDur * count;
     let valAtInsert = getSignalValueAtTime(sig, insertT);
     retimeSignalAttachments(sig.id, time => time >= insertT - 1e-6 ? time + totalPush : time);
+    retimeAnchors(sig, time => time >= insertT - 1e-6 ? time + totalPush : time);
 
     sig.data.forEach(e => { if (e.t > insertT + 1e-6) e.t += totalPush; });
     sig.data.forEach(e => { if (Math.abs(e.t - insertT) <= 1e-6) e.t += totalPush; });
@@ -374,6 +377,7 @@ function insertPatternAndPush(sig, insertT, startT, endT, count) {
     for (let c = 0; c < count; c++) {
         let offset = insertT + c * patternDur;
         pattern.forEach(pe => { sig.data.push({ t: offset + pe.t, val: pe.val }); });
+        if(patternAnchors.length)sig.anchors=[...(sig.anchors||[]),...patternAnchors.map(t=>offset+t)].sort((a,b)=>a-b);
     }
 
     let hadEvEnd = sig.data.some(e => Math.abs(e.t - (insertT + totalPush)) <= 1e-6);
@@ -384,6 +388,7 @@ function insertPatternAndPush(sig, insertT, startT, endT, count) {
 function overwritePatternAndStay(sig, insertT, startT, endT, count) {
     let patternDur = endT - startT;
     if (patternDur <= 0 || count <= 0) return;
+    const patternAnchors=(sig.anchors||[]).filter(t=>t>=startT && t<endT).map(t=>t-startT);
     let pattern = [];
     pattern.push({ t: 0, val: getSignalValueAtTime(sig, startT) });
     sig.data.forEach(e => { if (e.t > startT + 1e-6 && e.t < endT - 1e-6) pattern.push({ t: e.t - startT, val: e.val }); });
@@ -391,6 +396,7 @@ function overwritePatternAndStay(sig, insertT, startT, endT, count) {
     let totalPush = patternDur * count;
     let endInsertT = insertT + totalPush;
     let valAtEnd = getSignalValueAtTime(sig, endInsertT);
+    if(sig.anchors)sig.anchors=sig.anchors.filter(t=>t<insertT || t>=endInsertT);
 
     sig.data = sig.data.filter(e => e.t <= insertT + 1e-6 || e.t > endInsertT - 1e-6);
     sig.data = sig.data.filter(e => Math.abs(e.t - insertT) > 1e-6);
@@ -398,6 +404,7 @@ function overwritePatternAndStay(sig, insertT, startT, endT, count) {
     for (let c = 0; c < count; c++) {
         let offset = insertT + c * patternDur;
         pattern.forEach(pe => { sig.data.push({ t: offset + pe.t, val: pe.val }); });
+        if(patternAnchors.length)sig.anchors=[...(sig.anchors||[]),...patternAnchors.map(t=>offset+t)].sort((a,b)=>a-b);
     }
 
     let hadEvEnd = sig.data.some(e => Math.abs(e.t - endInsertT) <= 1e-6);
@@ -408,6 +415,8 @@ function overwritePatternAndStay(sig, insertT, startT, endT, count) {
 function deleteAndPull(sig, startT, endT) {
     if (endT <= startT) return;
     let duration = endT - startT;
+    if (sig.anchors) sig.anchors = [...new Set(sig.anchors.filter(time => time <= startT || time >= endT).map(time => time >= endT ? time - duration : time))].sort((a,b)=>a-b);
+    retimeSignalAttachments(sig.id, time => time >= endT ? time - duration : time > startT ? startT : time);
     sig.data = sig.data.filter(e => e.t <= startT + 1e-6 || e.t >= endT - 1e-6);
     sig.data.forEach(e => { if (e.t >= endT - 1e-6) e.t -= duration; });
     cleanUpEvents(sig);
@@ -604,13 +613,19 @@ function updateUI() {
             }
         };
 
-        row.ondragstart = (e) => { e.dataTransfer.setData('text/plain', sig.id); };
-        row.ondragover = (e) => { e.preventDefault(); row.classList.add('drag-over'); };
-        row.ondragleave = (e) => { row.classList.remove('drag-over'); };
-        row.ondrop = (e) => {
-            e.preventDefault(); row.classList.remove('drag-over');
+        const placementAt = e => {
+            const rect = row.getBoundingClientRect();
+            const ratio = (e.clientY - rect.top) / rect.height;
+            return sig.type === 'group' && ratio > .25 && ratio < .75 ? 'inside' : ratio < .5 ? 'before' : 'after';
+        };
+        const clearDrop = () => row.classList.remove('drop-before', 'drop-after', 'drop-inside');
+        row.ondragstart = e => { e.dataTransfer.setData('text/plain', sig.id); e.dataTransfer.effectAllowed = 'move'; };
+        row.ondragover = e => { e.preventDefault(); e.stopPropagation(); clearDrop(); row.classList.add('drop-' + placementAt(e)); };
+        row.ondragleave = () => clearDrop();
+        row.ondrop = e => {
+            e.preventDefault(); e.stopPropagation(); clearDrop();
             const dragId = e.dataTransfer.getData('text/plain');
-            if (dragId && dragId !== sig.id) { moveNode(dragId, sig.id); updateUI(); }
+            if (dragId && dragId !== sig.id) { moveNode(dragId, sig.id, placementAt(e)); updateUI(); }
         };
 
         listEl.appendChild(row);
@@ -650,6 +665,9 @@ function updateUI() {
     const sigs = getSelectedSignals();
     document.getElementById('statusSelected').innerText = sigs.length > 0 ? `${sigs[0].name} ${sigs.length>1?'(Multiple)':''} selected` : '未选择信号';
 
+    const anchorButton = document.getElementById('anchorButton');
+    anchorButton.classList.toggle('active', state.subMode === 'ANCHOR');
+    anchorButton.disabled = !sigs.length || !['VIEW','EDIT'].includes(state.mode);
     const mainSig = sigs[0];
     if (mainSig && mainSig.type === 'multi' && (state.mode === 'INSERT' || state.mode === 'EDIT') && state.subMode === 'VALUE') {
         busValueInput.style.display = 'inline-block';
@@ -695,8 +713,8 @@ function render() {
             ctx.lineWidth = 2;              // 【修改】线宽从 1 加粗到 2
             ctx.setLineDash([4, 4]);        // 【修改】虚线间距调大，更加清晰
             ctx.beginPath();
-            snapSigInfo.node.data.forEach(e => {
-                let px = timeToPx(e.t) - state.offsetX;
+            signalBoundaryTimes(snapSigInfo.node).forEach(time => {
+                let px = timeToPx(time) - state.offsetX;
                 if(px >= 0 && px <= width) { 
                     ctx.moveTo(px, 0); ctx.lineTo(px, height); 
                 }
@@ -824,6 +842,12 @@ function render() {
             }
         }
 
+        for (const time of sig.anchors || []) {
+            const x = timeToPx(time) - state.offsetX;
+            const y = signalEndpointY(track, time) - state.offsetY;
+            ctx.save(); ctx.strokeStyle = theme.getSigColor(sig.color); ctx.lineWidth = 2; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(x, y - 6); ctx.lineTo(x, y + 6); ctx.stroke(); ctx.restore();
+        }
         const isP1Track = (state.measureMode === 'MEASURE_P2' && state.tempMeasurePoint && state.tempMeasurePoint.sigId === sig.id) ||
                           (state.arrowMode === 'ARROW_P2' && state.tempArrowPoint && state.tempArrowPoint.sigId === sig.id);
 
@@ -898,7 +922,7 @@ function render() {
         const pxWidth = Math.abs(px2 - px1); if (pxWidth < 3) return;
 
         m.absoluteRenderY = minTrack.centerY - 26 - (m.assignedLane * 20);
-        const py1 = track1.centerY - state.offsetY + state.topMargin; const py2 = track2.centerY - state.offsetY + state.topMargin;
+        const py1 = signalEndpointY(track1, m.t1) - state.offsetY; const py2 = signalEndpointY(track2, m.t2) - state.offsetY;
         const isSelected = (state.selectedMeasureId === m.id);
 
         const drawColor = theme.measureBase || m.color; 
@@ -938,8 +962,8 @@ function render() {
         const tIdx2 = state.flatTracks.findIndex(t => t.node.id === conn.sigId2);
         if (tIdx1 === -1 || tIdx2 === -1) return;
 
-        const py1 = state.flatTracks[tIdx1].centerY - state.offsetY + state.topMargin;
-        const py2 = state.flatTracks[tIdx2].centerY - state.offsetY + state.topMargin;
+        const py1 = signalEndpointY(state.flatTracks[tIdx1], conn.t1) - state.offsetY;
+        const py2 = signalEndpointY(state.flatTracks[tIdx2], conn.t2) - state.offsetY;
         const px1 = timeToPx(conn.t1) - state.offsetX; const px2 = timeToPx(conn.t2) - state.offsetX;
 
         const isSelected = (state.selectedConnId === conn.id);
@@ -1077,8 +1101,8 @@ waveContainer.addEventListener('mousemove', (e) => {
             const tIdx2 = state.flatTracks.findIndex(t => t.node.id === conn.sigId2);
             if (tIdx1 !== -1 && tIdx2 !== -1) {
                 const px1 = timeToPx(conn.t1); const px2 = timeToPx(conn.t2);
-                const py1 = state.flatTracks[tIdx1].centerY + state.topMargin; 
-                const py2 = state.flatTracks[tIdx2].centerY + state.topMargin;
+                const py1 = signalEndpointY(state.flatTracks[tIdx1], conn.t1);
+                const py2 = signalEndpointY(state.flatTracks[tIdx2], conn.t2);
                 let cpx = px1 + (px2 - px1) / 2; let cpy = (tIdx1 === tIdx2) ? py1 - 60 : py1;
                 let bestT = 0.5; let minDist = Infinity;
                 for (let i = 0; i <= 50; i++) {
@@ -1116,9 +1140,9 @@ waveContainer.addEventListener('mousemove', (e) => {
         if (hitTrackIdx >= 0 && hitTrackIdx < state.flatTracks.length) {
             const hitTrack = state.flatTracks[hitTrackIdx];
             if (hitTrack.node.type !== 'group' && hitTrack.node.data) {
-                hitTrack.node.data.forEach(ev => {
-                    const distPx = Math.abs(timeToPx(hoverT) - timeToPx(ev.t));
-                    if (distPx < minDistancePx) { minDistancePx = distPx; closestEdgeT = ev.t; }
+                signalBoundaryTimes(hitTrack.node).forEach(time => {
+                    const distPx = Math.abs(timeToPx(hoverT) - timeToPx(time));
+                    if (distPx < minDistancePx) { minDistancePx = distPx; closestEdgeT = time; }
                 });
             }
         }
@@ -1212,7 +1236,7 @@ waveContainer.addEventListener('mousedown', (e) => {
         const tIdx1 = state.flatTracks.findIndex(t => t.node.id === conn.sigId1); const tIdx2 = state.flatTracks.findIndex(t => t.node.id === conn.sigId2);
         if (tIdx1 === -1 || tIdx2 === -1) continue;
         const px1 = timeToPx(conn.t1); const px2 = timeToPx(conn.t2);
-        const py1 = state.flatTracks[tIdx1].centerY + state.topMargin; const py2 = state.flatTracks[tIdx2].centerY + state.topMargin;
+        const py1 = signalEndpointY(state.flatTracks[tIdx1], conn.t1); const py2 = signalEndpointY(state.flatTracks[tIdx2], conn.t2);
         let cpx = px1 + (px2 - px1) / 2; let cpy = (tIdx1 === tIdx2) ? py1 - 60 : py1;
         const tParam = conn.textPos !== undefined ? conn.textPos : 0.5; const invT = 1 - tParam;
         const textX = invT * invT * px1 + 2 * invT * tParam * cpx + tParam * tParam * px2;
@@ -1238,7 +1262,7 @@ waveContainer.addEventListener('mousedown', (e) => {
         const tIdx1 = state.flatTracks.findIndex(t => t.node.id === conn.sigId1); const tIdx2 = state.flatTracks.findIndex(t => t.node.id === conn.sigId2);
         if (tIdx1 === -1 || tIdx2 === -1) continue;
         const px1 = timeToPx(conn.t1); const px2 = timeToPx(conn.t2);
-        const py1 = state.flatTracks[tIdx1].centerY + state.topMargin; const py2 = state.flatTracks[tIdx2].centerY + state.topMargin;
+        const py1 = signalEndpointY(state.flatTracks[tIdx1], conn.t1); const py2 = signalEndpointY(state.flatTracks[tIdx2], conn.t2);
         let cpx = px1 + (px2 - px1) / 2; let cpy = (tIdx1 === tIdx2) ? py1 - 60 : py1;
         const steps = 10; let minDistance = Infinity;
         for (let i = 0; i <= steps; i++) {

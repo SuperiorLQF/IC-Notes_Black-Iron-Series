@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>DigiWave</title>
-    <link rel="stylesheet" href="style.css?v=61c50489a131">
+    <link rel="stylesheet" href="style.css?v=2bb2001ded99">
 </head>
 <body>
 
@@ -16,6 +16,7 @@
     <a id="handbookLink" class="icon-btn" href="handbook.html" target="_blank" rel="noopener" title="操作手册 (Handbook)" aria-label="Open DigiWave Handbook">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg>
     </a>
+    <button id="anchorButton" class="icon-btn" onclick="toggleAnchorMode()" title="放置信号锚点 (K)；Shift+K 移除" aria-label="Place signal anchor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 15h18M12 9v12M17 3v6M14 6h6"/></svg></button>
     <span id="saveStatus" role="status"></span>
 
     <div class="dropdown">
@@ -176,7 +177,7 @@
 </form>
 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
 
-<script src="editor_support.js?v=2642c838a04c"></script>
-<script src="wave_engine.js?v=72a2915b4ae8"></script>
+<script src="editor_support.js?v=aefdddf6b874"></script>
+<script src="wave_engine.js?v=4efa9b52e851"></script>
 </body>
 </html>

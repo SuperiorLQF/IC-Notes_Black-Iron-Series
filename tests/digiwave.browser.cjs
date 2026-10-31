@@ -213,6 +213,47 @@ try {
  assert.deepEqual(await page.evaluate(()=>state.tree[0].data),[{t:0,val:'1'},{t:30,val:'0'}]);
  console.log('Adjacent equal sections merge after deletion/edit; ghost boundary cannot be selected; undo restores boundaries PASS');
 
+ // HTML5 row drops distinguish before/after, including after the last row.
+ await page.evaluate(()=>{state.tree=['row-a','row-b','row-c'].map(id=>({id,name:id,type:'single',data:[{t:0,val:'0'}]}));state.connections=[];state.measurements=[];state.selectedIds.clear();state.mode='VIEW';state.subMode='NORMAL';updateUI();});
+ const transfer=await page.evaluateHandle(()=>new DataTransfer());
+ const bottomRect=await page.locator('.signal-row').nth(2).boundingBox();
+ await page.locator('.signal-row').nth(1).dispatchEvent('dragstart',{dataTransfer:transfer});
+ await page.locator('.signal-row').nth(2).dispatchEvent('dragover',{dataTransfer:transfer,clientY:bottomRect.y+bottomRect.height*.8});
+ assert(await page.locator('.signal-row').nth(2).getAttribute('class').then(c=>c.includes('drop-after')));
+ await page.locator('.signal-row').nth(2).dispatchEvent('drop',{dataTransfer:transfer,clientY:bottomRect.y+bottomRect.height*.8});
+ assert.deepEqual(await page.evaluate(()=>state.tree.map(n=>n.id)),['row-a','row-c','row-b']);
+ const upperRect=await page.locator('.signal-row').nth(1).boundingBox();
+ await page.locator('.signal-row').nth(2).dispatchEvent('dragstart',{dataTransfer:transfer});
+ await page.locator('.signal-row').nth(1).dispatchEvent('drop',{dataTransfer:transfer,clientY:upperRect.y+upperRect.height*.2});
+ assert.deepEqual(await page.evaluate(()=>state.tree.map(n=>n.id)),['row-a','row-b','row-c']);await transfer.dispose();
+ console.log('Channel dragging supports placement after the last row and before a row PASS');
+ await page.evaluate(()=>{state.tree=[{id:'anchors',name:'anchors',type:'single',color:'#5cf',thickness:2,data:[{t:0,val:'1'},{t:20,val:'0'},{t:40,val:'1'},{t:60,val:'z'}]}];state.connections=[];state.measurements=[];state.texts=[];state.selectedIds=new Set(['anchors']);state.mode='VIEW';state.subMode='NORMAL';state.scaleX=10;state.offsetX=state.offsetY=0;state.snapTargetId=null;updateUI();});
+ const anchorData=await page.evaluate(()=>JSON.stringify(state.tree[0].data));
+ const anchorPoint=await page.evaluate(()=>{const r=waveContainer.getBoundingClientRect();return{x:r.left,y:r.top+state.flatTracks[0].centerY+state.topMargin};});
+ await page.locator('#waveContainer').focus();await page.keyboard.press('k');await page.mouse.click(anchorPoint.x+50,anchorPoint.y-14);
+ await page.keyboard.press('k');await page.mouse.click(anchorPoint.x+250,anchorPoint.y+14);
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].anchors),[5,25]);assert.equal(await page.evaluate(()=>JSON.stringify(state.tree[0].data)),anchorData);
+ await page.keyboard.press('a');await page.mouse.move(anchorPoint.x+50,anchorPoint.y-14);await page.mouse.click(anchorPoint.x+50,anchorPoint.y-14);
+ await page.mouse.move(anchorPoint.x+250,anchorPoint.y+14);await page.mouse.click(anchorPoint.x+250,anchorPoint.y+14);
+ assert.deepEqual(await page.evaluate(()=>[state.connections[0].t1,state.connections[0].t2]),[5,25]);
+ assert.equal(await page.evaluate(()=>signalEndpointY(state.flatTracks[0],5)),await page.evaluate(()=>state.flatTracks[0].centerY+state.topMargin-14));
+ const anchorDragPoint=await page.evaluate(()=>{const r=waveContainer.getBoundingClientRect();return{x:r.left+50,y:r.top+state.flatTracks[0].centerY+state.topMargin-14};});
+ await page.mouse.move(anchorDragPoint.x,anchorDragPoint.y);await page.mouse.down();await page.mouse.move(anchorDragPoint.x+30,anchorDragPoint.y,{steps:4});await page.mouse.up();
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].anchors),[8,25]);assert.equal(await page.evaluate(()=>state.connections[0].t1),8);
+ await page.locator('#waveContainer').focus();await page.keyboard.press('Control+z');assert.equal(await page.evaluate(()=>state.tree[0].anchors[0]),5);
+ await page.keyboard.press('Control+Shift+z');assert.equal(await page.evaluate(()=>state.tree[0].anchors[0]),8);
+ await page.evaluate(()=>{const data=validateProject(JSON.parse(JSON.stringify(projectData())));applyProject(data);updateUI();});
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].anchors),[8,25]);
+ await page.evaluate(()=>{state.selectedIds=new Set(['anchors']);state.mode='EDIT';state.cursorT=8;updateUI();});await page.keyboard.press('Shift+k');
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].anchors),[25]);assert.equal(await page.evaluate(()=>state.connections.length),0);
+ console.log('Independent high/low anchors, arrow attachment, drag following, undo/redo, JSON roundtrip and removal PASS');
+ await page.evaluate(()=>{editorSelection={a:20,b:40,ids:['anchors']};state.selectedIds=new Set(['anchors']);state.cursorT=40;updateUI();});
+ await page.keyboard.press('Control+c');await page.keyboard.press('Control+Shift+v');
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].anchors),[25,45]);
+ await page.evaluate(()=>{insertPatternAndPush(state.tree[0],60,20,40,2);updateUI();});
+ assert.deepEqual(await page.evaluate(()=>state.tree[0].anchors),[25,45,65,85]);
+ console.log('Anchor preservation through copy/paste and Repeat PASS');
+
  const printPixels=await page.evaluate(()=>{
   state.tree=[{id:'print-single',name:'single',type:'single',color:'#ff0000',data:[{t:0,val:'x'},{t:20,val:'0'}]},{id:'print-bus',name:'bus',type:'multi',color:'#ff0000',radix:'hex',data:[{t:0,val:'x'},{t:20,val:'0'}]}];
   state.texts=[];state.measurements=[];state.connections=[];state.selectedIds.clear();state.mode='VIEW';state.subMode='NORMAL';state.hoverEdgeT=null;editorSelection=null;measurementCursors=[];state.offsetX=state.offsetY=0;state.scaleX=10;
