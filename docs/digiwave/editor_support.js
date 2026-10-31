@@ -134,6 +134,16 @@ function retimeSignalAttachments(signalId, retime) {
         if (annotation.sigId2 === signalId) annotation.t2 = retime(annotation.t2);
     }
 }
+function preserveAnnotationAnchors(sig) {
+    const boundaries=signalBoundaryTimes(sig), keep=[];
+    for (const annotation of [...state.connections, ...state.measurements]) {
+        for (const side of [1,2]) {
+            const time=annotation['t'+side];
+            if (annotation['sigId'+side]===sig.id && !boundaries.some(t=>Math.abs(t-time)<=1e-6)) keep.push(time);
+        }
+    }
+    if (keep.length) sig.anchors=[...new Set([...(sig.anchors||[]),...keep])].sort((a,b)=>a-b);
+}
 function signalBoundaryTimes(sig) {
     return [...new Set([...(sig?.data || []).map(e => e.t), ...(sig?.anchors || [])])].sort((a,b) => a-b);
 }

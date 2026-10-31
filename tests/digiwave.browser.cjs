@@ -254,6 +254,39 @@ try {
  assert.deepEqual(await page.evaluate(()=>state.tree[0].anchors),[25,45,65,85]);
  console.log('Anchor preservation through copy/paste and Repeat PASS');
 
+ const catalog=await page.evaluate(()=>window.DIGIWAVE_EXAMPLES.map(e=>({id:e.id,project:e.project})));
+ assert.equal(catalog.length,6);
+ const beforeLibrary=await page.evaluate(()=>projectSnapshot());
+ await page.locator('#importButton').click();assert.equal(await page.locator('.example-load').count(),6);
+ await page.keyboard.press('Delete');assert.equal(await page.evaluate(()=>projectSnapshot()),beforeLibrary);
+ page.once('dialog',d=>d.dismiss());await page.locator('.example-load').first().click();
+ assert.equal(await page.evaluate(()=>projectSnapshot()),beforeLibrary);assert(await page.locator('#importModal').isVisible());
+ const acceptExample=d=>d.accept();page.on('dialog',acceptExample);
+ for(const example of catalog) {
+  if(!await page.locator('#importModal').isVisible())await page.locator('#importButton').click();
+  await page.locator(`.example-load[data-example-id="${example.id}"]`).click();
+  await page.waitForFunction(()=>document.getElementById('importModal').style.display==='none');
+  assert.deepEqual(await page.evaluate(()=>state.tree),example.project.tree);
+  assert(await page.evaluate(()=>state.texts.length)>0);
+  assert.equal(await page.evaluate(()=>validateProject(projectData()).formatVersion),1);
+ }
+ page.off('dialog',acceptExample);
+ await page.locator('#importButton').click();const exampleDownload=page.waitForEvent('download');await page.locator('.example-download').first().click();
+ const downloadedExample=JSON.parse(fs.readFileSync(await (await exampleDownload).path(),'utf8'));
+ assert(downloadedExample.texts.some(t=>t.text.includes('WRITE #1')));
+ await page.locator('#importModal .cancel').click();
+ await page.locator('#waveContainer').focus();await page.keyboard.press('Control+z');
+ assert(await page.evaluate(()=>state.tree.some(g=>g.name==='SPI')));
+ console.log('Import library: six editable examples, AXI transaction notes, JSON download, replacement cancel and undo PASS');
+
+ await page.evaluate(()=>{state.tree=[{id:'hidden-group',name:'hidden-group',type:'group',expanded:false,children:[{id:'kept',name:'kept',type:'single',data:[{t:0,val:'1'},{t:10,val:'0'},{t:20,val:'1'},{t:30,val:'0'}]}]},{id:'delete-other',name:'delete-other',type:'single',data:[{t:0,val:'0'}]}];state.connections=[{id:'kept-link',sigId1:'kept',t1:10,sigId2:'kept',t2:20,text:'kept',color:'#f00',thickness:1}];state.texts=[{id:'kept-note',trackId:'kept',t:10,y:42,text:'transaction',size:13,color:'#fff',baseScale:10}];state.measurements=[];state.selectedIds=new Set(['delete-other']);state.mode='VIEW';state.subMode='NORMAL';updateUI();});
+ await page.locator('#waveContainer').focus();await page.keyboard.press('Delete');
+ assert.equal(await page.evaluate(()=>state.connections.length),1);assert.equal(await page.evaluate(()=>state.texts.length),1);
+ await page.evaluate(()=>{editCurrentSegment(findNodeAndParent(state.tree,'kept').node,10,'1');updateUI();});
+ assert.deepEqual(await page.evaluate(()=>findNodeAndParent(state.tree,'kept').node.anchors),[10,20]);
+ assert.deepEqual(await page.evaluate(()=>signalBoundaryTimes(findNodeAndParent(state.tree,'kept').node)),[0,10,20,30]);
+ console.log('Hidden-group annotations survive other deletions; merged annotated edges become explicit anchors PASS');
+
  const printPixels=await page.evaluate(()=>{
   state.tree=[{id:'print-single',name:'single',type:'single',color:'#ff0000',data:[{t:0,val:'x'},{t:20,val:'0'}]},{id:'print-bus',name:'bus',type:'multi',color:'#ff0000',radix:'hex',data:[{t:0,val:'x'},{t:20,val:'0'}]}];
   state.texts=[];state.measurements=[];state.connections=[];state.selectedIds.clear();state.mode='VIEW';state.subMode='NORMAL';state.hoverEdgeT=null;editorSelection=null;measurementCursors=[];state.offsetX=state.offsetY=0;state.scaleX=10;

@@ -440,12 +440,15 @@ function cleanUpEvents(sig) {
         if (!cleaned.length || cleaned.at(-1).val !== event.val) cleaned.push(event);
     }
     sig.data = cleaned;
+    preserveAnnotationAnchors(sig);
 }
 
 // ================= 清理与全局操作 =================
 function cleanupDanglingObjects() {
     updateFlatTracks(); 
-    const validIds = new Set(state.flatTracks.map(t => t.node.id));
+    const validIds = new Set();
+    function collect(nodes) { for (const node of nodes) { validIds.add(node.id); if (node.children) collect(node.children); } }
+    collect(state.tree);
 
     state.measurements = state.measurements.filter(m => validIds.has(m.sigId1) && validIds.has(m.sigId2));
     state.connections = state.connections.filter(c => validIds.has(c.sigId1) && validIds.has(c.sigId2));
@@ -1338,6 +1341,7 @@ function getVisibleTracks() {
 }
 
 window.addEventListener('keydown', (e) => {
+    if (document.querySelector('.modal[style*="flex"]')) return;
     if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return; 
     const k = e.key.toLowerCase(); const sigs = getSelectedSignals();
 

@@ -1,0 +1,728 @@
+{
+  "formatVersion": 1,
+  "tree": [
+    {
+      "id": "group_Clock & Reset",
+      "name": "Clock & Reset",
+      "type": "group",
+      "expanded": true,
+      "children": [
+        {
+          "id": "clk",
+          "name": "clk",
+          "type": "single",
+          "color": "#87e6a1",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 5,
+              "val": "1"
+            },
+            {
+              "t": 10,
+              "val": "0"
+            },
+            {
+              "t": 15,
+              "val": "1"
+            },
+            {
+              "t": 20,
+              "val": "0"
+            },
+            {
+              "t": 25,
+              "val": "1"
+            },
+            {
+              "t": 30,
+              "val": "0"
+            },
+            {
+              "t": 35,
+              "val": "1"
+            },
+            {
+              "t": 40,
+              "val": "0"
+            },
+            {
+              "t": 45,
+              "val": "1"
+            },
+            {
+              "t": 50,
+              "val": "0"
+            },
+            {
+              "t": 55,
+              "val": "1"
+            },
+            {
+              "t": 60,
+              "val": "0"
+            },
+            {
+              "t": 65,
+              "val": "1"
+            },
+            {
+              "t": 70,
+              "val": "0"
+            },
+            {
+              "t": 75,
+              "val": "1"
+            },
+            {
+              "t": 80,
+              "val": "0"
+            },
+            {
+              "t": 85,
+              "val": "1"
+            },
+            {
+              "t": 90,
+              "val": "0"
+            },
+            {
+              "t": 95,
+              "val": "1"
+            },
+            {
+              "t": 100,
+              "val": "0"
+            },
+            {
+              "t": 105,
+              "val": "1"
+            },
+            {
+              "t": 110,
+              "val": "0"
+            },
+            {
+              "t": 115,
+              "val": "1"
+            },
+            {
+              "t": 120,
+              "val": "0"
+            },
+            {
+              "t": 125,
+              "val": "1"
+            },
+            {
+              "t": 130,
+              "val": "0"
+            },
+            {
+              "t": 135,
+              "val": "1"
+            },
+            {
+              "t": 140,
+              "val": "0"
+            },
+            {
+              "t": 145,
+              "val": "1"
+            },
+            {
+              "t": 150,
+              "val": "0"
+            },
+            {
+              "t": 155,
+              "val": "1"
+            },
+            {
+              "t": 160,
+              "val": "0"
+            },
+            {
+              "t": 165,
+              "val": "1"
+            },
+            {
+              "t": 170,
+              "val": "0"
+            },
+            {
+              "t": 175,
+              "val": "1"
+            },
+            {
+              "t": 180,
+              "val": "0"
+            }
+          ]
+        },
+        {
+          "id": "resetn",
+          "name": "resetn",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 10,
+              "val": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "group_Write address",
+      "name": "Write address",
+      "type": "group",
+      "expanded": true,
+      "children": [
+        {
+          "id": "AWVALID",
+          "name": "AWVALID",
+          "type": "single",
+          "color": "#ffe66d",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 20,
+              "val": "1"
+            },
+            {
+              "t": 40,
+              "val": "0"
+            }
+          ],
+          "anchors": [
+            35
+          ]
+        },
+        {
+          "id": "AWREADY",
+          "name": "AWREADY",
+          "type": "single",
+          "color": "#ffe66d",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 30,
+              "val": "1"
+            },
+            {
+              "t": 40,
+              "val": "0"
+            }
+          ]
+        },
+        {
+          "id": "AWADDR",
+          "name": "AWADDR",
+          "type": "multi",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 20,
+              "val": "0x40000010"
+            },
+            {
+              "t": 40,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        },
+        {
+          "id": "AWPROT",
+          "name": "AWPROT",
+          "type": "multi",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        }
+      ]
+    },
+    {
+      "id": "group_Write data",
+      "name": "Write data",
+      "type": "group",
+      "expanded": true,
+      "children": [
+        {
+          "id": "WVALID",
+          "name": "WVALID",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 10,
+              "val": "1"
+            },
+            {
+              "t": 30,
+              "val": "0"
+            }
+          ],
+          "anchors": [
+            25
+          ]
+        },
+        {
+          "id": "WREADY",
+          "name": "WREADY",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 20,
+              "val": "1"
+            },
+            {
+              "t": 30,
+              "val": "0"
+            }
+          ]
+        },
+        {
+          "id": "WDATA",
+          "name": "WDATA",
+          "type": "multi",
+          "color": "#ffba78",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 10,
+              "val": "0xDEADBEEF"
+            },
+            {
+              "t": 30,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        },
+        {
+          "id": "WSTRB",
+          "name": "WSTRB",
+          "type": "multi",
+          "color": "#ffba78",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 10,
+              "val": "0xF"
+            },
+            {
+              "t": 30,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        }
+      ]
+    },
+    {
+      "id": "group_Write response",
+      "name": "Write response",
+      "type": "group",
+      "expanded": true,
+      "children": [
+        {
+          "id": "BVALID",
+          "name": "BVALID",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 50,
+              "val": "1"
+            },
+            {
+              "t": 80,
+              "val": "0"
+            }
+          ],
+          "anchors": [
+            75
+          ]
+        },
+        {
+          "id": "BREADY",
+          "name": "BREADY",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 70,
+              "val": "1"
+            },
+            {
+              "t": 80,
+              "val": "0"
+            }
+          ]
+        },
+        {
+          "id": "BRESP",
+          "name": "BRESP",
+          "type": "multi",
+          "color": "#ffba78",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        }
+      ]
+    },
+    {
+      "id": "group_Read address",
+      "name": "Read address",
+      "type": "group",
+      "expanded": false,
+      "children": [
+        {
+          "id": "ARVALID",
+          "name": "ARVALID",
+          "type": "single",
+          "color": "#ffe66d",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 90,
+              "val": "1"
+            },
+            {
+              "t": 110,
+              "val": "0"
+            }
+          ],
+          "anchors": [
+            105
+          ]
+        },
+        {
+          "id": "ARREADY",
+          "name": "ARREADY",
+          "type": "single",
+          "color": "#ffe66d",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 100,
+              "val": "1"
+            },
+            {
+              "t": 110,
+              "val": "0"
+            }
+          ]
+        },
+        {
+          "id": "ARADDR",
+          "name": "ARADDR",
+          "type": "multi",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 90,
+              "val": "0x40000010"
+            },
+            {
+              "t": 110,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        },
+        {
+          "id": "ARPROT",
+          "name": "ARPROT",
+          "type": "multi",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        }
+      ]
+    },
+    {
+      "id": "group_Read data",
+      "name": "Read data",
+      "type": "group",
+      "expanded": false,
+      "children": [
+        {
+          "id": "RVALID",
+          "name": "RVALID",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 130,
+              "val": "1"
+            },
+            {
+              "t": 160,
+              "val": "0"
+            }
+          ],
+          "anchors": [
+            155
+          ]
+        },
+        {
+          "id": "RREADY",
+          "name": "RREADY",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 150,
+              "val": "1"
+            },
+            {
+              "t": 160,
+              "val": "0"
+            }
+          ]
+        },
+        {
+          "id": "RDATA",
+          "name": "RDATA",
+          "type": "multi",
+          "color": "#ffba78",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 130,
+              "val": "0xDEADBEEF"
+            },
+            {
+              "t": 160,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        },
+        {
+          "id": "RRESP",
+          "name": "RRESP",
+          "type": "multi",
+          "color": "#ffba78",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        }
+      ]
+    }
+  ],
+  "texts": [
+    {
+      "id": "note_clk_15",
+      "trackId": "clk",
+      "t": 15,
+      "y": 42,
+      "text": "AXI4-Lite: WRITE #1 / READ #2",
+      "content": "所有传输在 clk 上升沿且 VALID && READY 时发生。展开或滚动各通道组查看事务。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    },
+    {
+      "id": "note_AWADDR_20",
+      "trackId": "AWADDR",
+      "t": 20,
+      "y": 42,
+      "text": "WRITE #1: [0x40000010] ← 0xDEADBEEF",
+      "content": "W 握手 25ns，AW 握手 35ns：写数据可先于地址到达。WSTRB=0xF，4 个字节有效。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    },
+    {
+      "id": "note_BVALID_50",
+      "trackId": "BVALID",
+      "t": 50,
+      "y": 42,
+      "text": "WRITE #1 response: OKAY @75ns",
+      "content": "BVALID 从 50ns 保持到 BREADY；75ns 完成写响应。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    },
+    {
+      "id": "note_ARADDR_90",
+      "trackId": "ARADDR",
+      "t": 90,
+      "y": 42,
+      "text": "READ #2: [0x40000010]",
+      "content": "105ns 接收读地址。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    },
+    {
+      "id": "note_RDATA_130",
+      "trackId": "RDATA",
+      "t": 130,
+      "y": 42,
+      "text": "READ #2: 0xDEADBEEF / OKAY @155ns",
+      "content": "RVALID 期间数据保持稳定；RREADY 延迟至 150ns，155ns 完成读返回。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    }
+  ],
+  "measurements": [],
+  "connections": [
+    {
+      "id": "write_addr_to_response",
+      "sigId1": "AWVALID",
+      "t1": 35,
+      "sigId2": "BVALID",
+      "t2": 75,
+      "text": "",
+      "color": "#ffba78",
+      "thickness": 1
+    },
+    {
+      "id": "write_data_to_response",
+      "sigId1": "WVALID",
+      "t1": 25,
+      "sigId2": "BVALID",
+      "t2": 75,
+      "text": "",
+      "color": "#ffba78",
+      "thickness": 1
+    },
+    {
+      "id": "read_transaction",
+      "sigId1": "ARVALID",
+      "t1": 105,
+      "sigId2": "RVALID",
+      "t2": 155,
+      "text": "",
+      "color": "#ffba78",
+      "thickness": 1
+    }
+  ],
+  "scaleX": 10,
+  "example": {
+    "title": "AXI4-Lite · Write + Read",
+    "description": "独立 AW/W 握手、延迟响应；写后读回同一寄存器，带 transaction 注释。"
+  }
+}

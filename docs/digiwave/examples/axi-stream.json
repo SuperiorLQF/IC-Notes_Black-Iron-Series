@@ -1,0 +1,313 @@
+{
+  "formatVersion": 1,
+  "tree": [
+    {
+      "id": "group_Clock & Reset",
+      "name": "Clock & Reset",
+      "type": "group",
+      "expanded": true,
+      "children": [
+        {
+          "id": "clk",
+          "name": "clk",
+          "type": "single",
+          "color": "#87e6a1",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 5,
+              "val": "1"
+            },
+            {
+              "t": 10,
+              "val": "0"
+            },
+            {
+              "t": 15,
+              "val": "1"
+            },
+            {
+              "t": 20,
+              "val": "0"
+            },
+            {
+              "t": 25,
+              "val": "1"
+            },
+            {
+              "t": 30,
+              "val": "0"
+            },
+            {
+              "t": 35,
+              "val": "1"
+            },
+            {
+              "t": 40,
+              "val": "0"
+            },
+            {
+              "t": 45,
+              "val": "1"
+            },
+            {
+              "t": 50,
+              "val": "0"
+            },
+            {
+              "t": 55,
+              "val": "1"
+            },
+            {
+              "t": 60,
+              "val": "0"
+            },
+            {
+              "t": 65,
+              "val": "1"
+            },
+            {
+              "t": 70,
+              "val": "0"
+            },
+            {
+              "t": 75,
+              "val": "1"
+            },
+            {
+              "t": 80,
+              "val": "0"
+            },
+            {
+              "t": 85,
+              "val": "1"
+            },
+            {
+              "t": 90,
+              "val": "0"
+            },
+            {
+              "t": 95,
+              "val": "1"
+            },
+            {
+              "t": 100,
+              "val": "0"
+            },
+            {
+              "t": 105,
+              "val": "1"
+            },
+            {
+              "t": 110,
+              "val": "0"
+            }
+          ]
+        },
+        {
+          "id": "resetn",
+          "name": "resetn",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 10,
+              "val": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "group_AXI Stream",
+      "name": "AXI Stream",
+      "type": "group",
+      "expanded": true,
+      "children": [
+        {
+          "id": "TVALID",
+          "name": "TVALID",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 20,
+              "val": "1"
+            },
+            {
+              "t": 90,
+              "val": "0"
+            }
+          ],
+          "anchors": [
+            35,
+            45,
+            75,
+            85
+          ]
+        },
+        {
+          "id": "TREADY",
+          "name": "TREADY",
+          "type": "single",
+          "color": "#70f5ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 30,
+              "val": "1"
+            },
+            {
+              "t": 50,
+              "val": "0"
+            },
+            {
+              "t": 70,
+              "val": "1"
+            },
+            {
+              "t": 90,
+              "val": "0"
+            }
+          ]
+        },
+        {
+          "id": "TDATA",
+          "name": "TDATA",
+          "type": "multi",
+          "color": "#ffba78",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 20,
+              "val": "0x11223344"
+            },
+            {
+              "t": 40,
+              "val": "0x55667788"
+            },
+            {
+              "t": 50,
+              "val": "0x99AABBCC"
+            },
+            {
+              "t": 80,
+              "val": "0x0000DDEE"
+            },
+            {
+              "t": 90,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        },
+        {
+          "id": "TKEEP",
+          "name": "TKEEP",
+          "type": "multi",
+          "color": "#ffba78",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 20,
+              "val": "0xF"
+            },
+            {
+              "t": 80,
+              "val": "0x3"
+            },
+            {
+              "t": 90,
+              "val": "0"
+            }
+          ],
+          "radix": "hex"
+        },
+        {
+          "id": "TLAST",
+          "name": "TLAST",
+          "type": "single",
+          "color": "#ffba78",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 80,
+              "val": "1"
+            },
+            {
+              "t": 90,
+              "val": "0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "texts": [
+    {
+      "id": "note_TDATA_20",
+      "trackId": "TDATA",
+      "t": 20,
+      "y": 42,
+      "text": "Packet #1: 4 beats / 14 valid bytes",
+      "content": "握手时刻 35、45、75、85ns。最后一拍仅低两字节有效，TLAST 在最后一拍为 1。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    },
+    {
+      "id": "note_TVALID_50",
+      "trackId": "TVALID",
+      "t": 50,
+      "y": 42,
+      "text": "Backpressure: hold beat #3",
+      "content": "55ns、65ns 时 TVALID=1、TREADY=0；TDATA/TKEEP/TLAST 均必须保持，直到 75ns 握手。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    }
+  ],
+  "measurements": [],
+  "connections": [],
+  "scaleX": 10,
+  "example": {
+    "title": "AXI-Stream · Packet + Backpressure",
+    "description": "四拍数据包，VALID/READY 背压，最后一拍 TLAST=1 且 TKEEP=0x3。"
+  }
+}

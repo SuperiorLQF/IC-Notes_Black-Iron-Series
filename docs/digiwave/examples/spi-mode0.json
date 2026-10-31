@@ -1,0 +1,251 @@
+{
+  "formatVersion": 1,
+  "tree": [
+    {
+      "id": "group_SPI",
+      "name": "SPI",
+      "type": "group",
+      "expanded": true,
+      "children": [
+        {
+          "id": "CS_n",
+          "name": "CS_n",
+          "type": "single",
+          "color": "#b5a1ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "1"
+            },
+            {
+              "t": 20,
+              "val": "0"
+            },
+            {
+              "t": 200,
+              "val": "1"
+            }
+          ],
+          "anchors": [
+            220
+          ]
+        },
+        {
+          "id": "SCLK",
+          "name": "SCLK",
+          "type": "single",
+          "color": "#b5a1ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 30,
+              "val": "1"
+            },
+            {
+              "t": 40,
+              "val": "0"
+            },
+            {
+              "t": 50,
+              "val": "1"
+            },
+            {
+              "t": 60,
+              "val": "0"
+            },
+            {
+              "t": 70,
+              "val": "1"
+            },
+            {
+              "t": 80,
+              "val": "0"
+            },
+            {
+              "t": 90,
+              "val": "1"
+            },
+            {
+              "t": 100,
+              "val": "0"
+            },
+            {
+              "t": 110,
+              "val": "1"
+            },
+            {
+              "t": 120,
+              "val": "0"
+            },
+            {
+              "t": 130,
+              "val": "1"
+            },
+            {
+              "t": 140,
+              "val": "0"
+            },
+            {
+              "t": 150,
+              "val": "1"
+            },
+            {
+              "t": 160,
+              "val": "0"
+            },
+            {
+              "t": 170,
+              "val": "1"
+            },
+            {
+              "t": 180,
+              "val": "0"
+            }
+          ]
+        },
+        {
+          "id": "MOSI",
+          "name": "MOSI",
+          "type": "single",
+          "color": "#b5a1ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 20,
+              "val": "1"
+            },
+            {
+              "t": 40,
+              "val": "0"
+            },
+            {
+              "t": 60,
+              "val": "1"
+            },
+            {
+              "t": 80,
+              "val": "0"
+            },
+            {
+              "t": 120,
+              "val": "1"
+            },
+            {
+              "t": 140,
+              "val": "0"
+            },
+            {
+              "t": 160,
+              "val": "1"
+            },
+            {
+              "t": 200,
+              "val": "0"
+            }
+          ],
+          "anchors": [
+            30,
+            50,
+            70,
+            90,
+            110,
+            130,
+            150,
+            170
+          ]
+        },
+        {
+          "id": "MISO",
+          "name": "MISO",
+          "type": "single",
+          "color": "#b5a1ff",
+          "thickness": 2,
+          "data": [
+            {
+              "t": 0,
+              "val": "0"
+            },
+            {
+              "t": 60,
+              "val": "1"
+            },
+            {
+              "t": 140,
+              "val": "0"
+            }
+          ],
+          "anchors": [
+            30,
+            50,
+            70,
+            90,
+            110,
+            130,
+            150,
+            170
+          ]
+        }
+      ]
+    }
+  ],
+  "texts": [
+    {
+      "id": "note_CS_n_20",
+      "trackId": "CS_n",
+      "t": 20,
+      "y": 42,
+      "text": "SPI transaction #1: 8 bits",
+      "content": "CS_n 拉低后开始；SCLK 空闲为低，接收端在上升沿采样，发送端在下降沿切换下一位。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    },
+    {
+      "id": "note_MOSI_30",
+      "trackId": "MOSI",
+      "t": 30,
+      "y": 42,
+      "text": "TX 0xA5: 10100101",
+      "content": "MSB first。采样点为 30、50、70、90、110、130、150、170ns。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    },
+    {
+      "id": "note_MISO_30",
+      "trackId": "MISO",
+      "t": 30,
+      "y": 42,
+      "text": "RX 0x3C: 00111100",
+      "content": "与 MOSI 同时传输，200ns CS_n 拉高结束事务。",
+      "size": 13,
+      "color": "#ffe66d",
+      "bgColor": "#252b35",
+      "isSticky": true,
+      "collapsed": true,
+      "baseScale": 10
+    }
+  ],
+  "measurements": [],
+  "connections": [],
+  "scaleX": 10,
+  "example": {
+    "title": "SPI Mode 0 · Full Duplex",
+    "description": "CPOL=0 / CPHA=0，MSB first，MOSI=0xA5、MISO=0x3C。"
+  }
+}
