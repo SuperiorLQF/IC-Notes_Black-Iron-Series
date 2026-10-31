@@ -337,6 +337,18 @@ try {
  console.log('Paint follows moved K boundaries and is preserved by waveform copy/paste PASS');
 
 
+ await page.evaluate(()=>{state.tree=[{id:'colour-a',name:'colour-a',type:'single',color:'#ff0000',data:[{t:0,val:'1'}]},{id:'colour-b',name:'colour-b',type:'single',color:'#00ff00',data:[{t:0,val:'0'}]}];state.connections=[];state.measurements=[];state.texts=[];state.mode='TEXT';state.boundTrackId='colour-b';state.selectedIds=new Set(['colour-a']);if(state.printMode)togglePrintMode();updateUI();});
+ const colourDataBefore=await page.evaluate(()=>projectSnapshot());
+ await page.locator('#btnPrint').click();
+ assert.deepEqual(await page.locator('.signal-color').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).backgroundColor)),['rgb(0, 0, 0)','rgb(0, 0, 0)']);
+ assert.deepEqual(await page.locator('.signal-name').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).color)),['rgb(0, 0, 0)','rgb(0, 0, 0)']);
+ assert.equal(await page.locator('.signal-row.text-bound').evaluate(n=>getComputedStyle(n).borderLeftColor),'rgb(0, 0, 0)');
+ assert.equal(await page.evaluate(()=>projectSnapshot()),colourDataBefore);
+ await page.locator('#btnPrint').click();
+ assert.deepEqual(await page.locator('.signal-color').evaluateAll(nodes=>nodes.map(n=>getComputedStyle(n).backgroundColor)),['rgb(255, 0, 0)','rgb(0, 255, 0)']);
+ assert.equal(await page.evaluate(()=>projectSnapshot()),colourDataBefore);
+ console.log('Print toggle immediately updates sidebar names/swatches and restores original colours without changing project PASS');
+
  const printPixels=await page.evaluate(()=>{
   state.tree=[{id:'print-single',name:'single',type:'single',color:'#ff0000',data:[{t:0,val:'x'},{t:20,val:'0'}]},{id:'print-bus',name:'bus',type:'multi',color:'#ff0000',radix:'hex',data:[{t:0,val:'x'},{t:20,val:'0'}]}];
   state.texts=[];state.measurements=[];state.connections=[];state.selectedIds.clear();state.mode='VIEW';state.subMode='NORMAL';state.hoverEdgeT=null;editorSelection=null;measurementCursors=[];state.offsetX=state.offsetY=0;state.scaleX=10;

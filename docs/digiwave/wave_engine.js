@@ -517,7 +517,7 @@ function togglePrintMode() {
     const btn = document.getElementById('btnPrint');
     if (state.printMode) { document.body.classList.add('print-theme'); if(btn) btn.classList.add('active'); }
     else { document.body.classList.remove('print-theme'); if(btn) btn.classList.remove('active'); }
-    render();
+    updateUI();
 }
 
 window.openScaleModal = function() {
@@ -589,7 +589,7 @@ function updateUI() {
         if (sig.type === 'group') {
             iconHtml = `<span class="group-icon" onclick="toggleGroup('${sig.id}', event)">${sig.expanded ? '▼' : '▶'}</span>`;
         } else {
-            iconHtml = `<div style="width:12px; height:12px; background:${state.printMode?'#000':sig.color}; border-radius:2px; flex-shrink:0; display:inline-block;"></div>`;
+            iconHtml = `<div class="signal-color" style="width:12px; height:12px; background:${state.printMode?'#000':sig.color}; border-radius:2px; flex-shrink:0; display:inline-block;"></div>`;
         }
         
         let innerHtml = `${iconHtml}<span class="signal-name"></span>`;

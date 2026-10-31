@@ -182,3 +182,7 @@ body.print-theme .magnet-pole-n, body.print-theme .magnet-pole-s { fill: #000; }
 
 .toolbar #fillColorInput { width: 48px; height: 44px; padding: 2px; cursor: pointer; border: 1px solid var(--border-color); background: var(--panel-bg); border-radius: 5px; }
 .toolbar #fillColorInput:disabled { opacity: .45; cursor: default; }
+
+body.print-theme .signal-row.text-bound { background-color: #eee; border-left-color: #000; }
+body.print-theme .signal-name, body.print-theme .group-icon, body.print-theme .group-icon:hover { color: #000; }
+body.print-theme .ungroup-btn { background: #ddd; color: #000; }
