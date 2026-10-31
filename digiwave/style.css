@@ -102,3 +102,9 @@ body.print-theme .modal-btns button.cancel { background: #eee; color: #000;}
 .time-input { display: flex; gap: 6px; flex: 1; min-width: 0; }
 .time-input input { min-width: 0; flex: 1; }
 .time-input select { flex: 0 0 65px; }
+
+/* Enforce monochrome at display time too, including overlays and hatch patterns. */
+body.print-theme #waveCanvas { filter: grayscale(1); }
+@media print {
+    body.print-theme #waveCanvas { filter: grayscale(1); }
+}
