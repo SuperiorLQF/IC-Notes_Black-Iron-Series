@@ -484,6 +484,7 @@ function toggleMeasureMode() {
         if (btn) btn.classList.add('active');
         if (state.arrowMode !== 'IDLE') toggleArrowMode(); 
     } else { if (btn) btn.classList.remove('active'); }
+    updateEditorHelp();
     render();
 }
 
@@ -495,6 +496,7 @@ function toggleArrowMode() {
         if (btn) btn.classList.add('active');
         if (state.measureMode !== 'IDLE') toggleMeasureMode(); 
     } else { if (btn) btn.classList.remove('active'); }
+    updateEditorHelp();
     render();
 }
 
@@ -530,18 +532,20 @@ function updateSnapTarget() {
 // ================= UI与渲染逻辑 =================
 
 function resizeCanvas() {
+    const previousWidth = canvas.clientWidth;
     const rect = waveContainer.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
     canvas.style.width = `${rect.width}px`; canvas.style.height = `${rect.height}px`;
     ctx.scale(dpr, dpr);
-    if (projectHistory.initialized) {
+    if (projectHistory.initialized && Math.abs(previousWidth - rect.width) > 0.5) {
         state.scaleX = boundedWaveformScale(state.scaleX);
         clampHorizontalOffset();
     }
     editorNeedsRender = true;
 }
 window.addEventListener('resize', resizeCanvas);
+new ResizeObserver(resizeCanvas).observe(waveContainer);
 
 function updateUI() {
     editorNeedsRender = true;
@@ -651,6 +655,7 @@ function updateUI() {
         busValueInput.style.display = 'none';
     }
     
+    updateEditorHelp();
     render(); 
 }
 
@@ -1391,7 +1396,7 @@ window.addEventListener('keydown', (e) => {
 
         if (e.key === 'Enter' && state.pendingVal) {
             if (state.mode === 'INSERT') {
-                durationModal.style.display = 'flex'; durationInput.value = lastDurationValue;
+                durationModal.style.display = 'flex'; durationInput.value = lastDurationValue; updateEditorHelp();
                 setTimeout(() => { durationInput.focus(); durationInput.select(); }, 10);
             } else if (state.mode === 'EDIT') {
                 sigs.forEach(sig => editCurrentSegment(sig, state.cursorT, state.pendingVal));
@@ -1443,7 +1448,7 @@ busValueInput.addEventListener('keydown', (e) => {
     } else if (e.key === 'Enter') {
         e.preventDefault(); e.stopPropagation();
         if (state.mode === 'INSERT') {
-            durationModal.style.display = 'flex'; durationInput.value = lastDurationValue;
+            durationModal.style.display = 'flex'; durationInput.value = lastDurationValue; updateEditorHelp();
             setTimeout(() => { durationInput.focus(); durationInput.select(); }, 10);
         } else if (state.mode === 'EDIT') {
             if (sigs.length > 0 && state.pendingVal) {

@@ -22,6 +22,23 @@ try {
  assert.equal(await page.evaluate(()=>projectSnapshot()),baseline);await handbook.close();
  console.log('GUI Handbook link opens a separate page, anchors work, project unchanged PASS');
 
+ await page.evaluate(()=>{state.selectedIds=new Set(['a']);state.mode='EDIT';state.subMode='NORMAL';updateUI();});
+ assert(await page.locator('#editorHelp').textContent().then(t=>t.includes('⌫ Backspace')&&t.includes('后续内容前移')&&t.includes('拖动')));
+ assert.equal(await page.locator('#editorHelp kbd').filter({hasText:/^V$/}).count(),0);
+ await page.evaluate(()=>{state.tree.push({id:'hint-bus',type:'multi',name:'bus',color:'#a5f',radix:'hex',data:[{t:0,val:'0'}]});state.selectedIds=new Set(['hint-bus']);updateUI();});
+ assert.equal(await page.locator('#editorHelp kbd').filter({hasText:/^V$/}).count(),1);
+ await page.locator('#waveContainer').focus();await page.keyboard.press('v');
+ assert(await page.locator('#editorHelp').textContent().then(t=>t.includes('BUS VALUE')&&t.includes('删除输入框中的字符')));
+ assert.equal(await page.locator('#editorHelp kbd').filter({hasText:/^R$/}).count(),0);
+ await page.keyboard.press('Escape');
+ await page.evaluate(()=>{state.tree=state.tree.filter(s=>s.id!=='hint-bus');state.selectedIds=new Set(['a']);state.mode='INSERT';state.subMode='NORMAL';state.pendingVal='1';updateUI();});
+ assert(await page.locator('#editorHelp').textContent().then(t=>t.includes('␣ Space')&&t.includes('插入终点')));
+ await page.keyboard.press('r');assert(await page.locator('#editorHelp').textContent().then(t=>t.includes('片段起始边沿')));await page.keyboard.press('Escape');
+ await page.keyboard.press('Enter');assert(await page.locator('#editorHelp').textContent().then(t=>t.includes('DURATION')&&t.includes('关闭时间输入面板')));await page.locator('#durationInput').press('Escape');
+ await page.evaluate(()=>{state.mode='VIEW';state.pendingVal=null;state.subMode='NORMAL';updateUI();initializeHistory();});
+ assert.equal(await page.evaluate(()=>projectSnapshot()),baseline);
+ console.log('Bottom hints match Binary/Bus Edit, numeric input, Insert, Repeat and duration dialog PASS');
+ await page.waitForFunction(()=>Math.abs(canvas.clientHeight-waveContainer.clientHeight)<=1);
  const viewBlocks=await page.evaluate(()=>{
   state.selectedIds=new Set(['a']);state.mode='VIEW';state.cursorT=10;
   const original=ctx.strokeRect;let blocks=0;

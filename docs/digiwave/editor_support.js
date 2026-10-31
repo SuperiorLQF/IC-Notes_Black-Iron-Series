@@ -226,6 +226,91 @@ function pasteEditorSelection(insert) {
         cleanUpEvents(sig);
     }); updateUI();
 }
+function updateEditorHelp() {
+    const host = document.getElementById('editorHelp');
+    if (!host) return;
+    const expanded = host.querySelector('details')?.open || false;
+    const sig = getSelectedSignals()[0];
+    const isBus = sig?.type === 'multi';
+    const editing = state.mode === 'EDIT', inserting = state.mode === 'INSERT';
+    const actions = [];
+    let title = state.mode;
+    const add = (keys, text) => actions.push({keys: Array.isArray(keys) ? keys : [keys], text});
+    if (durationModal.style.display === 'flex') {
+        title = `${state.mode} · DURATION`;
+        add('输入', '持续时间：数字，可带 ns / us / ms');add('↵ Enter', '确认持续时间并插入波形');
+        add('⌫ Backspace', '删除时间输入中的字符');add('⎋ Esc', '关闭时间输入面板');
+    } else if (state.measureMode !== 'IDLE' || state.arrowMode !== 'IDLE') {
+        const measuring = state.measureMode !== 'IDLE';
+        const mode = measuring ? state.measureMode : state.arrowMode;
+        title = measuring ? 'MEASURE' : 'ARROW';
+        add('鼠标', mode.endsWith('P1') ? '点击第一个信号边沿' : '点击第二个信号边沿');
+        add(measuring ? 'M' : 'A', '取消当前工具');
+    } else if (state.mode === 'TEXT') {
+        add('鼠标', '选择绑定通道，点击添加文字；拖动注释移动');
+        add('↵ Enter', '确认输入的注释');add('滚轮', '选中注释时调整字号');
+        add('C', '注释属性 / 便签设置');add('Delete', '删除所选注释');add('⎋ Esc', '取消输入或返回 View');
+    } else if (state.subMode.startsWith('REPEAT')) {
+        title = `${state.mode} · REPEAT`;
+        if (state.subMode === 'REPEAT_START') add('鼠标', '选择片段起始边沿');
+        else if (state.subMode === 'REPEAT_END') add('鼠标', '选择片段结束边沿，必须晚于起点');
+        else { add('数字', '输入重复次数');add('↵ Enter', '确认重复'); }
+        add('⎋ Esc', '取消片段选择；次数面板可点 Cancel');
+        add('目标', inserting ? '在编辑光标处重复插入，后续波形后移' : '在编辑光标处重复覆盖，光标不移动');
+    } else if ((editing || inserting) && state.subMode === 'VALUE') {
+        title = `${state.mode} · BUS VALUE`;
+        add('输入', '十进制 / 0x 十六进制 / X / Z');
+        add('↵ Enter', inserting ? '打开持续时间面板，确认后插入' : '应用当前总线值并结束数值输入');
+        if (inserting) add('␣ Space', '按参考信号下一边沿或上次时长插入');
+        add('⌫ Backspace', '删除输入框中的字符，不删除波形');
+        add('⎋ Esc', '退出数值输入，保留当前编辑模式');
+    } else if ((editing || inserting) && sig) {
+        title = `${state.mode} · ${isBus ? 'BUS' : 'BINARY'}`;
+        if (isBus) { add('V', '打开总线数值输入框（十进制 / 0x 十六进制）');add(['X','Z'], '设置总线待写状态'); }
+        else add(['0','1','X','Z'], '设置待写电平 / 状态（回车后应用）');
+        add('↵ Enter', editing ? '修改光标所在波形段的值' : '输入持续时间，插入并后推后续波形');
+        if (inserting) {
+            add('␣ Space', '延续到参考信号下一边沿；无后续参考沿时复用上次时长');
+            add('鼠标点击', '在光标右侧指定插入终点');
+        } else add('鼠标拖动', '移动所选信号边沿；遵守网格吸附，连接线和标尺随动');
+        add('⌫ Backspace', '删除光标与前一边沿之间的波形，后续内容前移');
+        add('R', inserting ? '选择片段并重复插入' : '选择片段并重复覆盖');
+        add(['←','→'], '定位前后边沿');add('C', isBus ? '名称 / 颜色 / 线宽 / 总线进制属性' : '名称 / 颜色 / 线宽属性');
+        add('⎋ Esc', '返回 View');
+    } else if (editing || inserting) {
+        title = `${state.mode} · 未选择信号`;
+        add('⎋ Esc', '先返回 View，再选择要操作的信号');
+    } else {
+        title = 'VIEW';
+        add('鼠标点击', '选择信号并定位最近边沿');add(['↑','↓'], '切换通道');add(['←','→'], '定位前后边沿');
+        if (sig) { add('E', '修改电平 / 拖动边沿');add('I', '插入波形');add('C', '打开属性'); }
+        else add('开始', '先点击信号；或从加号菜单添加 Binary / Bus / Clock');
+        add('Shift + 拖动', '跨通道框选时间范围');add('Ctrl + 点击', '多选通道');add('Ctrl+G', '将选中通道分组');
+    }
+    host.replaceChildren();
+    const heading = document.createElement('strong');heading.className = 'help-mode';heading.textContent = title;host.append(heading);
+    function appendActions(container, items) {
+        for (const item of items) {
+            const row = document.createElement('span');row.className = 'help-action';
+            item.keys.forEach(key => {const kbd=document.createElement('kbd');kbd.textContent=key;row.append(kbd);});
+            const label=document.createElement('span');label.textContent=item.text;row.append(label);container.append(row);
+        }
+    }
+    const primary=document.createElement('div');primary.className='help-actions';appendActions(primary,actions);host.append(primary);
+    if (!(state.subMode === 'VALUE' || state.subMode === 'REPEAT_MODAL' || durationModal.style.display === 'flex')) {
+        const more=document.createElement('details');more.open=expanded;
+        const summary=document.createElement('summary');summary.textContent='浏览、标注与通用操作';more.append(summary);
+        const common=document.createElement('div');common.className='help-actions';
+        appendActions(common,[
+            {keys:['Ctrl/Cmd+Z'],text:'撤销'}, {keys:['Ctrl/Cmd+Shift+Z','Ctrl/Cmd+Y'],text:'重做'},
+            {keys:['Ctrl/Cmd+C'],text:'复制已框选的波形'}, {keys:['Ctrl/Cmd+V'],text:'覆盖粘贴到选中通道的光标处'}, {keys:['Ctrl/Cmd+Shift+V'],text:'插入粘贴并后推内容'},
+            {keys:['Delete'],text:'删除选中的信号 / 连线 / 标尺 / 注释'}, {keys:['F'],text:'水平适配全部波形'},
+            {keys:['Ctrl + 滚轮'],text:'缩放时间轴'}, {keys:['滚轮'],text:'上下浏览通道'}, {keys:['Shift + 滚轮','中键拖动'],text:'平移视图'},
+            {keys:['Alt + 点击'],text:'放置两个时间游标，显示 Δt'}, {keys:['M'],text:'边沿测量标尺'}, {keys:['A'],text:'边沿事件连线'}, {keys:['T'],text:'注释模式'}
+        ]);more.append(common);host.append(more);
+    }
+}
+
 function renderEditorOverlay() {
     const w=canvas.clientWidth, h=canvas.clientHeight;
     ctx.save();
