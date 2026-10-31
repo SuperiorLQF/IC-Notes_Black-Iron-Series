@@ -274,7 +274,7 @@ function timeToPx(t) { return t * state.scaleX; }
 function pxToTime(px) { return Math.max(0, px / state.scaleX); }
 
 function getSignalValueAtTime(sig, t) {
-    if (!sig.data || sig.data.length === 0) return 'z';
+    if (!sig.data || sig.data.length === 0) return sig.type==='multi'?'':'z';
     let val = sig.data[0].val;
     for (let i = 0; i < sig.data.length; i++) {
         if (sig.data[i].t <= t + 1e-6) val = sig.data[i].val;
@@ -303,20 +303,9 @@ function getEdges(sig, t) {
     return { prev, next };
 }
 
-function parseDisplayStr(val, sig) {
-    if (!val) return { str: 'z', isX: false, isZ: true };
-    const lower = val.toLowerCase();
-    if (lower === 'z') return { str: 'z', isX: false, isZ: true };
-    if (lower === 'x') return { str: 'x', isX: true, isZ: false };
-    
-    // Preserve wide bus values without IEEE-754 integer rounding.
-    let numVal = null;
-    if (/^0x[0-9a-f]+$/i.test(val) || /^-?\d+$/.test(val)) numVal = BigInt(val);
-    if (numVal !== null) {
-        if (sig.radix === 'hex') return { str: (numVal < 0n ? '-0x' : '0x') + (numVal < 0n ? -numVal : numVal).toString(16).toUpperCase(), isX:false, isZ:false };
-        if (sig.radix === 'dec') return { str: numVal.toString(10), isX:false, isZ:false };
-    }
-    return { str: val, isX: false, isZ: false };
+function parseDisplayStr(val) {
+    // Bus payloads are labels, never numbers or special X/Z states.
+    return {str: val == null ? '' : String(val), isX: false, isZ: false};
 }
 
 function togglePendingVal(sigs) {
@@ -361,6 +350,7 @@ function editCurrentSegment(sig, t, newVal) {
 function insertPatternAndPush(sig, insertT, startT, endT, count) {
     let patternDur = endT - startT;
     if (patternDur <= 0 || count <= 0) return;
+    const patternFills=captureFills(sig,startT,endT);
     const patternAnchors=(sig.anchors||[]).filter(t=>t>=startT && t<endT).map(t=>t-startT);
     let pattern = [];
     pattern.push({ t: 0, val: getSignalValueAtTime(sig, startT) });
@@ -377,6 +367,7 @@ function insertPatternAndPush(sig, insertT, startT, endT, count) {
     for (let c = 0; c < count; c++) {
         let offset = insertT + c * patternDur;
         pattern.forEach(pe => { sig.data.push({ t: offset + pe.t, val: pe.val }); });
+        pasteFills(sig,offset,patternFills);
         if(patternAnchors.length)sig.anchors=[...(sig.anchors||[]),...patternAnchors.map(t=>offset+t)].sort((a,b)=>a-b);
     }
 
@@ -388,6 +379,7 @@ function insertPatternAndPush(sig, insertT, startT, endT, count) {
 function overwritePatternAndStay(sig, insertT, startT, endT, count) {
     let patternDur = endT - startT;
     if (patternDur <= 0 || count <= 0) return;
+    const patternFills=captureFills(sig,startT,endT);
     const patternAnchors=(sig.anchors||[]).filter(t=>t>=startT && t<endT).map(t=>t-startT);
     let pattern = [];
     pattern.push({ t: 0, val: getSignalValueAtTime(sig, startT) });
@@ -396,6 +388,7 @@ function overwritePatternAndStay(sig, insertT, startT, endT, count) {
     let totalPush = patternDur * count;
     let endInsertT = insertT + totalPush;
     let valAtEnd = getSignalValueAtTime(sig, endInsertT);
+    replaceFillRange(sig,insertT,endInsertT);
     if(sig.anchors)sig.anchors=sig.anchors.filter(t=>t<insertT || t>=endInsertT);
 
     sig.data = sig.data.filter(e => e.t <= insertT + 1e-6 || e.t > endInsertT - 1e-6);
@@ -404,6 +397,7 @@ function overwritePatternAndStay(sig, insertT, startT, endT, count) {
     for (let c = 0; c < count; c++) {
         let offset = insertT + c * patternDur;
         pattern.forEach(pe => { sig.data.push({ t: offset + pe.t, val: pe.val }); });
+        pasteFills(sig,offset,patternFills);
         if(patternAnchors.length)sig.anchors=[...(sig.anchors||[]),...patternAnchors.map(t=>offset+t)].sort((a,b)=>a-b);
     }
 
@@ -427,7 +421,7 @@ function cleanUpEvents(sig) {
     // at the same time. The later event owns that boundary.
     const boundaries = [];
     for (const event of [...sig.data].sort((a, b) => a.t - b.t)) {
-        const value = /^[xz]$/i.test(event.val) ? event.val.toLowerCase() : event.val;
+        const value = sig.type === 'single' && /^[xz]$/i.test(event.val) ? event.val.toLowerCase() : event.val;
         const normalized = {...event, val: value};
         if (boundaries.length && Math.abs(boundaries.at(-1).t - event.t) <= 1e-6) boundaries[boundaries.length - 1] = normalized;
         else boundaries.push(normalized);
@@ -601,7 +595,7 @@ function updateUI() {
         let innerHtml = `${iconHtml}<span class="signal-name"></span>`;
         if (sig.type === 'group') innerHtml += `<button class="ungroup-btn" onclick="ungroup('${sig.id}', event)">Ungroup</button>`;
         row.innerHTML = innerHtml;
-        row.querySelector('.signal-name').textContent = `${sig.name} ${sig.type==='multi'? `[${sig.radix}]`:''}`;
+        row.querySelector('.signal-name').textContent = sig.name;
 
         row.onclick = (e) => { 
             if (state.mode === 'TEXT') { state.boundTrackId = sig.id; updateUI(); return; }
@@ -661,7 +655,7 @@ function updateUI() {
     if (state.subMode === 'REPEAT_START') cursorLabel.innerText = `[Repeat] 点击选择起点`;
     else if (state.subMode === 'REPEAT_END') cursorLabel.innerText = `[Repeat] 选择终点`;
     else if (state.subMode === 'REPEAT_MODAL') cursorLabel.innerText = `[Repeat] 配置重复次数`;
-    else if (state.subMode === 'VALUE') cursorLabel.innerText = `[Value] 输入数值并回车`;
+    else if (state.subMode === 'VALUE') cursorLabel.innerText = `[Text] 输入字符并回车`;
     else cursorLabel.innerText = `光标位置: ${state.cursorT.toFixed(2)} ns`;
 
     document.getElementById('statusZoom').innerText = `Scale: ${Number(state.scaleX.toPrecision(5))} px/ns`;
@@ -675,13 +669,14 @@ function updateUI() {
     if (mainSig && mainSig.type === 'multi' && (state.mode === 'INSERT' || state.mode === 'EDIT') && state.subMode === 'VALUE') {
         busValueInput.style.display = 'inline-block';
         if (document.activeElement !== busValueInput) {
-            busValueInput.value = (state.pendingVal === 'z' || state.pendingVal === 'x') ? '' : (state.pendingVal || '');
+            busValueInput.value = state.pendingVal || '';
             busValueInput.focus(); busValueInput.select();
         }
     } else {
         busValueInput.style.display = 'none';
     }
     
+    document.getElementById('paintButton').classList.toggle('active', state.subMode==='PAINT');
     updateEditorHelp();
     render(); 
 }
@@ -763,8 +758,9 @@ function render() {
             }
         }
         
+        renderSignalFills(sig, track);
         ctx.strokeStyle = theme.getSigColor(sig.color); ctx.lineWidth = sig.thickness || 2; 
-        let events = sig.data || []; if (events.length === 0) events = [{t:0, val:'z'}];
+        let events = sig.data || []; if (events.length === 0) events = [{t:0, val:sig.type==='multi'?'':'z'}];
         
         if (sig.type === 'single') {
             // Isolate waveform joins from the bus polygon's bevel style.
@@ -889,13 +885,13 @@ function render() {
                 ctx.restore();
             }
 
-            if (state.pendingVal && (state.subMode === 'NORMAL' || state.subMode === 'VALUE') && (state.mode === 'INSERT' || state.mode === 'EDIT')) {
+            if (state.pendingVal !== null && (state.subMode === 'NORMAL' || state.subMode === 'VALUE') && (state.mode === 'INSERT' || state.mode === 'EDIT')) {
                 const infoY = yLow + 18; 
                 const drawX = cursorPxX;
                 const iconX = drawX + 16;
                 
                 ctx.font = 'bold 12px "Consolas", monospace';
-                ctx.fillStyle = state.printMode && ['x','z'].includes(state.pendingVal.toLowerCase()) ? theme.xState : theme.getSigColor('#f1c40f');
+                ctx.fillStyle = state.printMode && sig.type==='single' && ['x','z'].includes(state.pendingVal.toLowerCase()) ? theme.xState : theme.getSigColor('#f1c40f');
                 ctx.strokeStyle = ctx.fillStyle;
                 ctx.lineWidth = 2;
                 ctx.textAlign = 'left';
@@ -1165,6 +1161,7 @@ window.addEventListener('mouseup', () => {
 });
 
 waveContainer.addEventListener('mousedown', (e) => {
+    if (document.querySelector('.modal[style*="flex"]')) return;
     if (document.activeElement.tagName === 'INPUT' && document.activeElement.id !== 'busValueInput') return;
     const rect = waveContainer.getBoundingClientRect();
     const mx = e.clientX - rect.left + state.offsetX;
@@ -1301,7 +1298,7 @@ waveContainer.addEventListener('mousedown', (e) => {
             state.repeatEndT = state.hoverEdgeT; state.subMode = 'REPEAT_MODAL'; 
             repeatModal.style.display = 'flex'; repeatInput.value = lastRepeatValue;
             setTimeout(() => { repeatInput.focus(); repeatInput.select(); }, 10);
-        } else if ((state.subMode === 'NORMAL' || state.subMode === 'VALUE') && state.pendingVal) {
+        } else if ((state.subMode === 'NORMAL' || state.subMode === 'VALUE') && state.pendingVal !== null) {
             if (state.mode === 'INSERT' && clickedT > state.cursorT) {
                 const dur = clickedT - state.cursorT;
                 sigs.forEach(sig => applyDrawAction(sig, state.cursorT, dur, state.pendingVal));
@@ -1342,7 +1339,7 @@ function getVisibleTracks() {
 
 window.addEventListener('keydown', (e) => {
     if (document.querySelector('.modal[style*="flex"]')) return;
-    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return; 
+    if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
     const k = e.key.toLowerCase(); const sigs = getSelectedSignals();
 
     if (k === 't' && state.mode !== 'TEXT') { e.preventDefault(); state.mode = 'TEXT'; state.boundTrackId = sigs.length > 0 ? sigs[0].id : (state.flatTracks[0] ? state.flatTracks[0].node.id : null); updateUI(); return; }
@@ -1388,8 +1385,8 @@ window.addEventListener('keydown', (e) => {
         return;
     }
 
-    if (k === 'i' && state.mode === 'VIEW' && sigs.length > 0) { e.preventDefault(); state.mode = 'INSERT'; state.pendingVal = sigs[0].type==='single'?'1':'z'; state.subMode = 'NORMAL'; updateUI(); return; }
-    if (k === 'e' && state.mode === 'VIEW' && sigs.length > 0) { e.preventDefault(); state.mode = 'EDIT'; state.pendingVal = sigs[0].type==='single'?'1':'z'; state.subMode = 'NORMAL'; updateUI(); return; }
+    if (k === 'i' && state.mode === 'VIEW' && sigs.length > 0) { e.preventDefault(); state.mode = 'INSERT'; state.pendingVal = sigs[0].type==='single'?'1':''; state.subMode = 'NORMAL'; updateUI(); return; }
+    if (k === 'e' && state.mode === 'VIEW' && sigs.length > 0) { e.preventDefault(); state.mode = 'EDIT'; state.pendingVal = sigs[0].type==='single'?'1':''; state.subMode = 'NORMAL'; updateUI(); return; }
     if (e.key === 'Escape') {
         if (state.subMode !== 'NORMAL') { state.subMode = 'NORMAL'; updateUI(); return; }
         if (state.mode !== 'VIEW') { state.mode = 'VIEW'; state.pendingVal = null; busValueInput.blur(); updateUI(); return; }
@@ -1424,11 +1421,11 @@ window.addEventListener('keydown', (e) => {
 
         if (mainSig.type === 'single' && ['0', '1', 'x', 'z'].includes(k)) { state.pendingVal = k; updateUI(); return; }
         if (mainSig.type === 'multi') {
-            if (k === 'x' || k === 'z') { state.pendingVal = k; updateUI(); return; }
+            if (k === 'x' || k === 'z') { state.pendingVal = e.key; updateUI(); return; }
             if (k === 'v') { e.preventDefault(); state.subMode = 'VALUE'; updateUI(); return; }
         }
 
-        if (e.key === 'Enter' && state.pendingVal) {
+        if (e.key === 'Enter' && state.pendingVal !== null) {
             if (state.mode === 'INSERT') {
                 durationModal.style.display = 'flex'; durationInput.value = lastDurationValue; updateEditorHelp();
                 setTimeout(() => { durationInput.focus(); durationInput.select(); }, 10);
@@ -1439,7 +1436,7 @@ window.addEventListener('keydown', (e) => {
             return;
         }
 
-        if (e.key === ' ' && state.pendingVal) {
+        if (e.key === ' ' && state.pendingVal !== null) {
             e.preventDefault();
             if (state.mode === 'INSERT') {
                 let dur = parseDuration(lastDurationValue) || 10;
@@ -1462,37 +1459,23 @@ window.addEventListener('keydown', (e) => {
 });
 
 busValueInput.addEventListener('keydown', (e) => {
-    state.pendingVal = e.target.value.trim() || 'z';
+    state.pendingVal = e.target.value;
     const sigs = getSelectedSignals();
 
-    if (e.key === ' ') {
-        e.preventDefault(); e.stopPropagation();
-        if (state.mode === 'INSERT') {
-            let dur = parseDuration(lastDurationValue) || 10;
-            const snapInfo = findNodeAndParent(state.tree, state.snapTargetId);
-            if (sigs.length > 0 && state.pendingVal) {
-                if (snapInfo && snapInfo.node.type !== 'group') {
-                    const edges = getEdges(snapInfo.node, state.cursorT);
-                    if (edges.next !== Infinity) dur = edges.next - state.cursorT;
-                }
-                sigs.forEach(sig => applyDrawAction(sig, state.cursorT, dur, state.pendingVal));
-                state.cursorT += dur; state.subMode = 'NORMAL'; updateUI(); waveContainer.focus();
-            }
-        }
-    } else if (e.key === 'Enter') {
+    if (e.key === 'Enter') {
         e.preventDefault(); e.stopPropagation();
         if (state.mode === 'INSERT') {
             durationModal.style.display = 'flex'; durationInput.value = lastDurationValue; updateEditorHelp();
             setTimeout(() => { durationInput.focus(); durationInput.select(); }, 10);
         } else if (state.mode === 'EDIT') {
-            if (sigs.length > 0 && state.pendingVal) {
+            if (sigs.length > 0 && state.pendingVal !== null) {
                 sigs.forEach(sig => editCurrentSegment(sig, state.cursorT, state.pendingVal));
                 togglePendingVal(sigs); state.subMode = 'NORMAL'; updateUI(); waveContainer.focus();
             }
         }
     } else if (e.key === 'Escape') { state.subMode = 'NORMAL'; busValueInput.blur(); updateUI(); waveContainer.focus(); }
 });
-busValueInput.addEventListener('input', (e) => { state.pendingVal = e.target.value.trim() || 'z'; });
+busValueInput.addEventListener('input', (e) => { state.pendingVal = e.target.value; });
 
 waveContainer.addEventListener('wheel', (e) => {
     e.preventDefault();
@@ -1531,7 +1514,7 @@ function confirmDuration() {
         lastDurationValue = durationInput.value.trim(); let val = parseFloat(match[1]); let unit = match[2] || 'ns';
         if (unit === 'us') val *= 1000; if (unit === 'ms') val *= 1000000;
         const sigs = getSelectedSignals();
-        if (sigs.length > 0 && state.pendingVal && val > 0 && state.mode === 'INSERT') {
+        if (sigs.length > 0 && state.pendingVal !== null && val > 0 && state.mode === 'INSERT') {
             sigs.forEach(sig => applyDrawAction(sig, state.cursorT, val, state.pendingVal));
             state.cursorT += val; togglePendingVal(sigs); 
             if (state.subMode === 'VALUE') state.subMode = 'NORMAL';
@@ -1560,7 +1543,6 @@ function openAttrModal() {
     const stickyRow = document.getElementById('stickyRow'); 
     const contentRow = document.getElementById('contentRow');
     const bgColorRow = document.getElementById('bgColorRow'); 
-    const radixRow = document.getElementById('radixRow');
     const colorRow = document.getElementById('colorRow'); // 获取Color配置行
     
     // 初始化隐藏所有高级选项
@@ -1568,7 +1550,6 @@ function openAttrModal() {
     if (contentRow) contentRow.style.display = 'none';
     if (bgColorRow) bgColorRow.style.display = 'none'; 
     if (arrowTypeRow) arrowTypeRow.style.display = 'none';
-    if (radixRow) radixRow.style.display = 'none'; 
     if (thickRow) thickRow.style.display = 'none';
     if (colorRow) colorRow.style.display = 'flex'; // 默认显示颜色选项
 
@@ -1582,7 +1563,6 @@ function openAttrModal() {
         document.getElementById('modalName').value = state.addingSignalType === 'multi' ? 'bus_new' : 'sig_new';
         document.getElementById('modalColor').value = state.addingSignalType === 'multi' ? '#9b59b6' : '#2ecc71';
         if (thickRow) { thickRow.style.display = 'flex'; document.getElementById('modalThickness').value = 2; }
-        if (state.addingSignalType === 'multi') { radixRow.style.display = 'flex'; document.getElementById('modalRadix').value = 'hex'; }
     }
     // 2. 如果正在编辑标尺
     else if (state.selectedMeasureId) {
@@ -1631,7 +1611,6 @@ function openAttrModal() {
         document.getElementById('modalName').value = sig.name; 
         document.getElementById('modalColor').value = sig.color;
         if (thickRow) { thickRow.style.display = 'flex'; document.getElementById('modalThickness').value = sig.thickness || 2; }
-        if (sig.type === 'multi') { radixRow.style.display = 'flex'; document.getElementById('modalRadix').value = sig.radix || 'hex'; }
     }
     
     // 自动聚焦输入框
@@ -1640,8 +1619,7 @@ function openAttrModal() {
 
 function applyAttrModal() {
     if (state.addingSignalType) {
-        const newSig = { id: 's_' + Date.now(), type: state.addingSignalType, name: document.getElementById('modalName').value.trim() || 'new_sig', color: document.getElementById('modalColor').value, thickness: parseInt(document.getElementById('modalThickness').value) || 2, data: [{t:0, val:'z'}] };
-        if(state.addingSignalType === 'multi') newSig.radix = document.getElementById('modalRadix').value || 'hex';
+        const newSig = { id: 's_' + Date.now(), type: state.addingSignalType, name: document.getElementById('modalName').value.trim() || 'new_sig', color: document.getElementById('modalColor').value, thickness: parseInt(document.getElementById('modalThickness').value) || 2, data: [{t:0, val:state.addingSignalType==='multi'?'':'z'}] };
         state.tree.push(newSig); state.selectedIds.clear(); state.selectedIds.add(newSig.id); 
         state.addingSignalType = null; updateUI(); closeModal('attrModal'); return;
     }
@@ -1674,7 +1652,6 @@ function applyAttrModal() {
                 sig.name = document.getElementById('modalName').value.trim() || sig.name; 
                 sig.color = document.getElementById('modalColor').value; 
                 sig.thickness = parseInt(document.getElementById('modalThickness').value) || 2;
-                if (sig.type === 'multi') sig.radix = document.getElementById('modalRadix').value;
             });
         }
     }

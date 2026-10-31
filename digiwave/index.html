@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>DigiWave</title>
-    <link rel="stylesheet" href="style.css?v=786d20045d94">
+    <link rel="stylesheet" href="style.css?v=4bf146ef4eb9">
 </head>
 <body>
 
@@ -17,6 +17,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg>
     </a>
     <button id="anchorButton" class="icon-btn" onclick="toggleAnchorMode()" title="放置信号锚点 (K)；Shift+K 移除" aria-label="Place signal anchor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 15h18M12 9v12M17 3v6M14 6h6"/></svg></button>
+    <button id="paintButton" class="icon-btn" onclick="togglePaintMode()" title="油漆桶 (B)" aria-label="Paint waveform segment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 3 11 11M4 10l7-7 9 9-7 7L4 10Z"/><path d="M3 21h15M20 15s-2 3-2 4a2 2 0 0 0 4 0c0-1-2-4-2-4Z"/></svg></button>
+    <div class="toolbar-group" title="填充颜色">
+        <select id="fillColorMode" class="toolbar-select" aria-label="Fill colour mode" onchange="updateFillControls()"><option value="default">Default</option><option value="custom">Custom</option><option value="clear">Clear</option></select>
+        <input id="fillColorInput" type="color" value="#80c8ff" aria-label="Custom fill colour" disabled>
+    </div>
     <span id="saveStatus" role="status"></span>
 
     <div class="dropdown">
@@ -112,7 +117,7 @@
     </div>
     <div class="status-center">
         <span id="statusCursor" class="status-highlight">光标位置: 0 ns</span>
-        <input type="text" id="busValueInput" autocomplete="off" placeholder="Bus Val" style="display:none; margin-left:10px;">
+        <input type="text" id="busValueInput" autocomplete="off" placeholder="Bus Text" style="display:none; margin-left:10px;">
     </div>
     <div class="status-right" id="statusInfo">
         <span id="statusZoom">Scale: 10 px/ns</span>
@@ -147,9 +152,6 @@
     <div class="attr-row" id="colorRow"><label>Color:</label><input type="color" id="modalColor"></div>
     <div class="attr-row" id="bgColorRow" style="display:none;"><label>Background:</label><input type="color" id="modalBgColor"></div>
     <div class="attr-row" id="thicknessRow" style="display:none;"><label>Thickness:</label><input type="number" id="modalThickness" min="1" max="10"></div>
-    <div class="attr-row" id="radixRow"><label>Radix:</label>
-        <select id="modalRadix"><option value="hex">Hex</option><option value="dec">Dec</option></select>
-    </div>
     <div class="attr-row" id="arrowTypeRow" style="display:none;">
         <label>Arrow Type:</label>
         <select id="modalArrowType"><option value="two-way">双向 (↔)</option><option value="one-way">单向 (→)</option></select>
@@ -186,9 +188,10 @@
 </form>
 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
 
-<script src="examples.js?v=27e60fe321f0"></script>
+<script src="paint_tools.js?v=cb75f19948db"></script>
+<script src="examples.js?v=bcabac66c0d9"></script>
 <script src="example_library.js?v=a8ba93bc7d1b"></script>
-<script src="editor_support.js?v=7dccf9156425"></script>
-<script src="wave_engine.js?v=9ddbea9b0e28"></script>
+<script src="editor_support.js?v=5f2993509f8c"></script>
+<script src="wave_engine.js?v=7fd5131e4183"></script>
 </body>
 </html>
