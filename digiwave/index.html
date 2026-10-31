@@ -160,7 +160,7 @@
     <div class="modal-btns"><button class="cancel" onclick="closeModal('attrModal')">Cancel</button><button class="primary" onclick="applyAttrModal()">Apply</button></div>
 </div>
 
-<form id="clockModal" class="modal" onsubmit="event.preventDefault();confirmClock()" onkeydown="if(event.key==='Escape'){event.preventDefault();closeModal('clockModal')}">
+<form id="clockModal" class="modal" novalidate onkeydown="if(event.key==='Escape'){event.preventDefault();closeModal('clockModal')}">
     <h3>Add Clock Signal</h3>
     <div class="attr-row"><label for="clockName">Name</label><input type="text" id="clockName" value="clk" required></div>
     <div class="attr-row"><label for="clockPeriod">Period</label><div class="time-input"><input type="number" id="clockPeriod" min="0" step="any" value="10" required><select id="clockPeriodUnit" aria-label="Clock period unit"><option value="ps">ps</option><option value="ns" selected>ns</option><option value="us">us</option><option value="ms">ms</option></select></div></div>
@@ -169,7 +169,7 @@
     <div class="attr-row"><label for="clockStart">Start time</label><div class="time-input"><input type="number" id="clockStart" min="0" step="any" value="0" required><select id="clockStartUnit" aria-label="Clock start time unit"><option value="ps">ps</option><option value="ns" selected>ns</option><option value="us">us</option><option value="ms">ms</option></select></div></div>
     <p class="modal-desc">Enter a number and select its time unit.</p>
     <p id="clockError" role="alert" style="color:#ff80bd"></p>
-    <div class="modal-btns"><button type="button" class="cancel" onclick="closeModal('clockModal')">Cancel</button><button type="submit" class="primary">Add</button></div>
+    <div class="modal-btns"><button type="button" class="cancel" onclick="closeModal('clockModal')">Cancel</button><button id="clockAddButton" type="button" class="primary">Add</button></div>
 </form>
 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
 

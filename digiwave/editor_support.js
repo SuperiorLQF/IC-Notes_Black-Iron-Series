@@ -161,9 +161,9 @@ function uniqueClockId() {
     return id;
 }
 function clockTimeInput(id) {
-    const field = document.getElementById(id);
-    if (!field.value.trim()) return NaN;
-    return parseDuration(field.value + document.getElementById(id + 'Unit').value);
+    const value = document.getElementById(id).valueAsNumber;
+    const unit = document.getElementById(id + 'Unit').value;
+    return value * ({ps:0.001, ns:1, us:1000, ms:1000000}[unit]);
 }
 function confirmClock() {
     const period = clockTimeInput('clockPeriod');
@@ -229,6 +229,11 @@ function renderEditorOverlay() {
     ctx.restore();
 }
 function installEditorInteractions() {
+    document.getElementById('clockAddButton').addEventListener('click', confirmClock);
+    document.getElementById('clockModal').addEventListener('submit', e => { e.preventDefault(); confirmClock(); });
+    document.getElementById('clockModal').addEventListener('keydown', e => {
+        if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); e.stopPropagation(); confirmClock(); }
+    });
     window.addEventListener('beforeunload', e=>{if(projectIsDirty()){writeBackup();e.preventDefault();e.returnValue='';}});
     document.addEventListener('visibilitychange',()=>{if(document.hidden && projectHistory.initialized)writeBackup();});
     window.addEventListener('keydown',e=>{
