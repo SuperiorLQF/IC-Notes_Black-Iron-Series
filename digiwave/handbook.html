@@ -13,7 +13,7 @@
 <header><a href="index.html">← 打开 DigiWave 编辑器</a><h1>DigiWave Handbook</h1><p>波形编辑器操作手册 · 先选择信号，再用 E 编辑、I 插入，Esc 返回 View。</p></header>
 <main>
 <nav aria-label="手册目录">
-<a href="#quickstart">快速开始</a><a href="#modes">模式与光标</a><a href="#signals">信号与分组</a><a href="#clock">添加时钟</a><a href="#editing">编辑与插入</a><a href="#selection">框选与复制粘贴</a><a href="#navigation">缩放与吸附</a><a href="#annotations">测量与注释</a><a href="#files">保存与恢复</a><a href="#printing">黑白打印配色</a><a href="#shortcuts">快捷键速查</a><a href="#troubleshooting">常见问题</a>
+<a href="#quickstart">快速开始</a><a href="#modes">模式与光标</a><a href="#signals">信号与分组</a><a href="#clock">添加时钟</a><a href="#anchors">信号锚点</a><a href="#editing">编辑与插入</a><a href="#selection">框选与复制粘贴</a><a href="#navigation">缩放与吸附</a><a href="#annotations">测量与注释</a><a href="#files">保存与恢复</a><a href="#printing">黑白打印配色</a><a href="#shortcuts">快捷键速查</a><a href="#troubleshooting">常见问题</a>
 </nav>
 <article>
 <section id="quickstart"><h2>快速开始</h2>
@@ -24,12 +24,17 @@
 <p>光标框中心对准边沿：View 是常亮荧光青色，Edit 是闪烁亮粉色，Insert 是闪烁亮黄色。输入框聚焦时，按键用于输入文字或数值；操作波形前先回到画布。</p>
 <p>在子操作中按 Esc 会先取消子操作，必要时再按一次返回 View。View 中仍可使用撤销、粘贴、删除等明确命令。</p></section>
 <section id="signals"><h2>信号与分组</h2>
-<ul><li><strong>Binary Signal：</strong>普通二值信号，支持 0、1、X、Z。</li><li><strong>Bus Signal：</strong>总线，可输入数值、X 或 Z；属性面板选择 Hex / Dec 显示。当前未提供位宽约束或按位展开。</li><li><strong>属性：</strong>选择信号后按 <kbd>C</kbd>，修改名称、颜色、线宽及总线显示进制。</li><li><strong>多选：</strong>在左侧信号列表用 Ctrl+点击增减选择。</li><li><strong>排序：</strong>拖动左侧通道行；放到展开的分组上可移入该组。</li><li><strong>分组：</strong>多选后按 Ctrl+G。点击组名前的三角折叠或展开；悬停组行后点击 Ungroup 解组。</li><li><strong>删除：</strong>按 Delete 删除选中的信号或标注，Ctrl+Z 可撤销。</li></ul></section>
+<ul><li><strong>Binary Signal：</strong>普通二值信号，支持 0、1、X、Z。</li><li><strong>Bus Signal：</strong>总线，可输入数值、X 或 Z；属性面板选择 Hex / Dec 显示。当前未提供位宽约束或按位展开。</li><li><strong>属性：</strong>选择信号后按 <kbd>C</kbd>，修改名称、颜色、线宽及总线显示进制。</li><li><strong>多选：</strong>在左侧信号列表用 Ctrl+点击增减选择。</li><li><strong>排序：</strong>拖动左侧通道行：目标行上半部表示放到前面，下半部表示放到后面，包括最后一行的后面；高亮横线会提示落点。分组行中部表示移入该组并自动展开。</li><li><strong>分组：</strong>多选后按 Ctrl+G。点击组名前的三角折叠或展开；悬停组行后点击 Ungroup 解组。</li><li><strong>删除：</strong>按 Delete 删除选中的信号或标注，Ctrl+Z 可撤销。</li></ul></section>
 <section id="clock"><h2>添加时钟</h2>
 <p>打开加号菜单 → <strong>Clock Signal</strong>，填写：</p>
 <table><thead><tr><th>字段</th><th>说明</th></tr></thead><tbody><tr><td>Name</td><td>新信号名称；自动建议一个未被占用的 clk 名称。</td></tr><tr><td>Period</td><td>输入正数，并在下拉框选择 ps、ns、us 或 ms。</td></tr><tr><td>Duty (%)</td><td>高电平占空比，大于 0、小于 100。</td></tr><tr><td>Cycles</td><td>周期数，1～10000 的整数。</td></tr><tr><td>Start time</td><td>从零时刻起的绝对开始时间，数字和单位分别选择；不是相对当前光标的延迟。</td></tr></tbody></table>
 <p>例如 Period = 10 ns、Duty = 25、Cycles = 4、Start time = 2 ns：时钟从 2 ns 开始，每周期高电平持续 2.5 ns，结束于 42 ns。</p>
 <p>点击 <strong>Add</strong> 或在输入框按回车创建。不需要预先选择信号，也不会覆盖已有信号。开始前为低电平，设定周期结束后为 Z。新建结果是普通二值信号，可继续编辑，并支持撤销。</p></section>
+<section id="anchors"><h2>信号锚点：同电平段中的连接位置</h2>
+<p>锚点是一条短竖线，可以放在高电平或低电平的中间，作为箭头或标尺端点。它不改变电平，也不制造额外跳变；自动合并相同电平时会保留明确添加的锚点。</p>
+<ol><li>选择信号，按 <kbd>K</kbd> 或点击工具栏的小竖线加号图标，进入放置模式（会进入 Edit）。</li><li>点击当前信号需要标记的位置，按当前网格规则放置锚点；按 Esc 可取消。</li><li>按 <kbd>A</kbd>，依次点击两个边沿或锚点创建连接线。箭头在锚点处会落到实际高/低电平线上。</li></ol>
+<p>View 中可通过点击或左右方向键定位锚点；Edit 中可拖动锚点，关联连线和标尺一起移动。锚点随工程 JSON 保存，支持复制粘贴、重复片段、撤销和重做。</p>
+<p>选中锚点后按 <kbd>Shift+K</kbd> 移除锚点，同时移除依附该锚点的连线和标尺；可用 Ctrl+Z 撤销。编辑波形的值仍按真实波形段处理，锚点只是独立的连接标记。</p></section>
 <section id="editing"><h2>编辑与插入</h2>
 <h3>修改已有电平</h3><ol><li>选择信号并定位到要修改波形段的左边沿，按 E。</li><li>二值信号按 0、1、X 或 Z 设置待写值。</li><li>按回车应用，光标留在该位置。连续相同的段可能合并。</li></ol>
 <p>拖动边沿需要在 Edit 模式中操作已选信号；边沿不能越过相邻边沿。拖动遵守工具栏的网格步长；选择磁铁旁的参考信号后，严格吸附到该信号的边沿网格，并优先选择不越过相邻边沿的有效网格点。按 Esc 可取消正在拖动的修改。</p>
@@ -58,7 +63,7 @@
 <ul><li>普通 0/1 波形、总线数值、文字、标尺、连线和游标边框使用黑色。</li><li>X 态边框及斜线使用灰色，二值 X 态区域使用浅灰底。</li><li>Z 态使用灰色中间水平线。</li><li>采用明确的状态配色，没有整幅画布的灰度转换滤镜。</li></ul>
 <p>打印机图标只切换编辑器配色，不会直接导出 PDF 或自动打开系统打印面板。</p></section>
 <section id="shortcuts"><h2>快捷键速查</h2>
-<table><thead><tr><th>按键</th><th>操作</th></tr></thead><tbody><tr><td>E / I / Esc</td><td>编辑 / 插入 / 取消或返回 View</td></tr><tr><td>0 / 1 / X / Z</td><td>设置二值待写值</td></tr><tr><td>V</td><td>Bus 数值输入（Edit / Insert）</td></tr><tr><td>Enter / Space</td><td>应用编辑或设定插入时间 / 按参考边沿或上次时长插入</td></tr><tr><td>R / Backspace</td><td>重复片段 / 删除前一段并前移后续内容</td></tr><tr><td>F</td><td>水平适配全部波形</td></tr><tr><td>C / Delete</td><td>属性 / 删除选择对象</td></tr><tr><td>Ctrl+G</td><td>分组</td></tr><tr><td>Ctrl+C / Ctrl+V / Ctrl+Shift+V</td><td>复制 / 覆盖粘贴 / 插入粘贴</td></tr><tr><td>Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y</td><td>撤销 / 重做 / 重做</td></tr><tr><td>M / A / T</td><td>标尺 / 事件连线 / 注释</td></tr></tbody></table>
+<table><thead><tr><th>按键</th><th>操作</th></tr></thead><tbody><tr><td>E / I / Esc</td><td>编辑 / 插入 / 取消或返回 View</td></tr><tr><td>0 / 1 / X / Z</td><td>设置二值待写值</td></tr><tr><td>V</td><td>Bus 数值输入（Edit / Insert）</td></tr><tr><td>Enter / Space</td><td>应用编辑或设定插入时间 / 按参考边沿或上次时长插入</td></tr><tr><td>K / Shift+K</td><td>放置锚点 / 移除当前锚点及依附标注</td></tr><tr><td>R / Backspace</td><td>重复片段 / 删除前一段并前移后续内容</td></tr><tr><td>F</td><td>水平适配全部波形</td></tr><tr><td>C / Delete</td><td>属性 / 删除选择对象</td></tr><tr><td>Ctrl+G</td><td>分组</td></tr><tr><td>Ctrl+C / Ctrl+V / Ctrl+Shift+V</td><td>复制 / 覆盖粘贴 / 插入粘贴</td></tr><tr><td>Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y</td><td>撤销 / 重做 / 重做</td></tr><tr><td>M / A / T</td><td>标尺 / 事件连线 / 注释</td></tr></tbody></table>
 <p>撤销、重做和复制粘贴同时支持 macOS 的 Cmd。分组及多选当前使用 Ctrl；缩放使用 Ctrl+滚轮。</p></section>
 <section id="troubleshooting"><h2>常见问题</h2>
 <h3>为什么双击波形不切换高低电平？</h3><p>View 的鼠标操作只选择和定位。请先按 E，再选择 0/1 并回车。</p>

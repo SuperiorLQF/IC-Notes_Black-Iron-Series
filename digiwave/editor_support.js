@@ -71,6 +71,7 @@ function validateProject(input) {
             if (n.type === 'group') { if (!Array.isArray(n.children)) throw new Error('分组无效'); walk(n.children, depth + 1); }
             else {
                 if (!Array.isArray(n.data)) throw new Error('波形数据无效');
+                if (n.anchors != null && (!Array.isArray(n.anchors) || n.anchors.some(t => !finite(t) || t < 0) || new Set(n.anchors).size !== n.anchors.length)) throw new Error('信号锚点无效');
                 let prev = -1;
                 for (const ev of n.data) {
                     if (!finite(ev.t) || ev.t < 0 || ev.t <= prev || typeof ev.val !== 'string' || (n.type === 'single' && !/^[01xz]$/i.test(ev.val))) throw new Error('跳变时间或数值无效');
@@ -112,7 +113,7 @@ function snapEditorTime(t, options = {}) {
     const time = Math.max(0, t);
     const min = options.min ?? 0, max = options.max ?? Infinity;
     const target = findNodeAndParent(state.tree, state.snapTargetId)?.node;
-    const edges = options.edges !== undefined ? options.edges : target?.data?.map(e => e.t);
+    const edges = options.edges !== undefined ? options.edges : (target ? signalBoundaryTimes(target) : undefined);
     if (edges) {
         // Reference grids are mandatory, not just a 10-pixel proximity hint.
         const candidates = edges.filter(edge => edge >= min && edge <= max);
@@ -133,13 +134,43 @@ function retimeSignalAttachments(signalId, retime) {
         if (annotation.sigId2 === signalId) annotation.t2 = retime(annotation.t2);
     }
 }
+function signalBoundaryTimes(sig) {
+    return [...new Set([...(sig?.data || []).map(e => e.t), ...(sig?.anchors || [])])].sort((a,b) => a-b);
+}
+function signalEndpointY(track, time) {
+    const isAnchor = track.node.anchors?.some(t => Math.abs(t-time) <= 1e-6);
+    const val = getSignalValueAtTime(track.node, time);
+    const dy = isAnchor && track.node.type === 'single' ? (val === '1' ? -14 : val === '0' ? 14 : 0) : 0;
+    return track.centerY + state.topMargin + dy;
+}
+function retimeAnchors(sig, retime) {
+    if (sig.anchors) sig.anchors = [...new Set(sig.anchors.map(retime))].sort((a,b)=>a-b);
+}
+function toggleAnchorMode() {
+    if (!getSelectedSignals().length) return;
+    if (state.mode === 'VIEW') state.mode = 'EDIT';
+    if (state.mode !== 'EDIT') return;
+    state.subMode = state.subMode === 'ANCHOR' ? 'NORMAL' : 'ANCHOR';
+    updateUI();
+}
+function removeCurrentAnchor() {
+    const sig = getSelectedSignals()[0];
+    if (!sig?.anchors) return;
+    const time=state.cursorT;
+    const attached = item => (item.sigId1===sig.id && Math.abs(item.t1-time)<=1e-6) || (item.sigId2===sig.id && Math.abs(item.t2-time)<=1e-6);
+    if(sig.anchors.some(t=>Math.abs(t-time)<=1e-6)) {state.connections=state.connections.filter(item=>!attached(item));state.measurements=state.measurements.filter(item=>!attached(item));}
+    sig.anchors = sig.anchors.filter(t => Math.abs(t-time)>1e-6);
+    if (!sig.anchors.length) delete sig.anchors;
+    state.cursorT = nearestSignalEdge(sig,state.cursorT);updateUI();
+}
+
 function editorPoint(e) {
     const rect = waveContainer.getBoundingClientRect();
     return { x: e.clientX-rect.left, y:e.clientY-rect.top, t: pxToTime(e.clientX-rect.left+state.offsetX), row: getTrackIdxAtY(e.clientY-rect.top+state.offsetY-state.topMargin) };
 }
 function waveformEnd() {
     let end = 0;
-    function walk(nodes) { nodes.forEach(n => n.type === 'group' ? walk(n.children) : n.data.forEach(e => end = Math.max(end, e.t))); }
+    function walk(nodes) { nodes.forEach(n => n.type === 'group' ? walk(n.children) : signalBoundaryTimes(n).forEach(time => end = Math.max(end, time))); }
     walk(state.tree); return end;
 }
 // At maximum zoom-out the viewport spans at most 120% of the signal duration.
@@ -208,7 +239,7 @@ function confirmClock() {
 function copyEditorSelection() {
     if (!editorSelection || Math.abs(editorSelection.a-editorSelection.b)<1e-9) return;
     const start=Math.min(editorSelection.a,editorSelection.b), end=Math.max(editorSelection.a,editorSelection.b);
-    editorClipboard={duration:end-start, signals:editorSelection.ids.map(id=>findNodeAndParent(state.tree,id)?.node).filter(n=>n && n.type!=='group').map(sig=>({type:sig.type, data:[{t:0,val:getSignalValueAtTime(sig,start)},...sig.data.filter(e=>e.t>start && e.t<end).map(e=>({t:e.t-start,val:e.val}))]}))};
+    editorClipboard={duration:end-start, signals:editorSelection.ids.map(id=>findNodeAndParent(state.tree,id)?.node).filter(n=>n && n.type!=='group').map(sig=>({type:sig.type, anchors:(sig.anchors||[]).filter(t=>t>=start && t<end).map(t=>t-start), data:[{t:0,val:getSignalValueAtTime(sig,start)},...sig.data.filter(e=>e.t>start && e.t<end).map(e=>({t:e.t-start,val:e.val}))]}))};
     updateSaveStatus('选区已复制（编辑器内部）');
 }
 function pasteEditorSelection(insert) {
@@ -219,8 +250,10 @@ function pasteEditorSelection(insert) {
     if (!Number.isFinite(end)) { alert('粘贴时间超出范围'); return; }
     sigs.forEach((sig,i)=>{
         const tail=getSignalValueAtTime(sig,insert?start:end);
-        if(insert) {retimeSignalAttachments(sig.id,time=>time>=start?time+editorClipboard.duration:time);sig.data.forEach(e=>{if(e.t>=start)e.t+=editorClipboard.duration;});}
-        else sig.data=sig.data.filter(e=>e.t<start || e.t>end);
+        if(insert) {retimeAnchors(sig,time=>time>=start?time+editorClipboard.duration:time);retimeSignalAttachments(sig.id,time=>time>=start?time+editorClipboard.duration:time);sig.data.forEach(e=>{if(e.t>=start)e.t+=editorClipboard.duration;});}
+        else {sig.data=sig.data.filter(e=>e.t<start || e.t>end);if(sig.anchors)sig.anchors=sig.anchors.filter(t=>t<start || t>end);}
+        const pastedAnchors=(editorClipboard.signals[i].anchors||[]).map(t=>start+t);
+        if(pastedAnchors.length)sig.anchors=[...new Set([...(sig.anchors||[]),...pastedAnchors])].sort((a,b)=>a-b);
         sig.data.push(...editorClipboard.signals[i].data.map(e=>({t:start+e.t,val:e.val})));
         if(!sig.data.some(e=>Math.abs(e.t-end)<1e-6)) sig.data.push({t:end,val:tail});
         cleanUpEvents(sig);
@@ -250,6 +283,8 @@ function updateEditorHelp() {
         add('鼠标', '选择绑定通道，点击添加文字；拖动注释移动');
         add('↵ Enter', '确认输入的注释');add('滚轮', '选中注释时调整字号');
         add('C', '注释属性 / 便签设置');add('Delete', '删除所选注释');add('⎋ Esc', '取消输入或返回 View');
+    } else if (state.subMode === 'ANCHOR') {
+        title = 'EDIT · ANCHOR';add('鼠标', '点击当前信号插入小竖线锚点，不改变电平');add('⎋ Esc', '取消放置锚点');
     } else if (state.subMode.startsWith('REPEAT')) {
         title = `${state.mode} · REPEAT`;
         if (state.subMode === 'REPEAT_START') add('鼠标', '选择片段起始边沿');
@@ -274,6 +309,7 @@ function updateEditorHelp() {
             add('鼠标点击', '在光标右侧指定插入终点');
         } else add('鼠标拖动', '移动所选信号边沿；遵守网格吸附，连接线和标尺随动');
         add('⌫ Backspace', '删除光标与前一边沿之间的波形，后续内容前移');
+        if (editing) {add('K', '点击放置独立锚点，可作为连线端点');add('Shift+K', '移除光标所在锚点');}
         add('R', inserting ? '选择片段并重复插入' : '选择片段并重复覆盖');
         add(['←','→'], '定位前后边沿');add('C', isBus ? '名称 / 颜色 / 线宽 / 总线进制属性' : '名称 / 颜色 / 线宽属性');
         add('⎋ Esc', '返回 View');
@@ -283,7 +319,7 @@ function updateEditorHelp() {
     } else {
         title = 'VIEW';
         add('鼠标点击', '选择信号并定位最近边沿');add(['↑','↓'], '切换通道');add(['←','→'], '定位前后边沿');
-        if (sig) { add('E', '修改电平 / 拖动边沿');add('I', '插入波形');add('C', '打开属性'); }
+        if (sig) { add('E', '修改电平 / 拖动边沿');add('I', '插入波形');add('K', '放置信号锚点');add('C', '打开属性'); }
         else add('开始', '先点击信号；或从加号菜单添加 Binary / Bus / Clock');
         add('Shift + 拖动', '跨通道框选时间范围');add('Ctrl + 点击', '多选通道');add('Ctrl+G', '将选中通道分组');
     }
@@ -340,6 +376,7 @@ function installEditorInteractions() {
     document.addEventListener('visibilitychange',()=>{if(document.hidden && projectHistory.initialized)writeBackup();});
     window.addEventListener('keydown',e=>{
         if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName) || document.querySelector('.modal[style*="flex"]')) return;
+        if(e.key.toLowerCase()==='k' && !e.ctrlKey && !e.metaKey && (state.mode==='VIEW'||state.mode==='EDIT')) {e.preventDefault();e.stopImmediatePropagation();if(e.shiftKey)removeCurrentAnchor();else toggleAnchorMode();return;}
         if(e.key.toLowerCase()==='f' && !e.ctrlKey && !e.metaKey && !e.altKey) {
             e.preventDefault();e.stopImmediatePropagation();fitWaveform();return;
         }
@@ -372,6 +409,14 @@ function installEditorInteractions() {
     },{capture:true,passive:false});
     waveContainer.addEventListener('mousedown',e=>{
         if(e.button===1) {e.preventDefault();e.stopImmediatePropagation();editorGesture={kind:'pan',x:e.clientX,y:e.clientY,ox:state.offsetX,oy:state.offsetY};return;}
+        if(e.button===0 && state.mode==='EDIT' && state.subMode==='ANCHOR') {
+            e.preventDefault();e.stopImmediatePropagation();
+            const p=editorPoint(e),sig=getSelectedSignals()[0],track=state.flatTracks[p.row];
+            if (!sig || track?.node.id!==sig.id || p.y<state.topMargin) return;
+            const time=snapEditorTime(p.t);if(time===null)return;
+            if (!signalBoundaryTimes(sig).some(t=>Math.abs(t-time)<=1e-6)) {sig.anchors=[...(sig.anchors||[]),time].sort((a,b)=>a-b);}
+            state.cursorT=time;state.subMode='NORMAL';updateUI();return;
+        }
         if(e.button!==0 || !['VIEW','EDIT'].includes(state.mode) || state.subMode!=='NORMAL' || state.measureMode!=='IDLE' || state.arrowMode!=='IDLE')return;
         const p=editorPoint(e),track=state.flatTracks[p.row];
         if(e.altKey){e.preventDefault();e.stopImmediatePropagation();if(measurementCursors.length===2)measurementCursors=[];measurementCursors.push(snapEditorTime(p.t)??p.t);return;}
@@ -381,15 +426,27 @@ function installEditorInteractions() {
         if(state.mode!=='EDIT' || !state.selectedIds.has(track.node.id))return;
         const center=track.centerY+state.topMargin-state.offsetY;
         if(Math.abs(p.y-center)>23)return;
+        const anchor=(track.node.anchors||[]).findIndex(t=>Math.abs(timeToPx(t-p.t))<7);
         const edge=track.node.data.findIndex(ev=>ev.t>0 && Math.abs(timeToPx(ev.t-p.t))<7);
-        if(edge>=0){e.preventDefault();e.stopImmediatePropagation();editorSelection=null;state.selectedIds=new Set([track.node.id]);editorGesture={kind:'edge',id:track.node.id,index:edge,before:JSON.parse(JSON.stringify(state.tree)),connectionsBefore:JSON.parse(JSON.stringify(state.connections)),measurementsBefore:JSON.parse(JSON.stringify(state.measurements)),cursorBefore:state.cursorT,startX:e.clientX,edges:findNodeAndParent(state.tree,state.snapTargetId)?.node.data?.map(ev=>ev.t)};}
+        if(edge>=0 || anchor>=0){e.preventDefault();e.stopImmediatePropagation();editorSelection=null;state.selectedIds=new Set([track.node.id]);editorGesture={kind:'edge',id:track.node.id,index:anchor>=0?anchor:edge,isAnchor:anchor>=0,before:JSON.parse(JSON.stringify(state.tree)),connectionsBefore:JSON.parse(JSON.stringify(state.connections)),measurementsBefore:JSON.parse(JSON.stringify(state.measurements)),cursorBefore:state.cursorT,startX:e.clientX,edges:state.snapTargetId?signalBoundaryTimes(findNodeAndParent(state.tree,state.snapTargetId)?.node):undefined};}
     },true);
     window.addEventListener('mousemove',e=>{
         if(!editorGesture)return;
         const g=editorGesture,p=editorPoint(e);
         if(g.kind==='pan'){state.offsetX=Math.max(0,g.ox+g.x-e.clientX);state.offsetY=Math.max(0,g.oy+g.y-e.clientY);}
         if(g.kind==='selection') {editorSelection.b=snapEditorTime(p.t)??editorSelection.b;editorSelection.ids=state.flatTracks.slice(Math.min(g.row,Math.max(0,p.row)),Math.max(g.row,Math.max(0,p.row))+1).filter(t=>t.node.type!=='group').map(t=>t.node.id);state.selectedIds=new Set(editorSelection.ids);state.cursorT=nearestSignalEdge(getSelectedSignals()[0], Math.min(editorSelection.a,editorSelection.b));}
-        if(g.kind==='edge' && Math.abs(e.clientX-g.startX)>2){const sig=findNodeAndParent(state.tree,g.id).node;const prev=sig.data[g.index-1].t,next=sig.data[g.index+1]?.t??Infinity;const t=snapEditorTime(p.t,{min:prev+1e-6,max:next-1e-6,edges:g.edges});if(t!==null && t>prev+1e-6 && t<next-1e-6){const oldTime=sig.data[g.index].t;retimeSignalAttachments(g.id,time=>Math.abs(time-oldTime)<=1e-6?t:time);sig.data[g.index].t=t;state.cursorT=t;}}
+        if(g.kind==='edge' && Math.abs(e.clientX-g.startX)>2) {
+            const sig=findNodeAndParent(state.tree,g.id).node;
+            const oldTime=g.isAnchor?sig.anchors[g.index]:sig.data[g.index].t;
+            const boundaries=signalBoundaryTimes(sig),index=boundaries.indexOf(oldTime);
+            const prev=index>0?boundaries[index-1]:0,next=boundaries[index+1]??Infinity;
+            const t=snapEditorTime(p.t,{min:prev+1e-6,max:next-1e-6,edges:g.edges});
+            if(t!==null && t>prev+1e-6 && t<next-1e-6) {
+                retimeSignalAttachments(g.id,time=>Math.abs(time-oldTime)<=1e-6?t:time);
+                if(g.isAnchor)sig.anchors[g.index]=t;else sig.data[g.index].t=t;
+                state.cursorT=t;
+            }
+        }
         if(g.kind==='pan')clampHorizontalOffset();
         e.stopImmediatePropagation();updateUI();
     },true);
