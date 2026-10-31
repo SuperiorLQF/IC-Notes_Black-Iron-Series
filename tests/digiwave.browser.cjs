@@ -59,6 +59,19 @@ try {
  assert.equal(await page.evaluate(()=>state.mode),'EDIT');
  await page.mouse.move(point.x,point.y);await page.mouse.down();await page.mouse.move(point.x+40,point.y,{steps:5});await page.mouse.up();
  assert.equal(await page.evaluate(()=>state.tree[0].data[1].t),14);await page.keyboard.press('Control+z');assert.equal(await page.evaluate(()=>state.tree[0].data[1].t),10);console.log('edge drag + undo PASS');
+ // Fixed 4 ns grid: 14.3 ns must land on 16 ns.
+ await page.evaluate(()=>{document.getElementById('gridStep').value='4';state.selectedIds=new Set(['a']);});
+ await page.keyboard.press('e');await page.mouse.move(point.x,point.y);await page.mouse.down();await page.mouse.move(point.x+43,point.y,{steps:4});await page.mouse.up();
+ assert.equal(await page.evaluate(()=>state.tree[0].data[1].t),16);await page.keyboard.press('Control+z');
+ // Reference grid: 13 ns is 20 px from its 15 ns gridline, but still must snap there.
+ await page.evaluate(()=>{state.tree[1].data=[{t:0,val:'0'},{t:15,val:'1'},{t:25,val:'0'}];document.getElementById('gridStep').value='1';state.selectedIds=new Set(['a']);updateUI();});
+ await page.locator('#snapSelect').selectOption('b');await page.locator('#waveContainer').focus();await page.keyboard.press('e');
+ await page.mouse.move(point.x,point.y);await page.mouse.down();await page.mouse.move(point.x+30,point.y,{steps:4});await page.mouse.up();
+ assert.equal(await page.evaluate(()=>state.tree[0].data[1].t),15);
+ await page.keyboard.press('Control+z');
+ await page.evaluate(()=>{state.tree[1].data=[{t:0,val:'0'},{t:10,val:'1'},{t:20,val:'0'}];state.snapTargetId=null;updateUI();});
+ await page.locator('#snapSelect').selectOption('');
+ console.log('Edit edge drag snaps to fixed grid and strictly to reference edges PASS');
  await page.keyboard.down('Shift');await page.mouse.move(point.x-80,point.y);await page.mouse.down();await page.mouse.move(point.x+60,point.y+60,{steps:5});await page.mouse.up();await page.keyboard.up('Shift');
  assert.equal(await page.evaluate(()=>editorSelection.ids.length),2);
  await page.keyboard.press('Control+c');await page.evaluate(()=>{state.cursorT=50;});await page.keyboard.press('Control+v');
