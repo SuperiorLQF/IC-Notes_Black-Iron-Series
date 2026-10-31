@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>DigiWave</title>
-    <link rel="stylesheet" href="style.css?v=b6a36e9047cd">
+    <link rel="stylesheet" href="style.css?v=a8562ef04002">
 </head>
 <body>
 
@@ -13,6 +13,9 @@
     <button class="icon-btn" onclick="restoreLocalProject(true)" title="恢复本地自动备份" aria-label="Restore backup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6M12 7v5l3 2"/></svg></button>
     <button class="icon-btn" onclick="fitWaveform()" id="fitButton" title="适配全部波形 (F)" aria-label="Fit all waveforms (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14M21 5v14M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg></button>
     <label title="鼠标编辑吸附步长，单位 ns">网格 <input id="gridStep" type="number" min="0.001" step="any" value="1" style="width:55px" aria-label="网格步长 ns"></label>
+    <a id="handbookLink" class="icon-btn" href="handbook.html" target="_blank" rel="noopener" title="操作手册 (Handbook)" aria-label="Open DigiWave Handbook">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 .5c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg>
+    </a>
     <span id="saveStatus" role="status"></span>
 
     <div class="dropdown">
@@ -174,6 +177,6 @@
 <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
 
 <script src="editor_support.js?v=996ca32aa68e"></script>
-<script src="wave_engine.js?v=e4955a7d6852"></script>
+<script src="wave_engine.js?v=a88baedf3c17"></script>
 </body>
 </html>

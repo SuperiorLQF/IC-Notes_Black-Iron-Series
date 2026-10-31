@@ -733,6 +733,10 @@ function render() {
         let events = sig.data || []; if (events.length === 0) events = [{t:0, val:'z'}];
         
         if (sig.type === 'single') {
+            // Isolate waveform joins from the bus polygon's bevel style.
+            ctx.save();
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
             ctx.beginPath();
             const firstVal = events[0].val;
             let lastY = firstVal === '1' ? yHigh : firstVal === '0' ? yLow : yMid;
@@ -764,6 +768,7 @@ function render() {
                 }
             }
             ctx.stroke();
+            ctx.restore();
         } else if (sig.type === 'multi') {
             for (let i = 0; i < events.length; i++) {
                 const curT = events[i].t;

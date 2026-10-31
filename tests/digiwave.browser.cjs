@@ -15,6 +15,13 @@ try {
   state.tree=[{id:'a',name:'clk',type:'single',data:[{t:0,val:'0'},{t:10,val:'1'},{t:20,val:'0'},{t:30,val:'1'}],color:'#5cf',thickness:2},{id:'b',name:'data',type:'single',data:[{t:0,val:'0'},{t:10,val:'1'},{t:20,val:'0'}],color:'#fc5',thickness:2}];state.texts=[];state.measurements=[];state.connections=[];state.scaleX=10;state.offsetX=state.offsetY=0;updateUI();initializeHistory();
  });
  const baseline=await page.evaluate(()=>projectSnapshot());
+ const helpPopup=page.waitForEvent('popup');await page.locator('#handbookLink').click();const handbook=await helpPopup;
+ await handbook.waitForLoadState('domcontentloaded');assert.equal(await handbook.title(),'DigiWave Handbook · 操作手册');
+ await handbook.locator('nav a[href="#clock"]').click();assert(handbook.url().endsWith('#clock'));
+ assert(await handbook.locator('#clock').textContent().then(t=>t.includes('Duty')));
+ assert.equal(await page.evaluate(()=>projectSnapshot()),baseline);await handbook.close();
+ console.log('GUI Handbook link opens a separate page, anchors work, project unchanged PASS');
+
  const viewBlocks=await page.evaluate(()=>{
   state.selectedIds=new Set(['a']);state.mode='VIEW';state.cursorT=10;
   const original=ctx.strokeRect;let blocks=0;
