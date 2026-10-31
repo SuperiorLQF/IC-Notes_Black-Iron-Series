@@ -334,6 +334,7 @@ function applyDrawAction(sig, startT, duration, val) {
 function insertAndPush(sig, startT, duration, val) {
     if (duration <= 0) return;
     let valAtStart = getSignalValueAtTime(sig, startT);
+    retimeSignalAttachments(sig.id, time => time >= startT - 1e-6 ? time + duration : time);
 
     sig.data.forEach(e => { if (e.t > startT + 1e-6) e.t += duration; });
     sig.data.forEach(e => { if (Math.abs(e.t - startT) <= 1e-6) e.t += duration; });
@@ -365,6 +366,7 @@ function insertPatternAndPush(sig, insertT, startT, endT, count) {
 
     let totalPush = patternDur * count;
     let valAtInsert = getSignalValueAtTime(sig, insertT);
+    retimeSignalAttachments(sig.id, time => time >= insertT - 1e-6 ? time + totalPush : time);
 
     sig.data.forEach(e => { if (e.t > insertT + 1e-6) e.t += totalPush; });
     sig.data.forEach(e => { if (Math.abs(e.t - insertT) <= 1e-6) e.t += totalPush; });

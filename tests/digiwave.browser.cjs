@@ -150,6 +150,29 @@ try {
  console.log('Direct Add click, blank-value feedback and Enter creation PASS');
 
 
+ // Existing project format: annotations bind by signal ID + edge time.
+ await page.evaluate(()=>{
+  state.tree=['attach-a','attach-b'].map(id=>({id,name:id,type:'single',color:'#ff0000',thickness:2,data:[{t:0,val:'0'},{t:10,val:'1'},{t:20,val:'0'}]}));
+  state.connections=[{id:'cross',sigId1:'attach-a',t1:10,sigId2:'attach-b',t2:10,text:'cross',color:'#f00',thickness:2},{id:'same',sigId1:'attach-a',t1:20,sigId2:'attach-a',t2:10,text:'same',color:'#f00',thickness:2}];
+  state.measurements=[{id:'measure',sigId1:'attach-a',t1:10,sigId2:'attach-a',t2:20,text:'delta',color:'#fa0',thickness:1}];
+  state.texts=[];state.selectedIds=new Set(['attach-a']);state.snapTargetId=null;state.mode='EDIT';state.subMode='NORMAL';state.scaleX=10;state.offsetX=state.offsetY=0;document.getElementById('gridStep').value='1';editorSelection=null;updateUI();
+ });
+ const attachmentBefore=await page.evaluate(()=>projectSnapshot());
+ const attachedPoint=await page.evaluate(()=>{const r=waveContainer.getBoundingClientRect(),track=state.flatTracks[0];return{x:r.left+100,y:r.top+track.centerY+state.topMargin};});
+ await page.mouse.move(attachedPoint.x,attachedPoint.y);await page.mouse.down();await page.mouse.move(attachedPoint.x+40,attachedPoint.y,{steps:4});
+ assert.deepEqual(await page.evaluate(()=>[state.connections[0].t1,state.connections[0].t2,state.connections[1].t1,state.connections[1].t2,state.measurements[0].t1,state.measurements[0].t2]),[14,10,20,14,14,20]);
+ await page.mouse.up();await page.locator('#waveContainer').focus();await page.keyboard.press('Control+z');assert.equal(await page.evaluate(()=>projectSnapshot()),attachmentBefore);
+ await page.keyboard.press('Control+Shift+z');assert.equal(await page.evaluate(()=>state.connections[0].t1),14);
+ await page.evaluate(()=>{state.selectedIds=new Set(['attach-a']);updateUI();});await page.keyboard.press('e');
+ assert.equal(await page.evaluate(()=>state.mode),'EDIT');
+ await page.mouse.move(attachedPoint.x+40,attachedPoint.y);await page.mouse.down();await page.mouse.move(attachedPoint.x+60,attachedPoint.y,{steps:4});
+ assert.equal(await page.evaluate(()=>state.connections[0].t1),16);
+ await page.keyboard.press('Escape');await page.mouse.up();
+ assert.equal(await page.evaluate(()=>state.connections[0].t1),14);assert.equal(await page.evaluate(()=>state.tree[0].data[1].t),14);
+ await page.evaluate(()=>{insertAndPush(state.tree[0],0,5,'0');updateUI();});
+ assert.deepEqual(await page.evaluate(()=>[state.connections[0].t1,state.connections[0].t2,state.measurements[0].t1]),[19,10,19]);
+ console.log('Attached connections and measurements follow edges live, undo/redo, Escape and insertion PASS');
+
  const printPixels=await page.evaluate(()=>{
   state.tree=[{id:'print-single',name:'single',type:'single',color:'#ff0000',data:[{t:0,val:'x'},{t:20,val:'0'}]},{id:'print-bus',name:'bus',type:'multi',color:'#ff0000',radix:'hex',data:[{t:0,val:'x'},{t:20,val:'0'}]}];
   state.texts=[];state.measurements=[];state.connections=[];state.selectedIds.clear();state.mode='VIEW';state.subMode='NORMAL';state.hoverEdgeT=null;editorSelection=null;measurementCursors=[];state.offsetX=state.offsetY=0;state.scaleX=10;
