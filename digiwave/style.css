@@ -102,3 +102,5 @@ body.print-theme .modal-btns button.cancel { background: #eee; color: #000;}
 .time-input { display: flex; gap: 6px; flex: 1; min-width: 0; }
 .time-input input { min-width: 0; flex: 1; }
 .time-input select { flex: 0 0 65px; }
+
+a.icon-btn { text-decoration: none; display: inline-flex; align-items: center; }
