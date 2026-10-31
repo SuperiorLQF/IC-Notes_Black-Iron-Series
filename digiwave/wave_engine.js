@@ -75,10 +75,10 @@ function getTheme() {
     
     if (state.printMode) {
         return {
-            bg: '#ffffff', grid: '#dddddd', text: '#000000',
+            bg: '#ffffff', grid: '#000000', text: '#000000',
             cursorBg: 'rgba(0,0,0,0.05)', cursorLine: '#000000',
-            xState: '#666666', xFill: 'rgba(0, 0, 0, 0.10)', xHatch: 'rgba(0, 0, 0, 0.6)', zState: '#aaaaaa', measureBase: '#000000', tempMeasure: '#333333',
-            gapLine: '#555555', getSigColor: () => '#000000'
+            xState: '#888888', xFill: '#eeeeee', xHatch: '#888888', zState: '#888888', measureBase: '#000000', tempMeasure: '#000000',
+            gapLine: '#000000', getSigColor: () => '#000000'
         };
     } else {
         return {
@@ -670,7 +670,7 @@ function render() {
     // 吸附线 (Measure/Arrow/Repeat)
     if (state.hoverEdgeT !== null && (state.subMode === 'REPEAT_START' || state.subMode === 'REPEAT_END' || state.arrowMode === 'ARROW_P2' || state.measureMode === 'MEASURE_P2')) {
         let px = timeToPx(state.hoverEdgeT) - state.offsetX;
-        ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 1; ctx.setLineDash([5, 5]); ctx.beginPath();
+        ctx.strokeStyle = theme.getSigColor('#e74c3c'); ctx.lineWidth = 1; ctx.setLineDash([5, 5]); ctx.beginPath();
         ctx.moveTo(px, 0); ctx.lineTo(px, height); ctx.stroke(); ctx.setLineDash([]);
     }
 
@@ -717,14 +717,14 @@ function render() {
         if (state.selectedIds.has(sig.id) && state.mode !== 'TEXT') {
             if (state.subMode === 'REPEAT_END' && state.repeatStartT !== null) {
                 const startPx = timeToPx(state.repeatStartT) - state.offsetX;
-                ctx.strokeStyle = '#f39c12'; ctx.lineWidth = 4;
+                ctx.strokeStyle = theme.getSigColor('#f39c12'); ctx.lineWidth = 4;
                 ctx.beginPath(); ctx.moveTo(startPx, yHigh - 4); ctx.lineTo(startPx, yLow + 4); ctx.stroke();
             } else if (state.subMode === 'REPEAT_MODAL' && state.repeatStartT !== null && state.repeatEndT !== null) {
                 const startPx = timeToPx(state.repeatStartT) - state.offsetX;
                 const endPx = timeToPx(state.repeatEndT) - state.offsetX;
-                ctx.fillStyle = 'rgba(243, 156, 18, 0.3)';
+                ctx.fillStyle = state.printMode ? 'rgba(0,0,0,0.08)' : 'rgba(243, 156, 18, 0.3)';
                 ctx.fillRect(startPx, yHigh - 4, endPx - startPx, yLow - yHigh + 8);
-                ctx.strokeStyle = '#f39c12'; ctx.lineWidth = 2;
+                ctx.strokeStyle = theme.getSigColor('#f39c12'); ctx.lineWidth = 2;
                 ctx.strokeRect(startPx, yHigh - 4, endPx - startPx, yLow - yHigh + 8);
             }
         }
@@ -812,7 +812,7 @@ function render() {
         if (isP1Track) {
             const p1T = state.measureMode === 'MEASURE_P2' ? state.tempMeasurePoint.t : state.tempArrowPoint.t;
             const p1Px = timeToPx(p1T) - state.offsetX;
-            ctx.strokeStyle = '#3498db'; ctx.lineWidth = 4; ctx.beginPath();
+            ctx.strokeStyle = theme.getSigColor('#3498db'); ctx.lineWidth = 4; ctx.beginPath();
             ctx.moveTo(p1Px, yHigh - 4); ctx.lineTo(p1Px, yLow + 4); ctx.stroke();
         }
 
@@ -850,8 +850,8 @@ function render() {
                 const iconX = drawX + 16;
                 
                 ctx.font = 'bold 12px "Consolas", monospace';
-                ctx.fillStyle = '#f1c40f';
-                ctx.strokeStyle = '#f1c40f';
+                ctx.fillStyle = state.printMode && ['x','z'].includes(state.pendingVal.toLowerCase()) ? theme.xState : theme.getSigColor('#f1c40f');
+                ctx.strokeStyle = ctx.fillStyle;
                 ctx.lineWidth = 2;
                 ctx.textAlign = 'left';
 

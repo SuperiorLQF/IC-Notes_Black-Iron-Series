@@ -215,17 +215,17 @@ function renderEditorOverlay() {
     if(editorSelection) {
         const left=timeToPx(Math.min(editorSelection.a,editorSelection.b))-state.offsetX;
         const width=timeToPx(Math.abs(editorSelection.a-editorSelection.b));
-        ctx.fillStyle='rgba(70,150,255,.18)'; ctx.strokeStyle='#4696ff';
+        ctx.fillStyle=state.printMode?'rgba(0,0,0,.08)':'rgba(70,150,255,.18)'; ctx.strokeStyle=state.printMode?'#000':'#4696ff';
         state.flatTracks.filter(t=>editorSelection.ids.includes(t.node.id)).forEach(t=>{const y=t.yOffset+state.topMargin-state.offsetY;ctx.fillRect(left,y,width,t.height);ctx.strokeRect(left,y,width,t.height);});
     }
     ctx.fillStyle=getTheme().bg;ctx.fillRect(0,0,w,28);
     const raw=80/state.scaleX, power=10**Math.floor(Math.log10(raw)), ratio=raw/power;
     const step=(ratio<=1?1:ratio<=2?2:ratio<=5?5:10)*power;
     ctx.textAlign='left';ctx.textBaseline='alphabetic';
-    ctx.font='11px Consolas, monospace';ctx.strokeStyle='#777';ctx.fillStyle=state.printMode?'#222':'#bbb';
+    ctx.font='11px Consolas, monospace';ctx.strokeStyle=state.printMode?'#000':'#777';ctx.fillStyle=state.printMode?'#000':'#bbb';
     for(let t=Math.ceil(pxToTime(state.offsetX)/step)*step;t<pxToTime(state.offsetX+w);t+=step) {const x=timeToPx(t)-state.offsetX;ctx.beginPath();ctx.moveTo(x,20);ctx.lineTo(x,28);ctx.stroke();ctx.fillText(`${Number(t.toPrecision(8))} ns`,x+3,15);}
-    measurementCursors.forEach((t,i)=>{const x=timeToPx(t)-state.offsetX;ctx.strokeStyle=i?'#fa5':'#5df';ctx.beginPath();ctx.moveTo(x,28);ctx.lineTo(x,h);ctx.stroke();});
-    if(measurementCursors.length===2) {ctx.fillStyle=state.printMode?'#222':'#fff';ctx.fillText(`Δt ${Number(Math.abs(measurementCursors[1]-measurementCursors[0]).toPrecision(8))} ns`,10,h-12);}
+    measurementCursors.forEach((t,i)=>{const x=timeToPx(t)-state.offsetX;ctx.strokeStyle=state.printMode?'#000':(i?'#fa5':'#5df');ctx.beginPath();ctx.moveTo(x,28);ctx.lineTo(x,h);ctx.stroke();});
+    if(measurementCursors.length===2) {ctx.fillStyle=state.printMode?'#000':'#fff';ctx.fillText(`Δt ${Number(Math.abs(measurementCursors[1]-measurementCursors[0]).toPrecision(8))} ns`,10,h-12);}
     ctx.restore();
 }
 function installEditorInteractions() {
