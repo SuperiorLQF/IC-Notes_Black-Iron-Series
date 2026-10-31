@@ -1,12 +1,12 @@
 # DigiWave browser regression checks
 
-Run from the repository root with Node.js, Playwright and Chromium available:
+Run from the repository root with Node.js, Playwright, pngjs and Chromium available:
 
 ```sh
 node tests/digiwave.browser.cjs
 ```
 
-The cloud environment already provides Playwright and `/usr/bin/chromium`.
+The cloud environment already provides Playwright, pngjs and `/usr/bin/chromium`.
 Elsewhere, install Playwright in your development environment and optionally set
 `CHROMIUM_PATH` to the browser executable. The test starts and closes its own
 loopback HTTP server and headless browser. It does not change project files.
