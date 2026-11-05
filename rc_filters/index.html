@@ -1,0 +1,2519 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../cordic/">
+      
+      
+        <link rel="next" href="../noc/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>滤波器基础（RC） - IC笔记 [黑铁篇]</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rc" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="IC笔记 [黑铁篇]" class="md-header__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
+      
+  <img src="../img/home_24dp_E3E3E3.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            IC笔记 [黑铁篇]
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              滤波器基础（RC）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  介绍
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../sv/" class="md-tabs__link">
+          
+  
+  
+  语法章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../cordic/" class="md-tabs__link">
+          
+  
+  
+  算法章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../noc/" class="md-tabs__link">
+          
+  
+  
+  体系结构章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../lfsr/" class="md-tabs__link">
+          
+  
+  
+  基础模块章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../verdi_tcl/" class="md-tabs__link">
+          
+  
+  
+  EDA工具章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../tools/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  小工具
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="IC笔记 [黑铁篇]" class="md-nav__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
+      
+  <img src="../img/home_24dp_E3E3E3.png" alt="logo">
+
+    </a>
+    IC笔记 [黑铁篇]
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    介绍
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    语法章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    语法章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SystemVerilog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sva/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SVA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SystemC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    算法章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    算法章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cordic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cordic算法
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    滤波器基础（RC）
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    滤波器基础（RC）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 先记住结论，同时记住条件
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 从元件方程理解复阻抗
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 从元件方程理解复阻抗">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 电阻、电容、电感的基本关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 电抗不是完整的阻抗
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 先看电路：输出取在哪里决定滤波类型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 先看电路：输出取在哪里决定滤波类型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-rc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 RC 低通：输出取电容两端
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-rc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 RC 高通：输出取电阻两端
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-rc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. RC 低通的时域方程从哪里来
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 阶跃响应：为什么是指数，而不是斜直线
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 阶跃响应：为什么是指数，而不是斜直线">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 初始条件必须单独给出
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 求一般恒定输入的解
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-0v-5v" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 原讨论中的 0V → 5V
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 放电也是同一个公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 任意输入：输出如何累积过去的信息
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 从同一个微分方程走到传递函数
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 从复阻抗分压再推一遍低通频率响应
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 从复阻抗分压再推一遍低通频率响应">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 幅频响应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-3db" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 截止频率与 −3dB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 相位响应
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 高通的公式也要从连接方式推导
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 高通的公式也要从连接方式推导">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 频率响应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 时域方程与阶跃响应
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 用同一组数值连接时域与频域
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 接上负载后，不能继续盲用原公式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 最后检查自己是否真正理解
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配图来源与进一步阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    体系结构章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    体系结构章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../noc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    片上网络NOC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础模块章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础模块章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lfsr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LFSR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wavefront_allocator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    波前分配器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EDA工具章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    EDA工具章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../verdi_tcl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verdi-TCL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nvim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NeoVim
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TimingDesigner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimingDesigner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小工具
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 先记住结论，同时记住条件
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 从元件方程理解复阻抗
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 从元件方程理解复阻抗">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 电阻、电容、电感的基本关系
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 电抗不是完整的阻抗
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 先看电路：输出取在哪里决定滤波类型
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 先看电路：输出取在哪里决定滤波类型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-rc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 RC 低通：输出取电容两端
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-rc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 RC 高通：输出取电阻两端
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-rc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. RC 低通的时域方程从哪里来
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 阶跃响应：为什么是指数，而不是斜直线
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 阶跃响应：为什么是指数，而不是斜直线">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 初始条件必须单独给出
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 求一般恒定输入的解
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-0v-5v" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 原讨论中的 0V → 5V
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 放电也是同一个公式
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 任意输入：输出如何累积过去的信息
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 从同一个微分方程走到传递函数
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 从复阻抗分压再推一遍低通频率响应
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 从复阻抗分压再推一遍低通频率响应">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 幅频响应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-3db" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 截止频率与 −3dB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 相位响应
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 高通的公式也要从连接方式推导
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. 高通的公式也要从连接方式推导">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 频率响应
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 时域方程与阶跃响应
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 用同一组数值连接时域与频域
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 接上负载后，不能继续盲用原公式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 最后检查自己是否真正理解
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配图来源与进一步阅读
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="rc">滤波器基础：RC 电路的时域与频域推导<a class="headerlink" href="#rc" title="Permanent link">&para;</a></h1>
+<p>RC 滤波器只有电阻、电容两个元件，却能把<strong>元件方程、微分方程、复数分压、幅频响应和相位响应</strong>串起来。本节先给出结论，再逐步说明结论从哪里来。</p>
+<h2 id="1">1. 先记住结论，同时记住条件<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>以下首先假定：<script type="math/tex">R>0</script>、<script type="math/tex">C>0</script>，元件理想、线性且参数不变；输入由理想电压源提供，输出端没有额外负载，或测量仪器的输入阻抗足够高。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>RC 低通</th>
+<th>RC 高通</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>连接方式</td>
+<td>电阻串联，电容接公共参考端，输出取电容两端</td>
+<td>电容串联，电阻接公共参考端，输出取电阻两端</td>
+</tr>
+<tr>
+<td>时间常数</td>
+<td>
+<script type="math/tex">\tau=RC</script>
+</td>
+<td>
+<script type="math/tex">\tau=RC</script>
+</td>
+</tr>
+<tr>
+<td>零初始条件下的传递函数</td>
+<td>
+<script type="math/tex">H_{\mathrm{LP}}(s)=\dfrac{1}{1+s\tau}</script>
+</td>
+<td>
+<script type="math/tex">H_{\mathrm{HP}}(s)=\dfrac{s\tau}{1+s\tau}</script>
+</td>
+</tr>
+<tr>
+<td>截止频率</td>
+<td>
+<script type="math/tex">f_c=\dfrac{1}{2\pi RC}</script>
+</td>
+<td>
+<script type="math/tex">f_c=\dfrac{1}{2\pi RC}</script>
+</td>
+</tr>
+<tr>
+<td>直流稳态</td>
+<td>输出等于输入</td>
+<td>输出为零</td>
+</tr>
+<tr>
+<td>
+<script type="math/tex">f=f_c</script> 时的电压幅度比</td>
+<td>
+<script type="math/tex">1/\sqrt{2}\approx0.7071</script>
+</td>
+<td>
+<script type="math/tex">1/\sqrt{2}\approx0.7071</script>
+</td>
+</tr>
+<tr>
+<td>
+<script type="math/tex">f=f_c</script> 时的输出相位</td>
+<td>滞后输入 <script type="math/tex">45^\circ</script>
+</td>
+<td>超前输入 <script type="math/tex">45^\circ</script>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">两个限定不能省略</p>
+<p>传递函数定义的是<strong>零初始条件</strong>下的输入输出关系；有初始储能时，输出还包含初始条件引起的响应。截止频率的幅度门槛是<strong>相对于通带增益</strong>定义的；本表的理想电路通带增益为 1，所以恰好也是输入幅度的 70.7%。</p>
+</div>
+<p>本节用 <script type="math/tex">v(t)</script> 表示瞬时电压，<script type="math/tex">\underline V</script> 表示正弦稳态相量，<script type="math/tex">V(s)</script> 表示拉普拉斯变换。<script type="math/tex">t</script> 的单位为秒，<script type="math/tex">f</script> 为 Hz，<script type="math/tex">\omega</script> 为 rad/s，且</p>
+<p>
+<script type="math/tex; mode=display">
+\omega=2\pi f,\qquad j^2=-1.
+</script>
+</p>
+<h2 id="2">2. 从元件方程理解复阻抗<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 电阻、电容、电感的基本关系<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<p>采用被动符号约定，即电流流入元件电压的正端：</p>
+<table>
+<thead>
+<tr>
+<th>元件</th>
+<th>时域关系</th>
+<th>正弦稳态阻抗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>电阻</td>
+<td>
+<script type="math/tex">v_R(t)=Ri_R(t)</script>
+</td>
+<td>
+<script type="math/tex">Z_R=R</script>
+</td>
+</tr>
+<tr>
+<td>电容</td>
+<td>
+<script type="math/tex">i_C(t)=C\dfrac{\mathrm d v_C}{\mathrm dt}</script>
+</td>
+<td>
+<script type="math/tex">Z_C=\dfrac{1}{j\omega C}=-\dfrac{j}{\omega C}</script>
+</td>
+</tr>
+<tr>
+<td>电感</td>
+<td>
+<script type="math/tex">v_L(t)=L\dfrac{\mathrm d i_L}{\mathrm dt}</script>
+</td>
+<td>
+<script type="math/tex">Z_L=j\omega L</script>
+</td>
+</tr>
+</tbody>
+</table>
+<p>复阻抗不是另一套物理规律，而是元件微分关系在<strong>正弦稳态</strong>下的简写。</p>
+<p>以电容为例，写成复指数形式：</p>
+<p>
+<script type="math/tex; mode=display">
+v_C(t)=\operatorname{Re}\!\left\{\underline V_C e^{j\omega t}\right\}.
+</script>
+</p>
+<p>代入电容方程，求导会带来一个 <script type="math/tex">j\omega</script>：</p>
+<p>
+<script type="math/tex; mode=display">
+\underline I_C=j\omega C\underline V_C
+\quad\Longrightarrow\quad
+\boxed{Z_C=\frac{\underline V_C}{\underline I_C}
+=\frac{1}{j\omega C}}.
+</script>
+</p>
+<p>因此</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{\lvert Z_C\rvert=\frac{1}{\omega C}=\frac{1}{2\pi fC}}.
+</script>
+</p>
+<p>频率越低，电容阻抗的模越大；频率越高，阻抗的模越小。<script type="math/tex">f=0</script> 应按直流稳态或 <script type="math/tex">f\to0</script> 的极限理解，不能直接把 <script type="math/tex">1/0</script> 当成普通数代入计算。</p>
+<h3 id="22">2.2 电抗不是完整的阻抗<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<p>把阻抗写成</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{Z=R+jX},
+</script>
+</p>
+<p>其中 <script type="math/tex">X</script> 是带符号的电抗：</p>
+<p>
+<script type="math/tex; mode=display">
+X_L=\omega L,\qquad X_C=-\frac{1}{\omega C}.
+</script>
+</p>
+<p>有些资料把“容抗”写成正的大小 <script type="math/tex">1/(\omega C)</script>，那时负号已经包含在 <script type="math/tex">-j</script> 中。需要先确认符号约定，避免重复添加或漏掉负号。</p>
+<p>例如串联 RLC 的总阻抗为</p>
+<p>
+<script type="math/tex; mode=display">
+Z=R+j\left(\omega L-\frac{1}{\omega C}\right).
+</script>
+</p>
+<p><strong>阻抗要按复数运算，不能把各阻抗的模直接相加后做分压。</strong></p>
+<h2 id="3">3. 先看电路：输出取在哪里决定滤波类型<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31-rc">3.1 RC 低通：输出取电容两端<a class="headerlink" href="#31-rc" title="Permanent link">&para;</a></h3>
+<p><img alt="RC 低通电路：电阻串联，输出取电容两端" src="../img/filters/rc-low-pass.png" width="560" /></p>
+<p><em>图 1：公开教材中的 RC 低通电路原图。图中电源 <script type="math/tex">V_1</script> 为输入，节点 2 相对节点 0 的电压为输出。原图含额外负载 <script type="math/tex">R_{\mathrm{load}}</script>；第 4～10 节先令它趋于无穷大（空载），第 11 节再推导实际负载的影响。图中元件值是教材示例，与第 10 节算例不同。原图及许可见文末。</em></p>
+<p>低频时，<script type="math/tex">\lvert Z_C\rvert</script> 很大，串联电流较小，电阻上的压降较小，输出接近输入。高频时，<script type="math/tex">\lvert Z_C\rvert</script> 较小，输出节点更容易经电容连接到公共参考端，输出幅度减小。</p>
+<p>这里的关键是<strong>电阻与电容共同分压</strong>。只说“高频都流进地了”不够准确：公共参考端不是电流消失的地方，电流仍通过电源构成回路。</p>
+<h3 id="32-rc">3.2 RC 高通：输出取电阻两端<a class="headerlink" href="#32-rc" title="Permanent link">&para;</a></h3>
+<p><img alt="RC 高通电路：电容串联，输出取电阻两端" src="../img/filters/rc-high-pass.png" width="560" /></p>
+<p><em>图 2：公开教材中的 RC 高通电路原图。图中承担输出负载的电阻，对应本节高通模型里的 <script type="math/tex">R</script>；不要再把它当成额外并联负载重复计算。</em></p>
+<p>低频时，电容阻抗较大，串联电流较小，电阻上的电压也较小。高频时，电容阻抗较小，电阻上的电压接近输入。</p>
+<p>“电容隔直通交”适合描述这种<strong>串联电容</strong>的直流隔离作用。含有电容的电路并不一定阻断直流：图 1 的理想低通在直流稳态下就有 <script type="math/tex">v_{\mathrm{out}}=v_{\mathrm{in}}</script>。</p>
+<h2 id="4-rc">4. RC 低通的时域方程从哪里来<a class="headerlink" href="#4-rc" title="Permanent link">&para;</a></h2>
+<p>输出端没有额外负载时，电阻电流等于电容电流。根据 KVL：</p>
+<p>
+<script type="math/tex; mode=display">
+v_{\mathrm{in}}(t)=v_R(t)+v_C(t).
+</script>
+</p>
+<p>因为输出取电容两端，<script type="math/tex">v_{\mathrm{out}}=v_C</script>，又有</p>
+<p>
+<script type="math/tex; mode=display">
+v_R=Ri,\qquad i=C\frac{\mathrm d v_{\mathrm{out}}}{\mathrm dt},
+</script>
+</p>
+<p>所以</p>
+<p>
+<script type="math/tex; mode=display">
+v_{\mathrm{in}}
+=RC\frac{\mathrm d v_{\mathrm{out}}}{\mathrm dt}
++v_{\mathrm{out}}.
+</script>
+</p>
+<p>定义时间常数</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{\tau=RC},
+</script>
+</p>
+<p>就得到一阶微分方程</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{\tau\frac{\mathrm d v_{\mathrm{out}}}{\mathrm dt}
++v_{\mathrm{out}}=v_{\mathrm{in}}}.
+</script>
+</p>
+<p>
+<script type="math/tex">RC</script> 的单位为 <script type="math/tex">\Omega\cdot\mathrm F=\mathrm s</script>。时间常数描述电路动态响应的时间尺度，不是“充满电所需的精确时间”。</p>
+<h2 id="5">5. 阶跃响应：为什么是指数，而不是斜直线<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 初始条件必须单独给出<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<p>假设 <script type="math/tex">t=0</script> 之后输入恒定为 <script type="math/tex">U</script>，电容原有电压为 <script type="math/tex">V_0</script>。对于有限幅度的电压阶跃以及非零串联电阻，电容电流不含理想冲激，因此</p>
+<p>
+<script type="math/tex; mode=display">
+v_C(0^+)=v_C(0^-)=V_0.
+</script>
+</p>
+<p>原因可由电容方程直接看出：</p>
+<p>
+<script type="math/tex; mode=display">
+v_C(0^+)-v_C(0^-)
+=\frac{1}{C}\lim_{\varepsilon\to0^+}
+\int_{-\varepsilon}^{\varepsilon}i_C(t)\,\mathrm dt=0.
+</script>
+</p>
+<p>“电容电压不能突变”隐含了<strong>没有冲激电流</strong>这个条件。理想模型若强加冲激电流，则需要另行处理，不能机械套用上式。</p>
+<h3 id="52">5.2 求一般恒定输入的解<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<p>对 <script type="math/tex">t>0</script>，微分方程为</p>
+<p>
+<script type="math/tex; mode=display">
+\tau\frac{\mathrm d v_{\mathrm{out}}}{\mathrm dt}
++v_{\mathrm{out}}=U.
+</script>
+</p>
+<p>令 <script type="math/tex">w=v_{\mathrm{out}}-U</script>，则</p>
+<p>
+<script type="math/tex; mode=display">
+\tau\frac{\mathrm dw}{\mathrm dt}+w=0.
+</script>
+</p>
+<p>乘以积分因子 <script type="math/tex">e^{t/\tau}</script>：</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{\mathrm d}{\mathrm dt}\left(w e^{t/\tau}\right)=0.
+</script>
+</p>
+<p>因此 <script type="math/tex">w e^{t/\tau}</script> 是常数。由 <script type="math/tex">w(0^+)=V_0-U</script>，得到</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{v_{\mathrm{out}}(t)=U+(V_0-U)e^{-t/\tau},\qquad t\ge0}.
+</script>
+</p>
+<p>这是应优先掌握的形式：<strong>最终值 + 初值与最终值之差 × 衰减指数</strong>。它同时涵盖充电、放电和带初始电压的情形。</p>
+<h3 id="53-0v-5v">5.3 原讨论中的 0V → 5V<a class="headerlink" href="#53-0v-5v" title="Permanent link">&para;</a></h3>
+<p>若 <script type="math/tex">t<0</script> 输入为 0，且电路已达到稳态，那么 <script type="math/tex">V_0=0</script>。于是</p>
+<p>
+<script type="math/tex; mode=display">
+v_{\mathrm{in}}(t)=
+\begin{cases}
+0,&t<0,\\
+5\,\mathrm V,&t\ge0,
+\end{cases}
+</script>
+</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{
+v_{\mathrm{out}}(t)=
+\begin{cases}
+0,&t<0,\\
+5\,\mathrm V\left(1-e^{-t/RC}\right),&t\ge0.
+\end{cases}}
+</script>
+</p>
+<p>不能仅由“<script type="math/tex">t<0</script> 输入为零”就断言输出为零；还需要此前已经稳态，或明确给定电容无初始储能。</p>
+<p>输出为指数上升，是因为</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{\mathrm d v_{\mathrm{out}}}{\mathrm dt}
+=\frac{U-v_{\mathrm{out}}}{\tau}.
+</script>
+</p>
+<p>开始时输入与输出之差大，斜率大；越接近最终值，斜率越小。</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th style="text-align: right;">已完成变化量的比例 <script type="math/tex">1-e^{-t/\tau}</script>
+</th>
+<th style="text-align: right;">与最终值之差占初始差值的比例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<script type="math/tex">\tau</script>
+</td>
+<td style="text-align: right;">63.21%</td>
+<td style="text-align: right;">36.79%</td>
+</tr>
+<tr>
+<td>
+<script type="math/tex">2\tau</script>
+</td>
+<td style="text-align: right;">86.47%</td>
+<td style="text-align: right;">13.53%</td>
+</tr>
+<tr>
+<td>
+<script type="math/tex">3\tau</script>
+</td>
+<td style="text-align: right;">95.02%</td>
+<td style="text-align: right;">4.98%</td>
+</tr>
+<tr>
+<td>
+<script type="math/tex">4\tau</script>
+</td>
+<td style="text-align: right;">98.17%</td>
+<td style="text-align: right;">1.83%</td>
+</tr>
+<tr>
+<td>
+<script type="math/tex">5\tau</script>
+</td>
+<td style="text-align: right;">99.33%</td>
+<td style="text-align: right;">0.67%</td>
+</tr>
+</tbody>
+</table>
+<p>若要求相对剩余误差不超过 <script type="math/tex">\epsilon</script>，且 <script type="math/tex">0<\epsilon<1</script>，则</p>
+<p>
+<script type="math/tex; mode=display">
+e^{-t/\tau}\le\epsilon
+\quad\Longrightarrow\quad
+\boxed{t\ge-\tau\ln\epsilon}.
+</script>
+</p>
+<p>例如 1% 误差要求约 <script type="math/tex">4.605\tau</script>；<script type="math/tex">5\tau</script> 只是常用工程近似，并非数学上的完全到达。</p>
+<h3 id="54">5.4 放电也是同一个公式<a class="headerlink" href="#54" title="Permanent link">&para;</a></h3>
+<p>把输入切换到零，即 <script type="math/tex">U=0</script>：</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{v_{\mathrm{out}}(t)=V_0e^{-t/\tau}}.
+</script>
+</p>
+<p>一般恒定输入下，电阻和电容中的电流为</p>
+<p>
+<script type="math/tex; mode=display">
+i(t)=\frac{U-v_{\mathrm{out}}(t)}{R}
+=\frac{U-V_0}{R}e^{-t/\tau}.
+</script>
+</p>
+<p>所以电容在直流稳态下电流为零，但其两端可以保留非零电压。</p>
+<h2 id="6">6. 任意输入：输出如何累积过去的信息<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<p>从</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{\mathrm d v_{\mathrm{out}}}{\mathrm dt}
++\frac{1}{\tau}v_{\mathrm{out}}=\frac{1}{\tau}v_{\mathrm{in}}
+</script>
+</p>
+<p>出发，两边乘 <script type="math/tex">e^{t/\tau}</script>：</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{\mathrm d}{\mathrm dt}
+\left[e^{t/\tau}v_{\mathrm{out}}(t)\right]
+=\frac{1}{\tau}e^{t/\tau}v_{\mathrm{in}}(t).
+</script>
+</p>
+<p>对 <script type="math/tex">0</script> 到 <script type="math/tex">t</script> 积分，再乘回 <script type="math/tex">e^{-t/\tau}</script>：</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{
+v_{\mathrm{out}}(t)
+=V_0e^{-t/\tau}
++\frac{1}{\tau}\int_0^t
+ e^{-(t-\lambda)/\tau}v_{\mathrm{in}}(\lambda)\,\mathrm d\lambda.}
+</script>
+</p>
+<p>第一项是<strong>零输入响应</strong>，来自初始储能；第二项是<strong>零状态响应</strong>，来自输入。越早的输入，其权重 <script type="math/tex">e^{-(t-\lambda)/\tau}</script> 越小，这就是一阶低通的“记忆”。</p>
+<p>若以 <script type="math/tex">u(t)</script> 表示单位阶跃函数，低通的冲激响应为</p>
+<p>
+<script type="math/tex; mode=display">
+h_{\mathrm{LP}}(t)=\frac{1}{\tau}e^{-t/\tau}u(t).
+</script>
+</p>
+<p>零初始状态下，输出也可写成卷积 <script type="math/tex">v_{\mathrm{out}}=h_{\mathrm{LP}}*v_{\mathrm{in}}</script>。冲激响应的单位为 <script type="math/tex">1/\mathrm s</script>，与时间积分相乘后，输出仍具有电压单位。</p>
+<h2 id="7">7. 从同一个微分方程走到传递函数<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<p>对低通方程做单边拉普拉斯变换：</p>
+<p>
+<script type="math/tex; mode=display">
+\tau\left[sV_{\mathrm{out}}(s)-V_0\right]
++V_{\mathrm{out}}(s)=V_{\mathrm{in}}(s).
+</script>
+</p>
+<p>整理得到</p>
+<p>
+<script type="math/tex; mode=display">
+V_{\mathrm{out}}(s)
+=\underbrace{\frac{1}{1+s\tau}V_{\mathrm{in}}(s)}_{\text{输入引起的响应}}
++\underbrace{\frac{V_0}{s+1/\tau}}_{\text{初始条件引起的响应}}.
+</script>
+</p>
+<p>只有在定义传递函数时令初始状态为零，才有</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{H_{\mathrm{LP}}(s)
+=\left.\frac{V_{\mathrm{out}}(s)}{V_{\mathrm{in}}(s)}\right|_{V_0=0}
+=\frac{1}{1+s\tau}}.
+</script>
+</p>
+<p>对于稳定系统的正弦稳态，取 <script type="math/tex">s=j\omega</script>，便得到频率响应。<strong>它描述暂态消失后的正弦幅度与相位关系，不代表刚接通时的完整输出。</strong></p>
+<h2 id="8">8. 从复阻抗分压再推一遍低通频率响应<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<p>输出取电容两端：</p>
+<p>
+<script type="math/tex; mode=display">
+\underline V_{\mathrm{out}}
+=\underline V_{\mathrm{in}}\frac{Z_C}{R+Z_C}.
+</script>
+</p>
+<p>代入 <script type="math/tex">Z_C=1/(j\omega C)</script>，分子、分母同乘 <script type="math/tex">j\omega C</script>：</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+H_{\mathrm{LP}}(j\omega)
+&=\frac{\dfrac{1}{j\omega C}}{R+\dfrac{1}{j\omega C}}\\
+&=\boxed{\frac{1}{1+j\omega RC}}.
+\end{aligned}
+</script>
+</p>
+<p>这与微分方程得到的结果完全一致：<strong>时域元件方程与频域复阻抗只是同一个电路的两种表达。</strong></p>
+<h3 id="81">8.1 幅频响应<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<p>复数 <script type="math/tex">a+jb</script> 的模为 <script type="math/tex">\sqrt{a^2+b^2}</script>，所以</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{\lvert H_{\mathrm{LP}}(j\omega)\rvert
+=\frac{1}{\sqrt{1+(\omega RC)^2}}}.
+</script>
+</p>
+<p>设输入稳态正弦的幅度为 <script type="math/tex">A</script>，则输出幅度为 <script type="math/tex">A\lvert H\rvert</script>。幅度比不等于瞬时电压之比：相位不同时，两个波形的零点并不重合。</p>
+<h3 id="82-3db">8.2 截止频率与 −3dB<a class="headerlink" href="#82-3db" title="Permanent link">&para;</a></h3>
+<p>本电路的低频通带增益为 1。把幅度下降到通带值的 <script type="math/tex">1/\sqrt2</script> 所对应的频率定义为截止频率：</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{1}{\sqrt{1+(\omega_cRC)^2}}=\frac{1}{\sqrt2}.
+</script>
+</p>
+<p>平方并整理：</p>
+<p>
+<script type="math/tex; mode=display">
+1+(\omega_cRC)^2=2
+\quad\Longrightarrow\quad
+\omega_cRC=1.
+</script>
+</p>
+<p>因为 <script type="math/tex">R,C,\omega_c</script> 均为正，取正根：</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{\omega_c=\frac1{RC}},\qquad
+\boxed{f_c=\frac1{2\pi RC}=\frac1{2\pi\tau}}.
+</script>
+</p>
+<p>电压增益以 dB 表示为</p>
+<p>
+<script type="math/tex; mode=display">
+G_{\mathrm{dB}}=20\log_{10}\lvert H\rvert.
+</script>
+</p>
+<p>因此截止频率处</p>
+<p>
+<script type="math/tex; mode=display">
+20\log_{10}\frac1{\sqrt2}
+=-10\log_{10}2\approx-3.0103\,\mathrm{dB}.
+</script>
+</p>
+<div class="admonition warning">
+<p class="admonition-title">−3dB 不等于电容消耗一半功率</p>
+<p>在相同电阻性测量负载下，电压幅度变为 <script type="math/tex">1/\sqrt2</script>，对应功率变为一半。这里分析的是电压频率响应；理想电容不消耗正弦稳态的平均有功功率，不能据此说“输入的一半功率被电容吃掉”。</p>
+</div>
+<p>截止频率不是“从这里才开始衰减”的开关。对这个理想低通，任意 <script type="math/tex">f>0</script> 都有 <script type="math/tex">\lvert H\rvert<1</script>，只是低频时非常接近 1。</p>
+<h3 id="83">8.3 相位响应<a class="headerlink" href="#83" title="Permanent link">&para;</a></h3>
+<p>分子相位为零，分母 <script type="math/tex">1+j\omega\tau</script> 的相位为 <script type="math/tex">\arctan(\omega\tau)</script>，因此</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{\varphi_{\mathrm{LP}}(\omega)=-\arctan(\omega\tau)}.
+</script>
+</p>
+<p>对 <script type="math/tex">\omega>0</script>，输出滞后输入。在 <script type="math/tex">f=f_c</script> 时为 <script type="math/tex">-45^\circ</script>；当 <script type="math/tex">f\to\infty</script> 时趋近 <script type="math/tex">-90^\circ</script>。若输入为 <script type="math/tex">A\cos\omega t</script>，稳态输出为</p>
+<p>
+<script type="math/tex; mode=display">
+v_{\mathrm{out,ss}}(t)
+=A\lvert H(j\omega)\rvert
+\cos\!\left[\omega t+\varphi_{\mathrm{LP}}(\omega)\right].
+</script>
+</p>
+<h2 id="9">9. 高通的公式也要从连接方式推导<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="91">9.1 频率响应<a class="headerlink" href="#91" title="Permanent link">&para;</a></h3>
+<p>输出改为取电阻两端：</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+H_{\mathrm{HP}}(j\omega)
+&=\frac{R}{R+\dfrac1{j\omega C}}\\
+&=\boxed{\frac{j\omega\tau}{1+j\omega\tau}}.
+\end{aligned}
+</script>
+</p>
+<p>所以</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{\lvert H_{\mathrm{HP}}\rvert
+=\frac{\omega\tau}{\sqrt{1+(\omega\tau)^2}}},
+</script>
+</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{\varphi_{\mathrm{HP}}(\omega)
+=90^\circ-\arctan(\omega\tau),\qquad\omega>0}.
+</script>
+</p>
+<p>高频通带增益为 1；同样令幅度为 <script type="math/tex">1/\sqrt2</script>，得到 <script type="math/tex">\omega_c\tau=1</script>，因此截止频率仍是 <script type="math/tex">1/(2\pi RC)</script>，截止处相位为 <script type="math/tex">+45^\circ</script>。</p>
+<p>在直流处输出幅度为零，<strong>零幅度信号没有可定义的相位</strong>。<script type="math/tex">\omega\to0^+</script> 时相位趋向 <script type="math/tex">+90^\circ</script>，说的是极限，不是直流输出的实际相位。</p>
+<h3 id="92">9.2 时域方程与阶跃响应<a class="headerlink" href="#92" title="Permanent link">&para;</a></h3>
+<p>由 <script type="math/tex">v_C=v_{\mathrm{in}}-v_{\mathrm{out}}</script>、<script type="math/tex">i=v_{\mathrm{out}}/R</script>：</p>
+<p>
+<script type="math/tex; mode=display">
+\frac{v_{\mathrm{out}}}{R}
+=C\frac{\mathrm d}{\mathrm dt}
+\left(v_{\mathrm{in}}-v_{\mathrm{out}}\right),
+</script>
+</p>
+<p>即</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{\tau\frac{\mathrm d v_{\mathrm{out}}}{\mathrm dt}
++v_{\mathrm{out}}
+=\tau\frac{\mathrm d v_{\mathrm{in}}}{\mathrm dt}}.
+</script>
+</p>
+<p>若电容最初未充电，输入在零时刻从 0 跳到 <script type="math/tex">U</script>，电容电压连续意味着</p>
+<p>
+<script type="math/tex; mode=display">
+v_{\mathrm{out}}(0^+)
+=v_{\mathrm{in}}(0^+)-v_C(0^+)=U.
+</script>
+</p>
+<p>在 <script type="math/tex">t>0</script> 输入恒定，右侧导数为零，所以</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{v_{\mathrm{out}}(t)=Ue^{-t/\tau},\qquad t\ge0}.
+</script>
+</p>
+<p>这里取 <script type="math/tex">t=0</script> 为右侧极限。输出取电阻而非电容两端，因此输出可以从 0 跳到 <script type="math/tex">U</script>，并不违反电容电压连续。高通对阶跃的输出先跳变再衰减到零；“高通隔直”指的是最终直流稳态输出为零，而非阶跃到来时始终没有输出。</p>
+<h2 id="10">10. 用同一组数值连接时域与频域<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<p>取</p>
+<p>
+<script type="math/tex; mode=display">
+R=1\,\mathrm{k\Omega},\qquad C=100\,\mathrm{nF}.
+</script>
+</p>
+<p>则</p>
+<p>
+<script type="math/tex; mode=display">
+\tau=10^3\times100\times10^{-9}\,\mathrm s
+=100\,\mu\mathrm s,
+</script>
+</p>
+<p>
+<script type="math/tex; mode=display">
+f_c=\frac1{2\pi\times100\,\mu\mathrm s}
+\approx1591.55\,\mathrm{Hz}.
+</script>
+</p>
+<p>对 0V → 5V 的低通阶跃输入：</p>
+<p>
+<script type="math/tex; mode=display">
+v_{\mathrm{out}}(100\,\mu\mathrm s)\approx3.161\,\mathrm V,
+\qquad
+v_{\mathrm{out}}(500\,\mu\mathrm s)\approx4.966\,\mathrm V.
+</script>
+</p>
+<p>把频率写成 <script type="math/tex">x=f/f_c=\omega\tau</script>，则低通的幅度为 <script type="math/tex">1/\sqrt{1+x^2}</script>。</p>
+<table>
+<thead>
+<tr>
+<th>频率</th>
+<th style="text-align: right;">低通幅度比</th>
+<th style="text-align: right;">电压增益</th>
+<th style="text-align: right;">相位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<script type="math/tex">0.1f_c</script>
+</td>
+<td style="text-align: right;">0.9950</td>
+<td style="text-align: right;">−0.043dB</td>
+<td style="text-align: right;">−5.71°</td>
+</tr>
+<tr>
+<td>
+<script type="math/tex">f_c</script>
+</td>
+<td style="text-align: right;">0.7071</td>
+<td style="text-align: right;">−3.010dB</td>
+<td style="text-align: right;">−45°</td>
+</tr>
+<tr>
+<td>
+<script type="math/tex">10f_c</script>
+</td>
+<td style="text-align: right;">0.09950</td>
+<td style="text-align: right;">−20.043dB</td>
+<td style="text-align: right;">−84.29°</td>
+</tr>
+</tbody>
+</table>
+<p>当 <script type="math/tex">f\gg f_c</script> 时，低通近似满足</p>
+<p>
+<script type="math/tex; mode=display">
+\lvert H_{\mathrm{LP}}\rvert\approx\frac{f_c}{f},
+\qquad
+G_{\mathrm{dB}}\approx-20\log_{10}\frac f{f_c}.
+</script>
+</p>
+<p>所以频率每增加十倍，增益约下降 20dB。这是<strong>高频渐近斜率</strong>，不表示整个频段都是直线。高通在低频侧具有约 +20dB/十倍频程的渐近斜率。</p>
+<p>
+<script type="math/tex">\tau</script> 越大，时域响应越慢，同时 <script type="math/tex">f_c</script> 越低；两者由同一个极点 <script type="math/tex">s=-1/\tau</script> 决定。</p>
+<h2 id="11">11. 接上负载后，不能继续盲用原公式<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<p>若低通输出再并联一个负载电阻 <script type="math/tex">R_L</script>，电容支路等效阻抗变为</p>
+<p>
+<script type="math/tex; mode=display">
+Z_p=Z_C\parallel R_L
+=\frac{R_L}{1+sCR_L}.
+</script>
+</p>
+<p>于是</p>
+<p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+H_L(s)
+&=\frac{Z_p}{R+Z_p}\\
+&=\frac{R_L}{R+R_L+sCRR_L}\\
+&=\boxed{\frac{K}{1+s\tau_L}},
+\end{aligned}
+</script>
+</p>
+<p>其中</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{K=\frac{R_L}{R+R_L}},\qquad
+\boxed{\tau_L=(R\parallel R_L)C}.
+</script>
+</p>
+<p>因此，相对于自身通带增益 <script type="math/tex">K</script> 的截止频率为</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{f_{c,L}=\frac{1}{2\pi(R\parallel R_L)C}}.
+</script>
+</p>
+<p>负载既改变直流增益，也改变时间常数。比如 <script type="math/tex">R_L=R</script>，则 <script type="math/tex">K=1/2</script>、<script type="math/tex">\tau_L=RC/2</script>，截止频率为原来的两倍；此时截止处相对于输入的幅度比是 <script type="math/tex">K/\sqrt2\approx0.3536</script>，不再是 0.7071。</p>
+<p>若电源还有串联内阻 <script type="math/tex">R_s</script>，且输入电压定义在该内阻之前，应把以上公式中的 <script type="math/tex">R</script> 换成 <script type="math/tex">R_s+R</script>。这也说明测量时必须先说清楚“输入电压在哪个节点测”。</p>
+<h2 id="12">12. 最后检查自己是否真正理解<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>为什么同一只电容能组成低通也能组成高通？</strong> 因为连接方式、分压关系以及输出取点不同。</li>
+<li><strong>为什么电容稳态电流为零，低通输出却可以不为零？</strong> 电容可以储存电荷和电压，电流由电压的变化率决定，而不是由电压本身决定。</li>
+<li><strong>为什么知道输入还不够求暂态输出？</strong> 还需要初始状态；传递函数只描述零初始条件下的关系。</li>
+<li><strong>为什么 <script type="math/tex">f_c</script> 不是“高于它全部滤掉”？</strong> 一阶响应连续变化，截止只是一种约定的幅度门槛。</li>
+<li><strong>为什么 <script type="math/tex">\tau</script> 和 <script type="math/tex">f_c</script> 互为反比？</strong> 它们都来自同一个一阶极点，<script type="math/tex">2\pi f_c\tau=1</script>。</li>
+<li><strong>为什么级联两个 RC 不能总把两个理想传递函数直接相乘？</strong> 未缓冲级联会相互加载；必须按实际网络重新计算，或满足级间隔离条件。</li>
+</ol>
+<h2 id="_1">配图来源与进一步阅读<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<ul>
+<li>图 1、图 2来自 Tony R. Kuphaldt 等编写的 <em>Lessons in Electric Circuits, Volume II — AC</em>，Filters 章；通过<a href="https://github.com/FauxFaux/lessons-in-electric-circuits">公开 GitHub 教材镜像</a>取得，原图编号分别为 <strong>02117、02118</strong>。图片只做文件格式转换，未改电路内容。</li>
+<li>图片采用 Design Science License；<a href="../img/filters/SOURCES/">本地图片许可与来源说明</a>、<a href="../img/filters/source/DESIGN-SCIENCE-LICENSE.txt">完整许可</a>、<a href="../img/filters/source/02117.eps">低通 EPS 源图</a>、<a href="../img/filters/source/02118.eps">高通 EPS 源图</a>随文提供。</li>
+<li>推导应以本节开头的电路条件为准。阅读其他教材时，特别注意电抗正负号、输出取点、初始条件和实际负载是否相同。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["header.autohide", "navigation.top", "navigation.tabs", "content.code.copy", "content.code.annotate", "codehilite", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../javascripts/mathjax-config.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    
+  </body>
+</html>
