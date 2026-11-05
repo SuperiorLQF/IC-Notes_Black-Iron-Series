@@ -67,10 +67,15 @@ html body img[src*='img90'] { width: 90%;}
 html body img[src*='img120'] { width: 120%;}
 html body img[src*='img150'] { width: 150%;}
 
-/* 覆盖 Material 主题的 strong 样式 */
+/* 普通强调只加粗；着重号通过 emphasis-dots 类按需启用。 */
 .md-typeset strong {
   font-weight: bold;
-  text-emphasis: triangle;
+  text-emphasis: none;
+  -webkit-text-emphasis: none;
+}
+
+.md-typeset .emphasis-dots {
+  text-emphasis: filled circle;
   text-emphasis-position: under right;
   text-emphasis-color: #000000;
   -webkit-text-emphasis: '⬤';
