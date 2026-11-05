@@ -7,6 +7,7 @@ nav:
     - SystemC: sc.md
   - 算法章: 
     - Cordic算法: cordic.md
+    - 滤波器基础（RC）: rc_filters.md
   - 体系结构章:
     - 片上网络NOC: noc.md 
   - 基础模块章:
