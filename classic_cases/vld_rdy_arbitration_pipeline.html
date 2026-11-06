@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>多路 VLD/RDY 请求仲裁的流水化问题与改进方案</title>
+<style>
+:root{--bg:#f3f5f8;--paper:#fff;--ink:#202938;--muted:#667085;--line:#dce2ea;--blue:#2563eb;--bluebg:#eff6ff;--green:#047857;--greenbg:#ecfdf5;--amber:#a16207;--amberbg:#fffbeb;--red:#b42318;--redbg:#fef3f2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+main{max-width:1080px;margin:auto;padding:34px 22px 70px}header{padding:34px 38px;border-radius:18px;background:linear-gradient(135deg,#14233b,#1d4b78);color:#fff}
+header small{letter-spacing:.13em;color:#bfdbfe}h1{font-size:30px;line-height:1.35;margin:10px 0}header p{color:#dbeafe;margin:8px 0 0}.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.tags span{border:1px solid #ffffff55;border-radius:20px;padding:3px 10px;font-size:12px}
+nav,section{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin-top:18px;padding:22px 28px}nav a{display:inline-block;color:var(--blue);text-decoration:none;margin:4px 14px 4px 0;font-size:14px}nav a:hover{text-decoration:underline}
+h2{font-size:22px;margin:0 0 14px}h3{font-size:17px;margin:22px 0 8px}p{margin:9px 0}li{margin:5px 0}.lead{font-size:17px;color:#344054}
+.callout{padding:13px 16px;border-left:4px solid var(--blue);background:var(--bluebg);border-radius:8px;margin:15px 0}.warn{border-color:var(--amber);background:var(--amberbg)}.good{border-color:var(--green);background:var(--greenbg)}.bad{border-color:var(--red);background:var(--redbg)}
+.eq{display:inline-block;padding:4px 9px;background:#f2f4f7;border:1px solid #e4e7ec;border-radius:6px;font:14px ui-monospace,Consolas,monospace}
+.diagram{margin:15px 0;padding:14px;background:#fbfcfe;border:1px solid var(--line);border-radius:10px;overflow-x:auto}.diagram svg{display:block;width:100%;height:auto;min-width:620px}.caption{text-align:center;color:var(--muted);font-size:13px}
+table{width:100%;border-collapse:collapse;margin:13px 0;font-size:14px}th,td{border:1px solid var(--line);padding:8px 10px;text-align:center}th{background:#f8fafc}td:first-child{text-align:left}
+pre{overflow:auto;background:#111827;color:#e5e7eb;border-radius:9px;padding:16px;font-size:13px;line-height:1.6}code{font-family:ui-monospace,Consolas,monospace}p code,li code,td code{background:#f2f4f7;color:#344054;padding:2px 5px;border-radius:4px}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:24px}@media(max-width:700px){main{padding:16px 10px 40px}header{padding:25px 20px}h1{font-size:24px}section,nav{padding:18px 16px}}@media print{body{background:#fff}main{max-width:none;padding:0}header,section,nav{break-inside:avoid}}
+</style>
+</head>
+<body><main>
+<header>
+<small>RTL / INTERFACE DESIGN NOTE</small>
+<h1>多路 VLD/RDY 请求仲裁的流水化问题与改进方案</h1>
+<p>分析仲裁结果寄存一拍后可能出现的过期 RDY 与空闲周期，并讨论请求缓存、Pending 状态和流水仲裁的改进方向。</p>
+<div class="tags"><span>VLD / RDY</span><span>Round-Robin</span><span>Pipeline</span><span>Buffering</span></div>
+</header>
+<nav><strong>本文目录</strong><br>
+<a href="#background">1. 问题背景</a><a href="#stale">2. RDY 延迟一拍的问题</a><a href="#essence">3. 问题本质</a><a href="#buffer">4. 请求缓存方案</a><a href="#pending">5. Pending 方案</a><a href="#compare">6. 方案对比</a><a href="#design">7. 推荐方向</a><a href="#protocol">8. 接口条件</a>
+</nav>
+
+<section id="background">
+<h2>1. 问题背景</h2>
+<p class="lead">多路输入源通过 <code>VLD</code> 表示请求/数据有效，仲裁器选择其中一路，并通过对应的 <code>RDY</code> 表示本拍是否接收该请求。</p>
+<p>标准握手条件：</p><p><span class="eq">FIRE[i] = VLD[i] &amp; RDY[i]</span></p>
+<p>只有 VLD 和 RDY 在同一个时钟周期同时为高，该请求才算完成一次握手。</p>
+<h3>1.1 组合式仲裁</h3>
+<div class="diagram"><svg viewBox="0 0 820 190" role="img" aria-label="组合式仲裁结构">
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="#64748b"/></marker></defs>
+<rect x="20" y="48" width="180" height="72" rx="9" fill="#eff6ff" stroke="#60a5fa"/><text x="110" y="78" text-anchor="middle" font-size="16" fill="#1e40af">多路输入 VLD</text><text x="110" y="100" text-anchor="middle" font-size="12" fill="#475569">REQ[0:N-1]</text>
+<path d="M200 84H300" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+<rect x="310" y="38" width="210" height="92" rx="9" fill="#fff" stroke="#94a3b8"/><text x="415" y="76" text-anchor="middle" font-size="17" fill="#1f2937">Round-Robin</text><text x="415" y="101" text-anchor="middle" font-size="17" fill="#1f2937">Arbiter</text>
+<path d="M520 84H620" stroke="#64748b" stroke-width="2" marker-end="url(#a)"/>
+<rect x="630" y="48" width="170" height="72" rx="9" fill="#ecfdf5" stroke="#34d399"/><text x="715" y="78" text-anchor="middle" font-size="16" fill="#047857">RDY / GNT</text><text x="715" y="100" text-anchor="middle" font-size="12" fill="#475569">当前周期响应</text>
+<text x="410" y="165" text-anchor="middle" font-size="13" fill="#64748b">组合路径：VLD(t) → Arbiter → RDY(t)</text></svg></div>
+<p>组合式仲裁需要在当前周期内，根据当前各路 VLD 产生对应 RDY。请求路数较多、仲裁逻辑较复杂时，<code>VLD → RDY</code> 组合路径可能成为时序瓶颈。</p>
+</section>
+
+<section id="stale">
+<h2>2. 直接将仲裁结果打一拍的问题</h2>
+<p>为了缩短组合路径，可以将仲裁结果寄存一拍：</p><p><span class="eq">VLD(t) → Arbiter → RDY(t+1)</span></p>
+<div class="callout warn"><strong>核心风险：</strong>上一拍参与仲裁的请求，可能已经在上一拍完成握手。如果仲裁器没有正确处理这次握手，下一拍就可能输出一个过期的 RDY。</div>
+<h3>2.1 两路请求示例</h3>
+<p>假设 A、B 两路在 C0 时 VLD 都为高，当前已有的仲裁结果选择 A，因此 A 在 C0 完成握手。如果仲裁器在 C0 仅根据当前 VLD 计算下一拍结果，没有考虑 A 在 C0 已经完成握手，就可能再次选择 A。</p>
+<table><thead><tr><th>信号</th><th>C0</th><th>C1</th><th>C2</th></tr></thead><tbody>
+<tr><td><code>A_VLD</code></td><td>1</td><td>0</td><td>0</td></tr><tr><td><code>A_RDY</code></td><td>1</td><td>1</td><td>0</td></tr><tr><td><code>A_FIRE</code></td><td>1</td><td>0</td><td>0</td></tr><tr><td><code>B_VLD</code></td><td>1</td><td>1</td><td>1</td></tr><tr><td><code>B_RDY</code></td><td>0</td><td>0</td><td>1</td></tr><tr><td><code>B_FIRE</code></td><td>0</td><td>0</td><td>1</td></tr>
+</tbody></table>
+<h3>2.2 时序示意</h3>
+<div class="diagram"><svg viewBox="0 0 900 310" role="img" aria-label="过期仲裁结果造成空闲周期">
+<rect x="170" y="20" width="220" height="260" fill="#f8fafc"/><rect x="390" y="20" width="220" height="260" fill="#fff7ed"/><rect x="610" y="20" width="220" height="260" fill="#f8fafc"/>
+<g font-size="14" fill="#475569" text-anchor="middle"><text x="280" y="15">C0</text><text x="500" y="15">C1</text><text x="720" y="15">C2</text></g>
+<g stroke="#d7dee8" stroke-dasharray="4 4"><path d="M170 20V280M390 20V280M610 20V280M830 20V280"/></g>
+<g font-size="14" fill="#334155"><text x="15" y="58">A_VLD</text><text x="15" y="98">A_RDY</text><text x="15" y="138">A_FIRE</text><text x="15" y="188">B_VLD</text><text x="15" y="228">B_RDY</text><text x="15" y="268">B_FIRE</text></g>
+<g stroke-width="3" fill="none"><path d="M170 62H390V72H830" stroke="#2563eb"/><path d="M170 102H610V112H830" stroke="#d97706"/><path d="M170 142H390V152H830" stroke="#16a34a"/><path d="M170 192H830" stroke="#2563eb"/><path d="M170 232H610V242H830" stroke="#d97706"/><path d="M170 272H610V282H830" stroke="#16a34a"/></g>
+<g font-size="12" fill="#fff" text-anchor="middle" font-weight="600"><rect x="225" y="47" width="110" height="24" rx="5" fill="#2563eb"/><text x="280" y="64">1</text><rect x="445" y="87" width="110" height="24" rx="5" fill="#d97706"/><text x="500" y="104">1（过期）</text><rect x="225" y="127" width="110" height="24" rx="5" fill="#16a34a"/><text x="280" y="144">1：握手</text><rect x="225" y="177" width="550" height="24" rx="5" fill="#2563eb"/><text x="500" y="194">1：B 持续等待</text><rect x="665" y="217" width="110" height="24" rx="5" fill="#d97706"/><text x="720" y="234">1</text><rect x="665" y="257" width="110" height="24" rx="5" fill="#16a34a"/><text x="720" y="274">1：握手</text></g>
+<text x="500" y="302" font-size="12" text-anchor="middle" fill="#a16207">C1：A_VLD 已撤销，B_VLD 仍有效，但 RDY 没有给到 B</text>
+</svg></div>
+<ol>
+<li><strong>C0：</strong>A、B 都有请求，当前授予 A，A 完成握手。</li>
+<li><strong>C0 时钟边沿：</strong>如果下一拍仲裁只看到了 <code>A_VLD=1</code>，却没有正确处理本拍 <code>A_FIRE=1</code>，就可能再次把 A 选为下一拍目标。</li>
+<li><strong>C1：</strong>A 已撤销 VLD，但 A_RDY 仍为高；B 仍有效，却没有获得 RDY。</li>
+<li><strong>C2：</strong>仲裁器重新选择 B，B 才完成握手。</li>
+</ol>
+<div class="callout">过期的仲裁结果占用了一个周期，使仍然有效的请求不能及时被接收。实际波形取决于 RDY 寄存器更新方式、仲裁指针更新时机，以及输入端是否允许连续请求。</div>
+</section>
+
+<section id="essence">
+<h2>3. 问题本质</h2>
+<p>问题本质是：<strong>仲裁结果与请求状态发生了一个周期的错位。</strong></p>
+<ul><li>哪些请求已经被接收：<code>VLD &amp; RDY</code>。</li><li>哪些请求仍然等待处理。</li><li>输入源是否会在下一拍继续提供新的请求。</li><li>仲裁结果对应的是哪一笔请求，而不只是哪个输入通道。</li></ul>
+<div class="callout warn">标准 VLD/RDY 协议下，如果 VLD=1 且 RDY=0，发送端必须保持 VLD 和 DATA，直到握手完成。如果输入端发送的是单拍脉冲，则需要先捕获请求，不能直接套用标准 VLD/RDY 的假设。</div>
+</section>
+
+<section id="buffer">
+<h2>4. 改进方案一：请求缓存与仲裁解耦</h2>
+<p class="lead">将“输入请求接收”和“请求仲裁/输出”分开。输入请求一旦被 Buffer 接收，就不再依赖原始输入 VLD 是否继续保持。</p>
+<div class="diagram"><svg viewBox="0 0 850 560" role="img" aria-label="输入缓存和流水仲裁结构">
+<defs><marker id="b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0L6 3L0 6" fill="#64748b"/></marker></defs>
+<rect x="250" y="12" width="350" height="58" rx="9" fill="#eff6ff" stroke="#60a5fa"/><text x="425" y="37" text-anchor="middle" font-size="17" fill="#1e40af">多路输入源</text><text x="425" y="56" text-anchor="middle" font-size="12" fill="#475569">VLD + DATA + ID</text>
+<path d="M425 70V102" stroke="#64748b" stroke-width="2" marker-end="url(#b)"/>
+<rect x="90" y="110" width="670" height="120" rx="10" fill="#fff" stroke="#94a3b8"/><text x="425" y="137" text-anchor="middle" font-size="17" fill="#1f2937">Input Buffer（每路输入独立缓存）</text>
+<g fill="#eff6ff" stroke="#60a5fa"><rect x="125" y="154" width="170" height="55" rx="7"/><rect x="340" y="154" width="170" height="55" rx="7"/><rect x="555" y="154" width="170" height="55" rx="7"/></g>
+<g fill="#1e40af" text-anchor="middle" font-size="14"><text x="210" y="178">Buffer 0</text><text x="425" y="178">Buffer 1</text><text x="640" y="178">Buffer 2 ...</text></g><g fill="#475569" text-anchor="middle" font-size="11"><text x="210" y="197">Valid + Data + ID</text><text x="425" y="197">Valid + Data + ID</text><text x="640" y="197">Valid + Data + ID</text></g>
+<path d="M425 230V263" stroke="#64748b" stroke-width="2" marker-end="url(#b)"/>
+<rect x="190" y="271" width="470" height="65" rx="9" fill="#f8fafc" stroke="#94a3b8"/><text x="425" y="298" text-anchor="middle" font-size="17" fill="#1f2937">Pending Requests</text><text x="425" y="319" text-anchor="middle" font-size="12" fill="#475569">根据缓存中的 Valid 状态进行仲裁</text>
+<path d="M425 336V369" stroke="#64748b" stroke-width="2" marker-end="url(#b)"/>
+<rect x="190" y="377" width="470" height="65" rx="9" fill="#eff6ff" stroke="#60a5fa"/><text x="425" y="404" text-anchor="middle" font-size="17" fill="#1e40af">Pipelined Round-Robin Arbiter</text><text x="425" y="425" text-anchor="middle" font-size="12" fill="#475569">允许分多拍完成仲裁</text>
+<path d="M425 442V475" stroke="#64748b" stroke-width="2" marker-end="url(#b)"/>
+<rect x="190" y="483" width="470" height="62" rx="9" fill="#ecfdf5" stroke="#34d399"/><text x="425" y="509" text-anchor="middle" font-size="17" fill="#047857">Output DATA / ID / OUT_VLD</text><text x="425" y="529" text-anchor="middle" font-size="12" fill="#475569">与下游 RDY 完成握手</text>
+</svg></div>
+<h3>4.1 输入侧握手</h3><p><span class="eq">IN_FIRE[i] = IN_VLD[i] &amp; IN_RDY[i]</span></p><p>输入 RDY 可以根据 Buffer 是否有空间产生：</p><p><span class="eq">IN_RDY[i] = Buffer_Available[i]</span></p>
+<p>如果 Buffer 支持同拍出队和入队，可以在旧请求被取走的同一周期接收新请求。具体输入 RDY 逻辑需结合 Buffer 深度和实现方式确定。</p>
+<h3>4.2 仲裁侧</h3><p><span class="eq">ARB_REQ[i] = Buffer_Valid[i]</span></p><p>仲裁器只观察 Buffer 中保存的有效状态。选中某个 Buffer 后，读取其中保存的 DATA 和 ID，并在对应请求被正式取走时更新 Buffer 状态。</p>
+<h3>4.3 输出侧握手</h3><p><span class="eq">OUT_FIRE = OUT_VLD &amp; OUT_RDY</span></p>
+<p>当 OUT_VLD=1 且 OUT_RDY=0 时，输出端必须保持 OUT_VLD、OUT_DATA 和 OUT_ID 稳定，直到完成握手。</p>
+<div class="callout good">输入侧请求接收与输出侧仲裁/发送解耦后，仲裁可以增加流水级，而不会因为原始输入 VLD 撤销导致请求丢失。</div>
+</section>
+
+<section id="pending">
+<h2>5. 改进方案二：不增加 Buffer，只修正仲裁状态</h2>
+<p>如果每路输入最多只允许存在一个未完成请求，可以考虑使用 <code>pending</code> 状态保存请求。</p>
+<ul><li>捕获尚未处理的请求。</li><li>请求被正式接受后，清除对应 pending 状态。</li><li>仲裁器只对尚未处理的请求进行选择。</li></ul>
+<pre><code>// 示意代码：实际更新条件需要结合接口协议设计
+if (request_captured)
+    pending[i] &lt;= 1'b1;
+
+if (request_accepted)
+    pending[i] &lt;= 1'b0;</code></pre>
+<div class="callout warn">如果同一路输入允许连续产生多笔请求，而前一笔尚未处理完成，单个 pending bit 无法保存请求数量，需要 FIFO 或计数器。如果输入端可以连续每拍提供新数据，也不能简单地在一次 FIRE 后将该输入屏蔽一拍。</div>
+</section>
+
+<section id="compare">
+<h2>6. 三种方案对比</h2>
+<table><thead><tr><th>方案</th><th>能否避免过期仲裁结果</th><th>吞吐率潜力</th><th>主要代价</th></tr></thead><tbody>
+<tr><td>直接将 RDY 打一拍</td><td><strong style="color:#b42318">不能自动保证</strong></td><td>可能出现空拍</td><td>最低</td></tr>
+<tr><td>修正 pending / FIRE 状态</td><td>可以，但依赖输入协议和状态管理</td><td>较高</td><td>控制逻辑更复杂</td></tr>
+<tr><td>Input Buffer + 流水仲裁</td><td><strong style="color:#047857">可以解耦</strong></td><td>可设计为每拍接收/输出一个请求</td><td>Buffer、反压和流水控制</td></tr>
+</tbody></table>
+<div class="callout warn"><strong>吞吐率注意：</strong>流水仲裁并不天然保证每拍一个请求。要达到每拍一个请求，需要每一级都能每拍接收一个新仲裁任务、流水线不因下游反压而停顿，并且 Buffer 的入队/出队能力满足吞吐要求。如果仲裁器本身每4拍才完成一次选择，那么吞吐率仍然只有每4拍一次。</div>
+</section>
+
+<section id="design">
+<h2>7. 推荐设计方向与检查项</h2>
+<p class="lead">建议优先评估：<strong>输入请求捕获 → Pending Buffer → 多级流水仲裁 → 输出 VLD/RDY</strong>。</p>
+<ol>
+<li>请求接收后必须可靠保存，不能因为原始 VLD 撤销而丢失。</li>
+<li>仲裁器只对尚未处理的请求进行选择。</li>
+<li>DATA、ID、CHANNEL_GNT 必须保持对应关系。</li>
+<li>下游未接收时，输出 VLD、DATA、ID 必须保持稳定。</li>
+<li>Buffer 应支持必要的同时入队、出队操作，避免连续请求产生不必要的气泡。</li>
+<li>明确仲裁指针在“产生选择结果”“请求被缓存接收”还是“输出握手完成”时更新，避免重复选择或跳过请求。</li>
+<li>根据实际 STA 报告决定流水级数，不必预先固定为4拍。</li>
+</ol>
+<div class="callout good"><strong>最终结论：</strong>当前架构不要求输入请求当拍完成仲裁，因此没有必要强迫 VLD → RDY/GNT 保持一条很长的组合路径。更合理的思路是先保证请求被可靠捕获，再允许仲裁分多拍完成。这样可以用适当的响应延迟换取更好的时序，同时通过流水化和 Buffer 设计尽量保持吞吐率。</div>
+</section>
+
+<section id="protocol">
+<h2>8. 需要进一步确认的接口条件</h2>
+<table><thead><tr><th>类型</th><th>行为</th><th>设计要求</th></tr></thead><tbody>
+<tr><td>A：标准 VLD/RDY</td><td>VLD=1 且未握手时，发送端保持 VLD 和 DATA</td><td>可通过输入 Buffer 接收并反压</td></tr>
+<tr><td>B：单拍脉冲</td><td>VLD 只持续一拍，不等待 RDY</td><td>必须在脉冲到来时捕获请求，必要时使用 FIFO</td></tr>
+<tr><td>C：电平请求</td><td>业务未完成时持续保持，收到 GNT 后撤销</td><td>需要明确 GNT 的接受语义及重复请求处理</td></tr>
+</tbody></table>
+<div class="callout warn">在确认 A/B/C 之前，不应直接确定 Buffer 深度、请求保持方式和仲裁状态更新时机。</div>
+</section>
+<footer>SoC / RTL Design Note · VLD/RDY Arbitration Pipeline</footer>
+</main></body></html>
