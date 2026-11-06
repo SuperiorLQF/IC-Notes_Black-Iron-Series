@@ -35,6 +35,14 @@ python sonar_terrain/xtf_preview.py sonar_terrain/data/real/opensidescan/starfis
   --output sonar_terrain/outputs/real_starfish --exploratory-flat-calibration
 ```
 
+## 模拟采集与强化学习闭环
+
+新增 [simulation/](simulation/README.md)：在有地形真值的模拟环境中选择采样位置，用同一物理重建器反演，再计算误差；包含小型 Q-learning、均匀/随机采样对照和模型不匹配测试。
+
+[重建与真值对照](simulation/results/reconstruction.png) · [误差评估](simulation/results/evaluation.png)
+
+本次测试中 Q-learning 优于随机采样，但不如均匀采样；完整结果和适用限制见模拟实验说明。
+
 ## 快速运行
 
 Python 3.10+，在仓库根目录执行：
