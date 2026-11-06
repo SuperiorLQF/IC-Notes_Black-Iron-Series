@@ -1,0 +1,13 @@
+{
+  "solver_stop": 2,
+  "solver_iterations": 730,
+  "converged": true,
+  "valid_fraction": 0.9751953125,
+  "anchor_index": 0,
+  "height_units": "m",
+  "meaning": "relative relief, NOT measured absolute bathymetry",
+  "seed": 7,
+  "rmse_m": 0.04191081013038186,
+  "mae_m": 0.03388935807370823,
+  "experiment": "synthetic same-model sanity check; not real-data accuracy"
+}

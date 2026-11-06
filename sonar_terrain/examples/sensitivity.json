@@ -1,0 +1,23 @@
+{
+  "matched_clean": {
+    "rmse_m": 0.01142387995545381,
+    "valid_fraction": 1.0,
+    "converged": true
+  },
+  "matched_noise": {
+    "rmse_m": 0.011338141899183715,
+    "valid_fraction": 1.0,
+    "converged": true
+  },
+  "reflectivity_mismatch": {
+    "rmse_m": 0.38450512184366314,
+    "valid_fraction": 1.0,
+    "converged": true
+  },
+  "geometry_mismatch": {
+    "rmse_m": 0.17145089170566616,
+    "valid_fraction": 1.0,
+    "converged": true
+  },
+  "interpretation": "Synthetic sensitivity only. Same-model error is not real-world accuracy. Unknown reflectivity and nonplanar geometry introduce bias."
+}
