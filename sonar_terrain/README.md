@@ -17,6 +17,14 @@
 - `tests/test_reconstruct.py`：左右舷、非均匀采样、缺测、输入错误和收敛状态验证。
 - `examples/`：固定随机种子的输入、真值、重建结果、误差报告和可直接查看的图。
 
+## 已下载的真实声呐样本
+
+新增 [Garmin 真实侧扫声呐图像小样本](data/real/garmin_sample/README.md)：8 张 JPEG，附原始许可、论文来源和 SHA-256 清单。它们与 `examples/` 中的合成数据分开保存；由于缺少几何和辐射标定，尚不能直接用来验证米级高程。
+
+```bash
+python sonar_terrain/download_real_data.py --verify-only
+```
+
 ## 快速运行
 
 Python 3.10+，在仓库根目录执行：

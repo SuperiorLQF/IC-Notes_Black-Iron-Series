@@ -1,0 +1,104 @@
+{
+  "dataset": "Consumer Class Side Scanning Sonar Dataset for Human Detection",
+  "repository": "https://github.com/tonaalt/sonar_human_dataset",
+  "revision": "1099809a296a1c4a62cad3cc3d6edf5639c2e1b9",
+  "paper_doi": "10.23919/MIPRO57284.2023.10159954",
+  "downloaded_date": "2026-11-06",
+  "license": "MIT (upstream repository LICENSE)",
+  "files": [
+    {
+      "path": "000206.jpg",
+      "upstream_path": "data/human_test/000206.jpg",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/data/human_test/000206.jpg",
+      "bytes": 124174,
+      "sha256": "5035a3982f9b9bf22f79a6fe01e077802e36927cdc002160811dfc9608925d55",
+      "width": 550,
+      "height": 500,
+      "mode": "RGB"
+    },
+    {
+      "path": "000220.jpg",
+      "upstream_path": "data/human_test/000220.jpg",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/data/human_test/000220.jpg",
+      "bytes": 122145,
+      "sha256": "5271fb2bd7d72ad5155e4cb37b5760dff775fd9746c649e4136c62ee471dc4c0",
+      "width": 550,
+      "height": 500,
+      "mode": "RGB"
+    },
+    {
+      "path": "000240.jpg",
+      "upstream_path": "data/human_test/000240.jpg",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/data/human_test/000240.jpg",
+      "bytes": 119987,
+      "sha256": "f174ac235739fa888abe4615c569ff22489e2f13573ee488f89b762efebe60f3",
+      "width": 550,
+      "height": 500,
+      "mode": "RGB"
+    },
+    {
+      "path": "000260.jpg",
+      "upstream_path": "data/human_test/000260.jpg",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/data/human_test/000260.jpg",
+      "bytes": 122377,
+      "sha256": "66d9108fbe8b2bd0f799a2e4ebf42819425dcc78177b7555cb38f723f2d10516",
+      "width": 550,
+      "height": 500,
+      "mode": "RGB"
+    },
+    {
+      "path": "nohuman000280.jpg",
+      "upstream_path": "data/nohuman_test/cropped/nohuman/nohuman000280.jpg",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/data/nohuman_test/cropped/nohuman/nohuman000280.jpg",
+      "bytes": 17490,
+      "sha256": "f6fa25a4d34ee398b041cc0e38d8577ab1a29c00664ed0cef834958955e71651",
+      "width": 100,
+      "height": 70,
+      "mode": "RGB"
+    },
+    {
+      "path": "nohuman000281.jpg",
+      "upstream_path": "data/nohuman_test/cropped/nohuman/nohuman000281.jpg",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/data/nohuman_test/cropped/nohuman/nohuman000281.jpg",
+      "bytes": 15198,
+      "sha256": "2d020de9a04152e655691b04b8b50c5d7334999f4c749630962212cb1a65568c",
+      "width": 100,
+      "height": 70,
+      "mode": "RGB"
+    },
+    {
+      "path": "nohuman000282.jpg",
+      "upstream_path": "data/nohuman_test/cropped/nohuman/nohuman000282.jpg",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/data/nohuman_test/cropped/nohuman/nohuman000282.jpg",
+      "bytes": 17401,
+      "sha256": "d1c909f001ac3b5fa82c56294dd650093dddac8293a5300b1d8fbf0bca317583",
+      "width": 100,
+      "height": 70,
+      "mode": "RGB"
+    },
+    {
+      "path": "nohuman000283.jpg",
+      "upstream_path": "data/nohuman_test/cropped/nohuman/nohuman000283.jpg",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/data/nohuman_test/cropped/nohuman/nohuman000283.jpg",
+      "bytes": 16077,
+      "sha256": "3eb42986c2af8ea5ce1f9c734901020336437a26eb6692843e7eb6df0adee97f",
+      "width": 100,
+      "height": 70,
+      "mode": "RGB"
+    },
+    {
+      "path": "LICENSE",
+      "upstream_path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/LICENSE",
+      "bytes": 1070,
+      "sha256": "ca31bf551e52fc85f3924817f56246fa0c211076304fdc3b7669c017aa603d6f"
+    },
+    {
+      "path": "UPSTREAM_README.md",
+      "upstream_path": "README.md",
+      "url": "https://raw.githubusercontent.com/tonaalt/sonar_human_dataset/1099809a296a1c4a62cad3cc3d6edf5639c2e1b9/README.md",
+      "bytes": 367,
+      "sha256": "18bd9ec12916ad49bac7d5c47f36486f1eb4f02a439131c336bd566ecb0d4981"
+    }
+  ]
+}
