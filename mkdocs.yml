@@ -17,6 +17,8 @@ nav:
     - Verdi-TCL: verdi_tcl.md
     - NeoVim: nvim.md
     - TimingDesigner: TimingDesigner.md
+  - 经典案例:
+    - VLD/RDY 握手与流水仲裁: classic_cases/index.md
   - 小工具: tools.md
   - 关于: about.md
 theme: 
