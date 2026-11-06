@@ -17,12 +17,22 @@
 - `tests/test_reconstruct.py`：左右舷、非均匀采样、缺测、输入错误和收敛状态验证。
 - `examples/`：固定随机种子的输入、真值、重建结果、误差报告和可直接查看的图。
 
-## 已下载的真实声呐样本
+## 已下载的真实声呐数据与结果
 
-新增 [Garmin 真实侧扫声呐图像小样本](data/real/garmin_sample/README.md)：8 张 JPEG，附原始许可、论文来源和 SHA-256 清单。它们与 `examples/` 中的合成数据分开保存；由于缺少几何和辐射标定，尚不能直接用来验证米级高程。
+现在有两种真实数据，和 `examples/` 顶层的合成示例分开保存：
+
+1. **[StarFish 原始 XTF 测线](data/real/opensidescan/README.md)**：约 1 MiB，439 个 ping，含左右舷原始回波、非零高度及部分有效 GPS。已生成真实回波图和基于经验标定的探索性地形预览。
+2. [Garmin 真实侧扫 JPEG 小样本](data/real/garmin_sample/README.md)：8 张图片，适合图像处理，不具备当前反演需要的原始几何与标定。
+
+[真实数据右舷地形预览](examples/real_starfish/starboard/surface.png) · [左舷预览](examples/real_starfish/port/surface.png) · [全部原始回波](examples/real_starfish/raw_all_pings.png)
+
+**真实数据预览尚未经过测深真值验证。** XTF 有高度和导航，但没有完整辐射标定，因此只能在显式启用平坦海底统计校正假设后生成地形；不能将它当成已测得的海底高程。详细假设、筛选与运行方法见原始数据说明。
 
 ```bash
-python sonar_terrain/download_real_data.py --verify-only
+python sonar_terrain/download_real_data.py --dataset opensidescan --verify-only
+python -m pip install -r sonar_terrain/requirements-xtf.txt
+python sonar_terrain/xtf_preview.py sonar_terrain/data/real/opensidescan/starfish_excerpt.xtf \
+  --output sonar_terrain/outputs/real_starfish --exploratory-flat-calibration
 ```
 
 ## 快速运行

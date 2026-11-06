@@ -1,0 +1,46 @@
+{
+  "total_sonar_pings": 439,
+  "valid_pings_before_duplicate_removal": 412,
+  "selected_pings": 15,
+  "navigation": "Sensor latitude/longitude, local projection, cumulative path distance",
+  "track_length_m": 21.525205444020735,
+  "first_time": "2020-07-24T19:13:42.390",
+  "last_time": "2020-07-24T19:13:56.680",
+  "altitude_min_m": 3.096517562866211,
+  "altitude_max_m": 4.138103008270264,
+  "radiometric_calibration_available": false,
+  "paired_bathymetry_available": false,
+  "exploratory_results": {
+    "port": {
+      "solver_stop": 2,
+      "solver_iterations": 733,
+      "converged": true,
+      "valid_fraction": 0.9736111111111111,
+      "anchor_index": 95,
+      "height_units": "m",
+      "meaning": "relative relief, NOT measured absolute bathymetry",
+      "interpretation": "EXPLORATORY ONLY: empirical flat-bed calibration, no bathymetry validation",
+      "calibration": "per-range median counts divided by flat-plane cosine, NOT measured gain/reflectivity",
+      "anchor": "assumed zero at each nearest-nadir sample",
+      "units": "conditional model metres; not verified physical elevation",
+      "attitude_correction": false,
+      "shadow_mask": "only automatic validity filtering; no manual shadow annotation"
+    },
+    "starboard": {
+      "solver_stop": 2,
+      "solver_iterations": 666,
+      "converged": true,
+      "valid_fraction": 1.0,
+      "anchor_index": 0,
+      "height_units": "m",
+      "meaning": "relative relief, NOT measured absolute bathymetry",
+      "interpretation": "EXPLORATORY ONLY: empirical flat-bed calibration, no bathymetry validation",
+      "calibration": "per-range median counts divided by flat-plane cosine, NOT measured gain/reflectivity",
+      "anchor": "assumed zero at each nearest-nadir sample",
+      "units": "conditional model metres; not verified physical elevation",
+      "attitude_correction": false,
+      "shadow_mask": "only automatic validity filtering; no manual shadow annotation"
+    }
+  },
+  "reconstruction_requested": true
+}

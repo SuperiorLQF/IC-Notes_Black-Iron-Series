@@ -1,0 +1,28 @@
+{
+  "repository": "https://github.com/CIDCO-dev/OpenSidescan",
+  "revision": "ed8bb3ea891343df150a5568f30296c947b06925",
+  "downloaded_date": "2026-11-06",
+  "files": [
+    {
+      "path": "starfish_excerpt.xtf",
+      "url": "https://raw.githubusercontent.com/CIDCO-dev/OpenSidescan/ed8bb3ea891343df150a5568f30296c947b06925/test/data/starfish/22_07_2020_C2.xtf",
+      "upstream_path": "test/data/starfish/22_07_2020_C2.xtf",
+      "bytes": 1047600,
+      "sha256": "1f9fe6ec9460a42b963d8ddeb90521e8e52bf2fcf4c64186840fec8c043673bb",
+      "transformation": "contiguous source prefix, cropped at complete XTF record boundary",
+      "source_prefix_bytes_read": 1048576
+    },
+    {
+      "path": "LICENSE",
+      "url": "https://raw.githubusercontent.com/CIDCO-dev/OpenSidescan/ed8bb3ea891343df150a5568f30296c947b06925/LICENSE",
+      "bytes": 2785,
+      "sha256": "6432b1cf52cb35887b2465b44d33f9b07085aa05032dd3311ac829760d9eb3fe"
+    },
+    {
+      "path": "UPSTREAM_README.md",
+      "url": "https://raw.githubusercontent.com/CIDCO-dev/OpenSidescan/ed8bb3ea891343df150a5568f30296c947b06925/README.md",
+      "bytes": 37,
+      "sha256": "c999e4c98e28d50ab55c85b23dbbf6d456e80d26a36a676953fbdc5d3510339a"
+    }
+  ]
+}

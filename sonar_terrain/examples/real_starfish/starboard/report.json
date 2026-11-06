@@ -1,0 +1,15 @@
+{
+  "solver_stop": 2,
+  "solver_iterations": 666,
+  "converged": true,
+  "valid_fraction": 1.0,
+  "anchor_index": 0,
+  "height_units": "m",
+  "meaning": "relative relief, NOT measured absolute bathymetry",
+  "interpretation": "EXPLORATORY ONLY: empirical flat-bed calibration, no bathymetry validation",
+  "calibration": "per-range median counts divided by flat-plane cosine, NOT measured gain/reflectivity",
+  "anchor": "assumed zero at each nearest-nadir sample",
+  "units": "conditional model metres; not verified physical elevation",
+  "attitude_correction": false,
+  "shadow_mask": "only automatic validity filtering; no manual shadow annotation"
+}
