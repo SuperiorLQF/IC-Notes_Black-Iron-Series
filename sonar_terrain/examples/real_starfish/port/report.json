@@ -1,8 +1,8 @@
 {
   "solver_stop": 2,
-  "solver_iterations": 733,
+  "solver_iterations": 641,
   "converged": true,
-  "valid_fraction": 0.9736111111111111,
+  "valid_fraction": 1.0,
   "anchor_index": 95,
   "height_units": "m",
   "meaning": "relative relief, NOT measured absolute bathymetry",

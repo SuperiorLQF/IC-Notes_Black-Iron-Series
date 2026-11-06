@@ -10,12 +10,15 @@
   "altitude_max_m": 4.138103008270264,
   "radiometric_calibration_available": false,
   "paired_bathymetry_available": false,
+  "port_sample_order": "far-to-near",
+  "starboard_sample_order": "near-to-far",
+  "sample_order_basis": "water-column edge inspection of bundled StarFish sample; verify for other files",
   "exploratory_results": {
     "port": {
       "solver_stop": 2,
-      "solver_iterations": 733,
+      "solver_iterations": 641,
       "converged": true,
-      "valid_fraction": 0.9736111111111111,
+      "valid_fraction": 1.0,
       "anchor_index": 95,
       "height_units": "m",
       "meaning": "relative relief, NOT measured absolute bathymetry",

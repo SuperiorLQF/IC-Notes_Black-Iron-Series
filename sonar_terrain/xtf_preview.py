@@ -57,11 +57,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input', type=Path)
     parser.add_argument('--output', type=Path, default=Path('outputs/real_xtf'))
+    parser.add_argument('--port-order', choices=['far-to-near', 'near-to-far'], default='far-to-near',
+                        help='Stored port sample order; far-to-near matches the bundled StarFish waterfall')
     parser.add_argument('--exploratory-flat-calibration', action='store_true',
                         help='Explicitly permit empirical flat-bed normalization; NOT a measured calibration')
     args = parser.parse_args()
     try:
         records, y, summary = load_pings(args.input)
+        summary['port_sample_order'] = args.port_order
+        summary['starboard_sample_order'] = 'near-to-far'
+        summary['sample_order_basis'] = 'water-column edge inspection of bundled StarFish sample; verify for other files'
         output = args.output
         output.mkdir(parents=True, exist_ok=True)
         np.savetxt(output/'navigation.csv', np.array([
@@ -80,10 +85,10 @@ def main():
             rmax = float(raw_pings[0].ping_chan_headers[j].SlantRange)
             display = np.log1p(image)
             lo, hi = np.percentile(display, [1, 99])
-            ax.imshow(display, aspect='auto', origin='lower', extent=[0, rmax, 0, len(raw_pings)],
+            ax.imshow(display, aspect='auto', origin='lower', extent=[0, image.shape[1], 0, len(raw_pings)],
                       cmap='gray', vmin=lo, vmax=hi)
             ax.set(title=f'Raw channel {j}: all {len(raw_pings)} pings',
-                   xlabel='Slant range (m), near to far assumed', ylabel='Ping index')
+                   xlabel='Stored sample index (original channel order)', ylabel='Ping index')
         fig_raw.savefig(output/'raw_all_pings.png', dpi=150)
         plt.close(fig_raw)
         heights = np.array([p.SensorPrimaryAltitude for p, _ in records])
@@ -100,7 +105,10 @@ def main():
             values = []
             for (p, channels), h in zip(records, heights):
                 ch, raw = channels[kind]
-                # Raw channel samples are assumed near-to-far slant range.
+                # The bundled StarFish port channel is stored far-to-near,
+                # as indicated by the water-column edge; normalize before ranging.
+                if kind == 1 and args.port_order == 'far-to-near':
+                    raw = raw[::-1]
                 slant = np.linspace(0, float(ch.SlantRange), len(raw), endpoint=False)
                 values.append(np.interp(np.hypot(x, h), slant, raw))
             values = np.array(values)
