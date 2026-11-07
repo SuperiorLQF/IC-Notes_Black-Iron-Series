@@ -5,9 +5,11 @@
 | 本站图片 | 原文件 |
 | --- | --- |
 | [理想 RC 低通](rc-low-pass-ideal.png) | [Proiect/ftj.jpg](https://github.com/mirunal23/Low-pass-and-High-pass-Filters/blob/1b8ef061147e9af24e2fb940197343d9beba982b/Proiect/ftj.jpg) |
-| [理想 RC 高通](rc-high-pass-ideal.png) | [Proiect/fts.jpg](https://github.com/mirunal23/Low-pass-and-High-pass-Filters/blob/1b8ef061147e9af24e2fb940197343d9beba982b/Proiect/fts.jpg) |
+| [理想 RC 高通](rc-high-pass-matched.svg) | 本站绘制的 SVG：沿用低通图的公共参考线、端点与电压向上箭头，电容串联、电阻接参考端 |
 
-取自 GitHub 项目 `mirunal23/Low-pass-and-High-pass-Filters`，固定提交 `1b8ef061147e9af24e2fb940197343d9beba982b`。原文件虽以 `.jpg` 命名，实际为带透明通道的 PNG；本站保留原始图片字节，仅将扩展名改为 `.png`，未重绘或改动电路。
+低通图取自 GitHub 项目 `mirunal23/Low-pass-and-High-pass-Filters`，固定提交 `1b8ef061147e9af24e2fb940197343d9beba982b`。低通原文件虽以 `.jpg` 命名，实际为带透明通道的 PNG；本站保留原始图片字节，仅将扩展名改为 `.png`，未重绘或改动电路。
+
+高通图为本站新绘制的矢量电路示意图，不再使用原先风格不同的 `fts.jpg`。输出电压取电阻上端相对底部参考线的电位差。
 
 原仓库未提供明确的图片许可声明。此处保留原始来源，不将其标为下方教材图片的 Design Science License。
 
