@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="246" height="138" viewBox="0 0 246 138" role="img" aria-labelledby="title desc">
+  <title id="title">RC 高通电路</title>
+  <desc id="desc">电容 C 串联在输入与输出节点之间；电阻 R 从输出节点连接到底部公共参考线。输入和输出电压箭头均由下向上。</desc>
+  <g fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 30H75M83 30H232M18 127H232"/>
+    <path d="M75 16V44M83 16V44" stroke-width="2.5"/>
+    <path d="M154 30V48L160 53L148 63L160 73L148 83L160 93L154 98V127"/>
+    <path d="M18 114V44M232 114V44" stroke-width="1.4"/>
+  </g>
+  <g fill="#000">
+    <path d="M18 41L15 50L18 48L21 50Z"/>
+    <path d="M232 41L229 50L232 48L235 50Z"/>
+    <circle cx="154" cy="30" r="2.7"/>
+    <circle cx="154" cy="127" r="2.7"/>
+  </g>
+  <g fill="#fff" stroke="#000" stroke-width="1.6">
+    <circle cx="18" cy="30" r="4"/>
+    <circle cx="232" cy="30" r="4"/>
+    <circle cx="18" cy="127" r="4"/>
+    <circle cx="232" cy="127" r="4"/>
+  </g>
+  <g fill="#000" font-family="Times New Roman, Times, serif" font-style="italic" font-size="17">
+    <text x="79" y="12" text-anchor="middle">C</text>
+    <text x="169" y="78">R</text>
+    <text x="25" y="83">v<tspan baseline-shift="sub" font-size="11" font-style="normal">in</tspan></text>
+    <text x="223" y="83" text-anchor="end">v<tspan baseline-shift="sub" font-size="11" font-style="normal">out</tspan></text>
+  </g>
+</svg>
