@@ -1916,8 +1916,8 @@
 <tbody>
 <tr>
 <td>电路图</td>
-<td><img alt="RC 低通电路：串联电阻，输出取电容两端" src="../img/filters/rc-low-pass.png" width="320" /></td>
-<td><img alt="RC 高通电路：串联电容，输出取电阻两端" src="../img/filters/rc-high-pass.png" width="320" /></td>
+<td><img alt="RC 低通电路：串联电阻，输出取电容两端" src="../img/filters/rc-low-pass-ideal.png" width="320" /></td>
+<td><img alt="RC 高通电路：串联电容，输出取电阻两端" src="../img/filters/rc-high-pass-ideal.png" width="320" /></td>
 </tr>
 <tr>
 <td>连接方式</td>
@@ -1976,7 +1976,7 @@
 </tr>
 </tbody>
 </table>
-<p>电路图取自公开教材 <em>Lessons in Electric Circuits</em>（<a href="../img/filters/SOURCES/">来源与许可</a>）。两图均以节点 2 相对节点 0 的电压为输出。低通图中的额外负载 <script type="math/tex">R_{\mathrm{load}}</script> 在本表公式中视为空载；高通图中的 <script type="math/tex">R_{\mathrm{load}}</script> 就是公式里的 <script type="math/tex">R</script>。图示元件数值仅为教材示例。</p>
+<p>表中电路图均只含一个电阻和一个电容，输入、输出采用共同参考端，与本表公式对应。配图取自公开项目 <a href="https://github.com/mirunal23/Low-pass-and-High-pass-Filters">Low-pass-and-High-pass-Filters</a>，<a href="../img/filters/SOURCES/">图片来源说明</a>。</p>
 <div class="admonition note">
 <p class="admonition-title">两个限定不能省略</p>
 <p>传递函数定义的是<strong>零初始条件</strong>下的输入输出关系；有初始储能时，输出还包含初始条件引起的响应。截止频率的幅度门槛是<strong>相对于通带增益</strong>定义的；本表的理想电路通带增益为 1，所以恰好也是输入幅度的 70.7%。</p>
