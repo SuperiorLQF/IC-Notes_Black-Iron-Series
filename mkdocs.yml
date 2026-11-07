@@ -19,6 +19,7 @@ nav:
     - TimingDesigner: TimingDesigner.md
   - 经典案例:
     - VLD/RDY 握手与流水仲裁: classic_cases/index.md
+    - 侧扫声呐重建与采样策略: classic_cases/sonar_reconstruction.md
   - 小工具: tools.md
   - 关于: about.md
 theme: 

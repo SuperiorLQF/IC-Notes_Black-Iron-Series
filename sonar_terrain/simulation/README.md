@@ -1,5 +1,7 @@
 # 模拟采集、地形重建与轻量强化学习
 
+[阅读正式文章](https://superiorlqf.github.io/IC-Notes_Black-Iron-Series/classic_cases/sonar_reconstruction/) · [文章 Markdown](../../docs/classic_cases/sonar_reconstruction.md) · [仓库首页](../../README.md)
+
 这里实现完整闭环：**生成带真值的地形 → 模拟声呐回波 → 策略选择采样位置 → 调用现有物理重建器 → 用真值计算误差和奖励 → 更新采样策略**。
 
 采用 NumPy 表格 Q-learning，无神经网络、无 GPU、无新训练依赖。Q 表是 `4096 × 12` 个 float32，未压缩约 192 KiB。默认完整实验约 19 秒（当前云 CPU；包含画图），而不是训练大模型。
