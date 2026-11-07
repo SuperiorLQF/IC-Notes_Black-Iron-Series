@@ -1,0 +1,1775 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../../tools/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>侧扫声呐重建与采样策略 - IC笔记 [黑铁篇]</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="IC笔记 [黑铁篇]" class="md-header__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
+      
+  <img src="../../img/home_24dp_E3E3E3.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            IC笔记 [黑铁篇]
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              侧扫声呐重建与采样策略
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  介绍
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../sv/" class="md-tabs__link">
+          
+  
+  
+  语法章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../cordic/" class="md-tabs__link">
+          
+  
+  
+  算法章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../noc/" class="md-tabs__link">
+          
+  
+  
+  体系结构章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../lfsr/" class="md-tabs__link">
+          
+  
+  
+  基础模块章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../verdi_tcl/" class="md-tabs__link">
+          
+  
+  
+  EDA工具章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  经典案例
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../tools/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  小工具
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="IC笔记 [黑铁篇]" class="md-nav__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
+      
+  <img src="../../img/home_24dp_E3E3E3.png" alt="logo">
+
+    </a>
+    IC笔记 [黑铁篇]
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    介绍
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    语法章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    语法章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SystemVerilog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sva/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SVA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SystemC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    算法章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    算法章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cordic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cordic算法
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rc_filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    滤波器基础（RC）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    体系结构章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    体系结构章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../noc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    片上网络NOC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础模块章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础模块章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lfsr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LFSR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../wavefront_allocator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    波前分配器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EDA工具章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    EDA工具章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verdi_tcl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verdi-TCL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../nvim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NeoVim
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TimingDesigner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimingDesigner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    经典案例
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    经典案例
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLD/RDY 握手与流水仲裁
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    侧扫声呐重建与采样策略
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    侧扫声呐重建与采样策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        工作范围与代码入口
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已生成的结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行方法
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        回波到地形的物理关系
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        误差指标与评估范围
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        模拟采集环境
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        强化学习的定义
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        防止把合成精度当作真实精度
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出文件
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实验结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小工具
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        工作范围与代码入口
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已生成的结果
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        运行方法
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        回波到地形的物理关系
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        误差指标与评估范围
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        模拟采集环境
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        强化学习的定义
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        防止把合成精度当作真实精度
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出文件
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实验结论
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">侧扫声呐地形重建：模拟采集与强化学习采样实验<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p>这里实现完整闭环：<strong>生成带真值的地形 → 模拟声呐回波 → 策略选择采样位置 → 调用现有物理重建器 → 用真值计算误差和奖励 → 更新采样策略</strong>。</p>
+<p>采用 NumPy 表格 Q-learning，无神经网络、无 GPU、无新训练依赖。Q 表是 <code>4096 × 12</code> 个 float32，未压缩约 192 KiB。默认完整实验约 19 秒（当前云 CPU；包含画图），而不是训练大模型。</p>
+<h2 id="_2">工作范围与代码入口<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>本案例从实际代码和已保存的实验结果出发，说明如何构造一个可以评估误差的声呐重建闭环。已完成的工作包括相对地形物理重建器、真实 XTF 样本读取、模拟声呐采集环境、轻量采样策略学习及独立测试。这里主要讨论可取得地形真值的模拟实验。</p>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th>代码与数据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>项目总说明</td>
+<td><a href="https://github.com/SuperiorLQF/IC-Notes_Black-Iron-Series/blob/main/sonar_terrain/README.md">sonar_terrain/README.md</a></td>
+</tr>
+<tr>
+<td>物理重建器与基础推导</td>
+<td><a href="https://github.com/SuperiorLQF/IC-Notes_Black-Iron-Series/blob/main/sonar_terrain/reconstruct.py">reconstruct.py</a></td>
+</tr>
+<tr>
+<td>模拟环境与 Q-learning</td>
+<td><a href="https://github.com/SuperiorLQF/IC-Notes_Black-Iron-Series/blob/main/sonar_terrain/simulation/experiment.py">simulation/experiment.py</a></td>
+</tr>
+<tr>
+<td>完整测试指标</td>
+<td><a href="https://github.com/SuperiorLQF/IC-Notes_Black-Iron-Series/blob/main/sonar_terrain/simulation/results/metrics.json">metrics.json</a></td>
+</tr>
+<tr>
+<td>原始 XTF 数据与实测探索预览</td>
+<td><a href="https://github.com/SuperiorLQF/IC-Notes_Black-Iron-Series/tree/main/sonar_terrain/data/real/opensidescan">原始数据说明</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">已生成的结果<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p><img alt="真值、采集位置、重建与误差" src="../../img/sonar_simulation/reconstruction.png" /></p>
+<p><img alt="训练过程与独立测试比较" src="../../img/sonar_simulation/evaluation.png" /></p>
+<p>以下为 <strong>12 个未参与训练的地形</strong>上的 RMSE 均值，单位 m：</p>
+<table>
+<thead>
+<tr>
+<th>采样策略</th>
+<th>每场景采样次数</th>
+<th>同散射模型，含噪声与缺测</th>
+<th>几何与反射率存在偏差</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>均匀采样</td>
+<td>4</td>
+<td>0.04677</td>
+<td>0.08672</td>
+</tr>
+<tr>
+<td>随机采样</td>
+<td>4</td>
+<td>0.07942</td>
+<td>0.11103</td>
+</tr>
+<tr>
+<td>Q-learning</td>
+<td>4</td>
+<td>0.06082</td>
+<td>0.09954</td>
+</tr>
+<tr>
+<td>全部采样</td>
+<td>12</td>
+<td>0.02221</td>
+<td>0.07702</td>
+</tr>
+</tbody>
+</table>
+<p><strong>本次 Q-learning 优于随机，但没有超过均匀采样。</strong> 120 个训练场景、有限的覆盖状态和简单的地形分布，并未显示强化学习优于规则策略。保留负面比较结果，不用测试集继续挑选训练参数。全采样用三倍预算，仅作为数据充分时的参考，不能当作等成本竞争方法。</p>
+<p>各场景的 RMSE、均值、标准差，以及 MAE、逐场景最大绝对误差的均值均记录在 <code>results/metrics.json</code>。误差覆盖整个模型网格，包含未采样区域；不是只评价观测点。图中误差棒为不同地形之间的标准差，不是置信区间。这里只运行一个训练随机种子、12 个测试地形，不能据此给出统计显著性结论。</p>
+<h2 id="_4">运行方法<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>在仓库根目录执行，依赖与原重建器相同：</p>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Bash</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
+<span class="normal"><a href="#__codelineno-0-2">2</a></span>
+<span class="normal"><a href="#__codelineno-0-3">3</a></span>
+<span class="normal"><a href="#__codelineno-0-4">4</a></span>
+<span class="normal"><a href="#__codelineno-0-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>sonar_terrain/requirements.txt
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a>python<span class="w"> </span>sonar_terrain/simulation/experiment.py<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">  </span>--output<span class="w"> </span>sonar_terrain/outputs/simulation<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span>--episodes<span class="w"> </span><span class="m">120</span><span class="w"> </span>--test-count<span class="w"> </span><span class="m">12</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a>python<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>-s<span class="w"> </span>sonar_terrain/tests<span class="w"> </span>-v
+</code></pre></div></td></tr></table></div>
+<p>在只读主目录环境，可在实验命令前加 <code>MPLCONFIGDIR=/tmp/sonar-mpl</code>。所有训练/测试数据由本地模拟器生成，不需要联网下载。默认测试命令会跳过缺少可选 <code>pyxtf</code> 时的原始文件测试，模拟测试不依赖 pyxtf。</p>
+<h2 id="_5">回波到地形的物理关系<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<p>设声呐距离参考平面的高度为 <script type="math/tex">h</script>，横向距离为 <script type="math/tex">x</script>，高程为 <script type="math/tex">z(x,y)</script>，横向坡度为 <script type="math/tex">p=\partial z/\partial x</script>。先假定地形起伏相对于高度较小，采用参考平面射线方向，并忽略沿航迹坡度对散射法向的影响。</p>
+<p>单位法向与朝向声呐的单位向量为：</p>
+<p>
+<script type="math/tex; mode=display">
+\boldsymbol n=\frac{(-p,1)}{\sqrt{1+p^2}},\qquad
+\boldsymbol\ell=\frac{(-x,h)}{\sqrt{x^2+h^2}}.
+</script>
+</p>
+<p>假定传播损耗已校正，已知增益 <script type="math/tex">g</script> 和等效反射率 <script type="math/tex">\rho</script>，余弦散射模型为：</p>
+<p>
+<script type="math/tex; mode=display">
+q=\frac{I}{g\rho}=\boldsymbol n\cdot\boldsymbol\ell
+=\frac{h+xp}{\sqrt{x^2+h^2}\sqrt{1+p^2}}.
+</script>
+</p>
+<p>令 <script type="math/tex">\alpha=\operatorname{atan2}(x,h)</script>、<script type="math/tex">\theta=\arctan p</script>，可写成 <script type="math/tex">q=\cos(\alpha-\theta)</script>。选择与平坦海底连续的分支：</p>
+<p>
+<script type="math/tex; mode=display">
+p=\tan\left[\alpha-\operatorname{sign}(x)\arccos q\right].
+</script>
+</p>
+<p>余弦反演存在分支歧义。代码限制坡度、排除近天底转折区，并过滤非有限、非正、饱和或超出模型范围的强度。不能对任意声呐 JPEG 直接套用这个公式。</p>
+<p>得到观测坡度后，对整个网格求解带平滑约束的最小二乘问题：</p>
+<p>
+<script type="math/tex; mode=display">
+\min_z\ \left\|W(D_xz-\bar p)\right\|_2^2
++\lambda_x\left\|\Delta_x D_xz\right\|_2^2
++\lambda_y\left\|D_yz\right\|_2^2,
+\qquad z_{i,k}=a_i.
+</script>
+</p>
+<p>
+<script type="math/tex">W</script> 只保留有效观测边，<script type="math/tex">D_x,D_y</script> 使用实际坐标间距构造差分，<script type="math/tex">a_i</script> 是输入边界高程。模拟实验将最近天底边界设为零，与模拟真值一致；这是一项已知条件，不是重建器从强度中恢复出来的绝对深度。</p>
+<p>未采样区域通过平滑约束补全，因此采样位置会影响全图重建误差，这正是采样策略可以优化的对象。</p>
+<h2 id="_6">误差指标与评估范围<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p>对固定全网格的 <script type="math/tex">N</script> 个单元计算：</p>
+<p>
+<script type="math/tex; mode=display">
+\operatorname{RMSE}=\sqrt{\frac{1}{N}\sum_{i=1}^N(\hat z_i-z_i^*)^2},\qquad
+\operatorname{MAE}=\frac{1}{N}\sum_{i=1}^N\left|\hat z_i-z_i^*\right|.
+</script>
+</p>
+<p>RMSE 对较大的局部误差更敏感，MAE 表示平均绝对偏差；最大绝对误差用于检查最差位置。先分别计算每个独立地形的指标，再对 12 个测试地形求均值。所有策略采用相同的评估范围，不能只选观测点或误差较小的区域。</p>
+<h2 id="_7">模拟采集环境<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<ul>
+<li>网格：12 个沿航迹位置 × 48 个横向距离单元，x 为 8～40 m，y 为 0～24 m。</li>
+<li>场景：横向正弦起伏乘以沿航迹包络；不同随机种子改变振幅、包络中心、宽度和相位。近天底边界始终为零，与重建器的默认锚点一致。</li>
+<li>元数据：已知模拟高度和增益；这些不是由强度自动估出来的。</li>
+<li>观测：余弦散射模型、标准差 0.0015 的强度噪声、约 1% 缺测。</li>
+<li>每个动作选择一个尚未测量的沿航迹位置，返回该行的 48 个强度采样。</li>
+<li>未采样单元在观测中为 NaN，掩码为 False；策略不能直接看到完整回波或地形真值。</li>
+<li>每次采集之后，用 <code>reconstruct.py</code> 中同一个稀疏重建器重建整个地形。</li>
+</ul>
+<p>模拟器是小型、准静态的<strong>采样位置选择环境</strong>，没有船体动力学、航速/转弯约束、采集时间、多路径、完整传播模型或声学射线追踪。允许跳跃选择位置；每个动作固定成本，不计算航行距离，因此这里不能解释成可部署的最优测线规划。</p>
+<h2 id="_8">强化学习的定义<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<p><strong>状态</strong>：已采集位置的 12 位覆盖掩码，最多 4096 种。观测接口另返回已采集强度、有效掩码和剩余预算；当前 Q 表刻意只使用覆盖状态，所以学到的是采样顺序/布局，<strong>不是根据回波自适应的复杂策略</strong>。</p>
+<p><strong>动作</strong>：选择 0～11 中的一个未采集位置，已采集位置从候选动作中屏蔽。重复动作或预算耗尽后的动作会报错。</p>
+<p><strong>奖励</strong>：</p>
+<p>
+<script type="math/tex; mode=display">
+r_t=\operatorname{RMSE}(\hat z_{t-1},z^*)-
+\operatorname{RMSE}(\hat z_t,z^*)-0.001.
+</script>
+</p>
+<p>每个 episode 采集 4 次。折扣因子为 1，所以累计奖励等于“初始 RMSE 减去最终 RMSE，再减去总采集成本”。开始时使用全零地形作为未观测基线。</p>
+<p>更新方式：</p>
+<p>
+<script type="math/tex; mode=display">
+Q(s_t,a_t)\leftarrow Q(s_t,a_t)+0.3\bigl[
+ r_t+\max_{a\ \mathrm{未采集}}Q(s_{t+1},a)-Q(s_t,a_t)\bigr].
+</script>
+</p>
+<p>终止状态的未来价值为 0。训练采用 ε-greedy，ε 从 0.8 线性降至 0.1；测试 ε=0，只在并列最佳动作时随机打破平局。环境由隐藏地形决定，覆盖状态不包含完整环境，因此该简单表示不保证满足完整可观测的 Markov 假设，不承诺最优性或收敛。</p>
+<p>模拟真值仅供训练奖励和离线误差评估使用，策略输入没有 RMSE 或真值。真实声呐通常无法在线获得这种奖励；若要应用到实测，必须解决仿真到真实的迁移及奖励代理问题。</p>
+<h2 id="_9">防止把合成精度当作真实精度<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<ul>
+<li>训练地形种子：1000～1119；测试地形种子：10000～10011，互不重叠。</li>
+<li>三种同成本策略在测试时使用相同场景、相同回波噪声和相同缺测。</li>
+<li>训练只用参考平面余弦模型。</li>
+<li>第二种测试故意让前向过程采用真实起伏后的射线方向、沿航迹法向，以及未知的 3% 横向反射率调制；反演仍使用原近似模型。</li>
+<li>两种测试都是<strong>模拟实验</strong>。模型不匹配测试也不能替代海试或配对多波束真值。</li>
+<li>相对高程以已知的模拟零边界为基准；没有恢复海平面绝对水深。</li>
+</ul>
+<h2 id="_10">输出文件<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>policy.npz</code></td>
+<td>训练得到的 Q 表</td>
+</tr>
+<tr>
+<td><code>metrics.json</code></td>
+<td>独立测试的全部误差与实验配置</td>
+</tr>
+<tr>
+<td><code>training.json</code></td>
+<td>各训练场景的初始/最终 RMSE 和累计奖励</td>
+</tr>
+<tr>
+<td><code>example_traces.json</code></td>
+<td>每种方法在首个测试地形中的动作、逐步误差和奖励</td>
+</tr>
+<tr>
+<td><code>example.npz</code></td>
+<td>首个测试场景的真值、实际采样、重建及元数据</td>
+</tr>
+<tr>
+<td><code>reconstruction.png</code></td>
+<td>真值、采集掩码、Q-learning 重建、误差图</td>
+</tr>
+<tr>
+<td><code>evaluation.png</code></td>
+<td>训练过程和测试对比</td>
+</tr>
+</tbody>
+</table>
+<p>下一步若要改善策略，应先扩大训练分布并加入可由实际回波提取的状态特征，再使用新的独立测试集评价，不能仅增加模型大小或反复调同一批测试结果。</p>
+<h2 id="_11">实验结论<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<p>在本次小规模测试中，均匀采样是同预算下更好的基线。Q-learning 已实现有效的采样—奖励反馈，但仅有覆盖状态，不能依据当前回波判断哪里需要补测。完整采样仍存在误差，说明重建模型、噪声和正则化本身也限制精度；几何与反射率不匹配时，增加采样不能消除系统偏差。</p>
+<p>这些结论适用于此模拟器和固定实验配置，尚不能推广为真实海底重建精度。实测 XTF 预览使用经验辐射校正，没有配对测深真值，其结果不能与本节的合成 RMSE 混用。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["header.autohide", "navigation.top", "navigation.tabs", "content.code.copy", "content.code.annotate", "codehilite", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../javascripts/mathjax-config.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    
+  </body>
+</html>
