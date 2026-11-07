@@ -1,5 +1,18 @@
 # RC 电路图片来源与许可
 
+## 第一个对比表：理想 RC 电路图
+
+| 本站图片 | 原文件 |
+| --- | --- |
+| [理想 RC 低通](rc-low-pass-ideal.png) | [Proiect/ftj.jpg](https://github.com/mirunal23/Low-pass-and-High-pass-Filters/blob/1b8ef061147e9af24e2fb940197343d9beba982b/Proiect/ftj.jpg) |
+| [理想 RC 高通](rc-high-pass-ideal.png) | [Proiect/fts.jpg](https://github.com/mirunal23/Low-pass-and-High-pass-Filters/blob/1b8ef061147e9af24e2fb940197343d9beba982b/Proiect/fts.jpg) |
+
+取自 GitHub 项目 `mirunal23/Low-pass-and-High-pass-Filters`，固定提交 `1b8ef061147e9af24e2fb940197343d9beba982b`。原文件虽以 `.jpg` 命名，实际为带透明通道的 PNG；本站保留原始图片字节，仅将扩展名改为 `.png`，未重绘或改动电路。
+
+原仓库未提供明确的图片许可声明。此处保留原始来源，不将其标为下方教材图片的 Design Science License。
+
+## 第 3 节：教材电路图
+
 两幅电路图摘自 Tony R. Kuphaldt 的 *Lessons In Electric Circuits, Volume II — AC*，Filters 章。
 
 **Copyright © 2000–2017, Tony R. Kuphaldt.** 图片遵循 **Design Science License**，不适用本站其他内容可能使用的许可。

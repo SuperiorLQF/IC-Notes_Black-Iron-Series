@@ -8,7 +8,7 @@ RC 滤波器只有电阻、电容两个元件，却能把**元件方程、微分
 
 | 项目 | RC 低通 | RC 高通 |
 | --- | --- | --- |
-| 电路图 | ![RC 低通电路：串联电阻，输出取电容两端](img/filters/rc-low-pass.png){ width="320" } | ![RC 高通电路：串联电容，输出取电阻两端](img/filters/rc-high-pass.png){ width="320" } |
+| 电路图 | ![RC 低通电路：串联电阻，输出取电容两端](img/filters/rc-low-pass-ideal.png){ width="320" } | ![RC 高通电路：串联电容，输出取电阻两端](img/filters/rc-high-pass-ideal.png){ width="320" } |
 | 连接方式 | 电阻串联，电容接公共参考端，输出取电容两端 | 电容串联，电阻接公共参考端，输出取电阻两端 |
 | 时间常数 | \(\tau=RC\) | \(\tau=RC\) |
 | 零初始条件下的传递函数 | \(H_{\mathrm{LP}}(s)=\dfrac{1}{1+s\tau}\) | \(H_{\mathrm{HP}}(s)=\dfrac{s\tau}{1+s\tau}\) |
@@ -17,7 +17,7 @@ RC 滤波器只有电阻、电容两个元件，却能把**元件方程、微分
 | \(f=f_c\) 时的电压幅度比 | \(1/\sqrt{2}\approx0.7071\) | \(1/\sqrt{2}\approx0.7071\) |
 | \(f=f_c\) 时的输出相位 | 滞后输入 \(45^\circ\) | 超前输入 \(45^\circ\) |
 
-电路图取自公开教材 *Lessons in Electric Circuits*（[来源与许可](img/filters/SOURCES.md)）。两图均以节点 2 相对节点 0 的电压为输出。低通图中的额外负载 \(R_{\mathrm{load}}\) 在本表公式中视为空载；高通图中的 \(R_{\mathrm{load}}\) 就是公式里的 \(R\)。图示元件数值仅为教材示例。
+表中电路图均只含一个电阻和一个电容，输入、输出采用共同参考端，与本表公式对应。配图取自公开项目 [Low-pass-and-High-pass-Filters](https://github.com/mirunal23/Low-pass-and-High-pass-Filters)，[图片来源说明](img/filters/SOURCES.md)。
 
 !!! note "两个限定不能省略"
     传递函数定义的是**零初始条件**下的输入输出关系；有初始储能时，输出还包含初始条件引起的响应。截止频率的幅度门槛是**相对于通带增益**定义的；本表的理想电路通带增益为 1，所以恰好也是输入幅度的 70.7%。
