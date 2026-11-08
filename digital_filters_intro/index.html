@@ -1,0 +1,2117 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../rc_filters/">
+      
+      
+        <link rel="next" href="../noc/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>数字滤波器入门（FIR/IIR/SFC） - IC笔记 [黑铁篇]</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#firiir-sfc" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="IC笔记 [黑铁篇]" class="md-header__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
+      
+  <img src="../img/home_24dp_E3E3E3.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            IC笔记 [黑铁篇]
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              数字滤波器入门（FIR/IIR/SFC）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  介绍
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../sv/" class="md-tabs__link">
+          
+  
+  
+  语法章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../cordic/" class="md-tabs__link">
+          
+  
+  
+  算法章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../noc/" class="md-tabs__link">
+          
+  
+  
+  体系结构章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../lfsr/" class="md-tabs__link">
+          
+  
+  
+  基础模块章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../verdi_tcl/" class="md-tabs__link">
+          
+  
+  
+  EDA工具章
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../classic_cases/" class="md-tabs__link">
+          
+  
+  
+  经典案例
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../tools/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  小工具
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  关于
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="IC笔记 [黑铁篇]" class="md-nav__button md-logo" aria-label="IC笔记 [黑铁篇]" data-md-component="logo">
+      
+  <img src="../img/home_24dp_E3E3E3.png" alt="logo">
+
+    </a>
+    IC笔记 [黑铁篇]
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    介绍
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    语法章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    语法章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SystemVerilog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sva/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SVA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SystemC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    算法章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    算法章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cordic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cordic算法
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rc_filters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    滤波器基础（RC）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    数字滤波器入门（FIR/IIR/SFC）
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    数字滤波器入门（FIR/IIR/SFC）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 数字滤波器在处理什么
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 数字滤波器在处理什么">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 三点平均滤波器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-fir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. FIR：有限冲激响应
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. FIR：有限冲激响应">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 为什么它能滤除高频
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-fir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 FIR 名称的来源
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-iir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. IIR：无限冲激响应
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. IIR：无限冲激响应">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-fir-iir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 FIR 与 IIR 对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-sfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. SFC：采样率转换器
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. SFC：采样率转换器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 插值：为什么不能简单复制数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 抽取：为什么不能直接丢点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 分数倍转换
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 采样率不等于时钟频率
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-3-tap-fir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 一个可综合的 3-tap FIR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-sfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 通信链路中的 SFC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 自测与下一节
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    体系结构章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    体系结构章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../noc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    片上网络NOC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    基础模块章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    基础模块章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lfsr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LFSR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../wavefront_allocator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    波前分配器
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EDA工具章
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    EDA工具章
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../verdi_tcl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verdi-TCL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nvim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NeoVim
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../TimingDesigner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TimingDesigner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    经典案例
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    经典案例
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../classic_cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VLD/RDY 握手与流水仲裁
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../classic_cases/sonar_reconstruction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    侧扫声呐重建与采样策略
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    小工具
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    关于
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 数字滤波器在处理什么
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 数字滤波器在处理什么">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 三点平均滤波器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-fir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. FIR：有限冲激响应
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. FIR：有限冲激响应">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 为什么它能滤除高频
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-fir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 FIR 名称的来源
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-iir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. IIR：无限冲激响应
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. IIR：无限冲激响应">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-fir-iir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 FIR 与 IIR 对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-sfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. SFC：采样率转换器
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. SFC：采样率转换器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 插值：为什么不能简单复制数据
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 抽取：为什么不能直接丢点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 分数倍转换
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 采样率不等于时钟频率
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-3-tap-fir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 一个可综合的 3-tap FIR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-sfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 通信链路中的 SFC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 自测与下一节
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="firiir-sfc">数字滤波器入门：FIR、IIR 与 SFC<a class="headerlink" href="#firiir-sfc" title="Permanent link">&para;</a></h1>
+<p>本章接续 <a href="../rc_filters/">RC 滤波器基础</a>，从采样序列开始理解数字滤波器，再联系通信芯片中的采样率转换和 RTL 实现。</p>
+<h2 id="1">1. 数字滤波器在处理什么<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>模拟滤波器处理连续信号；数字滤波器处理 ADC 采样得到的序列：</p>
+<p>
+<script type="math/tex; mode=display">
+x[0],\ x[1],\ x[2],\ \ldots
+</script>
+</p>
+<p>若采样率为 <script type="math/tex">f_s=1000\ \mathrm{Hz}</script>，相邻采样之间的间隔为：</p>
+<p>
+<script type="math/tex; mode=display">
+T_s=\frac{1}{f_s}=1\ \mathrm{ms}.
+</script>
+</p>
+<p>数字滤波器将输入序列映射为输出序列 <script type="math/tex">y[n]</script>，改变不同频率成分的幅度，通常也改变相位或时延。</p>
+<h3 id="11">1.1 三点平均滤波器<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
+<p>
+<script type="math/tex; mode=display">
+\boxed{y[n]=\frac{x[n]+x[n-1]+x[n-2]}{3}}
+</script>
+</p>
+<p>输入一个孤立脉冲，假设起始历史为零：</p>
+<table>
+<thead>
+<tr>
+<th>采样序号</th>
+<th style="text-align: right;">0</th>
+<th style="text-align: right;">1</th>
+<th style="text-align: right;">2</th>
+<th style="text-align: right;">3</th>
+<th style="text-align: right;">4</th>
+<th style="text-align: right;">5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>输出</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>单个突变被分散到三个采样时刻。这是最简单的低通滤波器之一：它倾向于保留缓慢变化、削弱快速变化，但并不会把所有高频成分都彻底消除。</p>
+<h2 id="2-fir">2. FIR：有限冲激响应<a class="headerlink" href="#2-fir" title="Permanent link">&para;</a></h2>
+<p>FIR（Finite Impulse Response）的特点是：<strong>当前输出只依赖当前及过去的输入，没有输出反馈</strong>。</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{y[n]=\sum_{k=0}^{N-1}h[k]x[n-k]}
+</script>
+</p>
+<p>其中 <script type="math/tex">N</script> 是 tap 数，<script type="math/tex">h[k]</script> 是滤波器系数。</p>
+<p>以 3-tap FIR 为例：</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{y[n]=0.25x[n]+0.5x[n-1]+0.25x[n-2]}
+</script>
+</p>
+<p>它的硬件结构是：两个采样延迟寄存器、三路系数乘法，以及一组加法逻辑。系数为 <script type="math/tex">1/4,1/2,1/4</script> 时，可以通过移位和加法实现常数乘法。</p>
+<h3 id="21">2.1 为什么它能滤除高频<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<p>不做傅里叶变换，也可以先直观看到它的频率选择性。</p>
+<p><strong>恒定输入</strong>：输入一直为 4，则稳态输出为：</p>
+<p>
+<script type="math/tex; mode=display">
+y[n]=(0.25+0.5+0.25)\times4=4.
+</script>
+</p>
+<p><strong>逐采样正负交替的输入</strong>：输入为 <script type="math/tex">\ldots,4,-4,4,-4,\ldots</script>，则：</p>
+<p>
+<script type="math/tex; mode=display">
+y[n]=0.25(4)+0.5(-4)+0.25(4)=0.
+</script>
+</p>
+<p>因此该 FIR 完全保留直流，却消除了奈奎斯特频率 <script type="math/tex">f_s/2</script> 处的交替分量。其他频率的衰减程度还需要看完整频率响应。</p>
+<h3 id="22-fir">2.2 FIR 名称的来源<a class="headerlink" href="#22-fir" title="Permanent link">&para;</a></h3>
+<p>单位冲激输入指 <script type="math/tex">x[0]=1</script>，其余采样为零。上面的 FIR 输出：</p>
+<p>
+<script type="math/tex; mode=display">
+y=[0.25,\ 0.5,\ 0.25,\ 0,\ 0,\ldots].
+</script>
+</p>
+<p>脉冲消失后，经过有限个采样输出就严格归零，所以叫“有限冲激响应”。</p>
+<p>FIR 的工程特征：</p>
+<ul>
+<li>有限系数的非递归 FIR 是 BIBO 稳定的；</li>
+<li>使用合适的对称系数，可获得严格线性相位；</li>
+<li>复杂的频率指标往往需要更多 tap，消耗更多乘加资源；</li>
+<li>没有输出反馈，因此加法树打拍和流水线通常比较容易。</li>
+</ul>
+<h2 id="3-iir">3. IIR：无限冲激响应<a class="headerlink" href="#3-iir" title="Permanent link">&para;</a></h2>
+<p>IIR（Infinite Impulse Response）与 FIR 的关键区别是：<strong>输出计算使用过去的输出值，存在反馈</strong>。</p>
+<p>一个简单的一阶 IIR：</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{y[n]=0.5x[n]+0.5y[n-1]}
+</script>
+</p>
+<p>初始状态为零，输入单位冲激：</p>
+<table>
+<thead>
+<tr>
+<th>采样序号</th>
+<th style="text-align: right;">0</th>
+<th style="text-align: right;">1</th>
+<th style="text-align: right;">2</th>
+<th style="text-align: right;">3</th>
+<th style="text-align: right;">4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>输出</td>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.125</td>
+<td style="text-align: right;">0.0625</td>
+<td style="text-align: right;">0.03125</td>
+</tr>
+</tbody>
+</table>
+<p>每次输出都是前一次的一半，在精确数学模型中无限衰减而不会在有限采样内归零。</p>
+<p>常见的一阶平滑器：</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{y[n]=\alpha x[n]+(1-\alpha)y[n-1]},\quad 0<\alpha\le1
+</script>
+</p>
+<p>
+<script type="math/tex">\alpha</script> 较小，输出变化较慢；<script type="math/tex">\alpha</script> 较大，输出更快跟随输入。这种指数记忆和 RC 低通的动态响应有相似之处。</p>
+<p>IIR 通常能以较少系数达到某些较陡的幅频指标，不过必须关注反馈导致的稳定性、系数量化和定点溢出。IIR 并非天然稳定。</p>
+<h3 id="31-fir-iir">3.1 FIR 与 IIR 对比<a class="headerlink" href="#31-fir-iir" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>FIR</th>
+<th>IIR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>过去的输入</td>
+<td>使用</td>
+<td>通常使用</td>
+</tr>
+<tr>
+<td>过去的输出反馈</td>
+<td>无</td>
+<td>有</td>
+</tr>
+<tr>
+<td>单位冲激响应</td>
+<td>有限长</td>
+<td>通常无限衰减</td>
+</tr>
+<tr>
+<td>线性相位</td>
+<td>对称系数下容易实现</td>
+<td>通常较困难</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>有限系数 FIR 天然稳定</td>
+<td>需要单独检查</td>
+</tr>
+<tr>
+<td>RTL 重点</td>
+<td>tap 数、乘加树、流水</td>
+<td>反馈路径、量化、稳定性</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-sfc">4. SFC：采样率转换器<a class="headerlink" href="#4-sfc" title="Permanent link">&para;</a></h2>
+<p>这里 SFC 按 Sample Frequency Converter（采样频率转换器）理解；通用资料中也常称 SRC（Sample Rate Converter）。</p>
+<p><strong>FIR、IIR 是滤波器类型；SFC 是改变采样率的功能模块。</strong> SFC 内部可以用 FIR 等滤波结构。</p>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th>输入采样率</th>
+<th>输出采样率</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100 Msps</td>
+<td>200 Msps</td>
+<td>2 倍插值</td>
+</tr>
+<tr>
+<td>200 Msps</td>
+<td>100 Msps</td>
+<td>2 倍抽取</td>
+</tr>
+<tr>
+<td>100 Msps</td>
+<td>150 Msps</td>
+<td>分数倍采样率转换</td>
+</tr>
+</tbody>
+</table>
+<h3 id="41">4.1 插值：为什么不能简单复制数据<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>100 Msps 变成 200 Msps，意味着相同时间内需要输出两倍数量的样本。简单把每个数据重复两次只能改变数量，通常无法提供理想的频谱。</p>
+<p>一种标准做法是：</p>
+<ol>
+<li>在相邻输入点之间插入 <script type="math/tex">L-1</script> 个零；</li>
+<li>使用低通插值滤波器求出合理的新采样值，并抑制插零产生的频谱镜像。</li>
+</ol>
+<p>这里需要按插值倍数合理设置滤波器增益，不能把“插零后直接输出”当作完整插值。</p>
+<h3 id="42">4.2 抽取：为什么不能直接丢点<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<p>200 Msps 降为 100 Msps 时，奈奎斯特频率从 100 MHz 降至 50 MHz。</p>
+<p>如果原信号中有超过 50 MHz 的频率成分，直接隔点取数可能产生<strong>混叠（Aliasing）</strong>：不同的原始频率折叠到同一输出频率，之后无法区分。</p>
+<p>因此，典型流程是：<strong>先抗混叠低通，再每隔 <script type="math/tex">M</script> 个采样取一个</strong>。</p>
+<h3 id="43">4.3 分数倍转换<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
+<p>插值倍数为 <script type="math/tex">L</script>，抽取倍数为 <script type="math/tex">M</script>：</p>
+<p>
+<script type="math/tex; mode=display">
+\boxed{f_{\mathrm{out}}=f_{\mathrm{in}}\frac{L}{M}}
+</script>
+</p>
+<p>例如：</p>
+<p>
+<script type="math/tex; mode=display">
+100\ \mathrm{Msps}\times\frac{3}{2}=150\ \mathrm{Msps}.
+</script>
+</p>
+<p>概念结构：</p>
+<p><strong>输入 → 插值 L 倍 → 低通 FIR → 抽取 M 倍 → 输出</strong></p>
+<p>实际芯片里可以使用多相 FIR（Polyphase FIR），避免所有乘加都按插值后的高速时钟工作。具体吞吐率和时钟频率由硬件架构决定。</p>
+<h2 id="5">5. 采样率不等于时钟频率<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<p>对 RTL 工程师，必须区分：</p>
+<ul>
+<li><strong>时钟频率</strong>：寄存器每秒经历多少个时钟周期。</li>
+<li><strong>采样率</strong>：每秒有多少个有效样本。</li>
+<li><strong>有效采样标志</strong>：指出哪些时钟周期真正包含样本。</li>
+</ul>
+<p>例如 249.6 MHz 的模块时钟，每 4 个周期有一个有效样本：</p>
+<p>
+<script type="math/tex; mode=display">
+f_{\mathrm{sample}}=\frac{249.6}{4}=62.4\ \mathrm{Msps}.
+</script>
+</p>
+<p>反过来，如果一个时钟周期并行处理两个采样，采样率也可能高于时钟频率。</p>
+<p>FIR 里的 <script type="math/tex">x[n-1]</script> 指<strong>前一个有效采样</strong>，不一定是前一个时钟周期的输入信号。这会直接影响采样延迟寄存器何时更新。</p>
+<h2 id="6-3-tap-fir">6. 一个可综合的 3-tap FIR<a class="headerlink" href="#6-3-tap-fir" title="Permanent link">&para;</a></h2>
+<p>采用系数 <script type="math/tex">[1,2,1]/4</script>：</p>
+<p>
+<script type="math/tex; mode=display">
+y[n]=\frac{x[n]+2x[n-1]+x[n-2]}4.
+</script>
+</p>
+<p>以下示例使用 16-bit 有符号样本、18-bit 加权和，只在有效采样到来时推进历史。移位是算术右移，尚未实现独立的舍入模式。</p>
+<div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Systemverilog</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-0-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-0-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-0-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-0-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-0-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-0-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-0-10">10</a></span>
+<span class="normal"><a href="#__codelineno-0-11">11</a></span>
+<span class="normal"><a href="#__codelineno-0-12">12</a></span>
+<span class="normal"><a href="#__codelineno-0-13">13</a></span>
+<span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
+<span class="normal"><a href="#__codelineno-0-36">36</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="k">module</span><span class="w"> </span><span class="n">fir3_example</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="w">    </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">               </span><span class="n">clk</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="w">    </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">               </span><span class="n">rst_n</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">    </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">               </span><span class="n">sample_vld</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="w">    </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w"> </span><span class="kt">signed</span><span class="w"> </span><span class="p">[</span><span class="mi">15</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">x_in</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="kt">logic</span><span class="w">               </span><span class="n">y_vld</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="kt">logic</span><span class="w"> </span><span class="kt">signed</span><span class="w"> </span><span class="p">[</span><span class="mi">15</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">y_out</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="p">);</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">    </span><span class="kt">logic</span><span class="w"> </span><span class="kt">signed</span><span class="w"> </span><span class="p">[</span><span class="mi">15</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">x_d1</span><span class="p">,</span><span class="w"> </span><span class="n">x_d2</span><span class="p">;</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">    </span><span class="kt">logic</span><span class="w"> </span><span class="kt">signed</span><span class="w"> </span><span class="p">[</span><span class="mi">17</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">weighted_sum</span><span class="p">;</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">    </span><span class="k">always_comb</span><span class="w"> </span><span class="k">begin</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">        </span><span class="n">weighted_sum</span><span class="w"> </span><span class="o">=</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">            </span><span class="p">$</span><span class="kt">signed</span><span class="p">({{</span><span class="mi">2</span><span class="p">{</span><span class="n">x_in</span><span class="p">[</span><span class="mi">15</span><span class="p">]}},</span><span class="w"> </span><span class="n">x_in</span><span class="p">})</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="p">($</span><span class="kt">signed</span><span class="p">({{</span><span class="mi">2</span><span class="p">{</span><span class="n">x_d1</span><span class="p">[</span><span class="mi">15</span><span class="p">]}},</span><span class="w"> </span><span class="n">x_d1</span><span class="p">})</span><span class="w"> </span><span class="o">&lt;&lt;&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">          </span><span class="o">+</span><span class="w"> </span><span class="p">$</span><span class="kt">signed</span><span class="p">({{</span><span class="mi">2</span><span class="p">{</span><span class="n">x_d2</span><span class="p">[</span><span class="mi">15</span><span class="p">]}},</span><span class="w"> </span><span class="n">x_d2</span><span class="p">});</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">    </span><span class="k">end</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">    </span><span class="k">always_ff</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">negedge</span><span class="w"> </span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">            </span><span class="n">x_d1</span><span class="w">  </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">'0</span><span class="p">;</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">            </span><span class="n">x_d2</span><span class="w">  </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">'0</span><span class="p">;</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="w">            </span><span class="n">y_out</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">'0</span><span class="p">;</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="w">            </span><span class="n">y_vld</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1'b0</span><span class="p">;</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="w">        </span><span class="k">end</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">begin</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">            </span><span class="n">y_vld</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1'b0</span><span class="p">;</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sample_vld</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="w">                </span><span class="n">x_d1</span><span class="w">  </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">x_in</span><span class="p">;</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="w">                </span><span class="n">x_d2</span><span class="w">  </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">x_d1</span><span class="p">;</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="w">                </span><span class="n">y_out</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">weighted_sum</span><span class="w"> </span><span class="o">&gt;&gt;&gt;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="w">                </span><span class="n">y_vld</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1'b1</span><span class="p">;</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="w">            </span><span class="k">end</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="w">        </span><span class="k">end</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="w">    </span><span class="k">end</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="k">endmodule</span>
+</code></pre></div></td></tr></table></div>
+<p>这里的重点是：</p>
+<ol>
+<li>历史寄存器在有效采样出现时才更新；</li>
+<li>非阻塞赋值使当前输入与此前两个有效样本参与同一次计算；</li>
+<li>18-bit 加权和容纳 16-bit 输入的四倍加权范围；</li>
+<li>实际项目还需明确启动阶段、舍入与饱和、流水时序和持续吞吐率。</li>
+</ol>
+<h2 id="7-sfc">7. 通信链路中的 SFC<a class="headerlink" href="#7-sfc" title="Permanent link">&para;</a></h2>
+<p>多通道 MIMO 系统中，SFC 不只是让数据“变快或变慢”，还会影响采样时刻和通道间时延。</p>
+<p>即使两个通道最终输出同一采样率，如果转换比例配置、滤波器状态、改配生效时刻不一致，也可能产生相位或时延差。因此工程上需检查：</p>
+<ul>
+<li>采样率比例与配置更新的生效时刻；</li>
+<li>输入输出有效采样节奏；</li>
+<li>多通道滤波器状态及启动延迟；</li>
+<li>时钟域接口及 CDC；</li>
+<li>相干接收所需的通道间时序对齐。</li>
+</ul>
+<p>某些 IP 使用 fratio 表示采样率相关参数，但其寄存器编码并无统一行业定义，<strong>不能直接认定 fratio = L/M</strong>，必须以具体模块规格为准。</p>
+<h2 id="8">8. 自测与下一节<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<ol>
+<li>一阶表达式 <script type="math/tex">y[n]=x[n]+0.5y[n-1]</script> 为什么属于 IIR？</li>
+<li>240 MHz 时钟，每 3 个周期输入一个有效采样，采样率为多少？</li>
+<li>200 Msps 降成 100 Msps，为什么必须考虑抗混叠？</li>
+<li>为什么 3-tap FIR 的历史寄存器通常应按采样有效信号推进？</li>
+</ol>
+<p><strong>答案</strong>：① 使用历史输出反馈；② 80 Msps；③ 新奈奎斯特频率降低，原高频可能折叠；④ 公式中的 n 是有效样本序号，而非任意时钟周期。</p>
+<p><strong>下一节</strong>：FIR 的频率响应——为什么几路乘加能实现低通，系数如何影响截止频率，以及 tap 数、线性相位、定点位宽和流水线的联系。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["header.autohide", "navigation.top", "navigation.tabs", "content.code.copy", "content.code.annotate", "codehilite", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../javascripts/mathjax-config.js"></script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    
+  </body>
+</html>
