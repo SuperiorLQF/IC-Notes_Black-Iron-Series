@@ -19,17 +19,17 @@ def diagram(lowpass):
     series, shunt = ('R', 'C') if lowpass else ('C', 'R')
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180" role="img" aria-labelledby="title desc">
   <title id="title">RC {name}电路</title>
-  <desc id="desc">{series} 串联，{shunt} 从输出节点连接至公共参考线。输入和输出电压箭头均从下方参考端指向上方节点。</desc>
+  <desc id="desc">{series} 串联，{shunt} 从输出节点连接至公共参考线。输入和输出电压箭头均从上方节点指向下方公共参考端。</desc>
   <rect width="320" height="180" fill="#fff"/>
   <g fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
     <path d="M22 50H92M140 50H298M22 164H298M200 50V82M200 130V164"/>
     {component(series, 116, 50)}
     {component(shunt, 200, 106, 90)}
-    <path d="M22 149V72M298 149V72" stroke-width="1.8"/>
+    <path d="M22 67V144M298 67V144" stroke-width="1.8"/>
   </g>
   <g fill="#000">
-    <path d="M22 67L18 79L22 76L26 79Z"/>
-    <path d="M298 67L294 79L298 76L302 79Z"/>
+    <path d="M22 149L18 137L22 140L26 137Z"/>
+    <path d="M298 149L294 137L298 140L302 137Z"/>
     <circle cx="200" cy="50" r="3.6"/>
     <circle cx="200" cy="164" r="3.6"/>
   </g>
