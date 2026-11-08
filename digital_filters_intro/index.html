@@ -1731,6 +1731,8 @@ T_s=\frac{1}{f_s}=1\ \mathrm{ms}.
 </tr>
 </tbody>
 </table>
+<p><a href="../img/digital_filters/moving_average.svg"><img alt="三点平均滤波器的输入脉冲与输出序列" src="../img/digital_filters/moving_average.svg" /></a></p>
+<p>图中输入的 9 被分散为连续三个 3，峰值降低，但影响持续时间变长。</p>
 <p>单个突变被分散到三个采样时刻。这是最简单的低通滤波器之一：它倾向于保留缓慢变化、削弱快速变化，但并不会把所有高频成分都彻底消除。</p>
 <h2 id="2-fir">2. FIR：有限冲激响应<a class="headerlink" href="#2-fir" title="Permanent link">&para;</a></h2>
 <p>FIR（Finite Impulse Response）的特点是：<strong>当前输出只依赖当前及过去的输入，没有输出反馈</strong>。</p>
@@ -1747,6 +1749,8 @@ T_s=\frac{1}{f_s}=1\ \mathrm{ms}.
 </script>
 </p>
 <p>它的硬件结构是：两个采样延迟寄存器、三路系数乘法，以及一组加法逻辑。系数为 <script type="math/tex">1/4,1/2,1/4</script> 时，可以通过移位和加法实现常数乘法。</p>
+<p><a href="../img/digital_filters/fir_structure.svg"><img alt="三抽头 FIR 结构：延迟、系数乘法和两级求和" src="../img/digital_filters/fir_structure.svg" /></a></p>
+<p>每个 <script type="math/tex">z^{-1}</script> 保存前一个有效样本；三路分别加权，再相加得到输出。</p>
 <h3 id="21">2.1 为什么它能滤除高频<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
 <p>不做傅里叶变换，也可以先直观看到它的频率选择性。</p>
 <p><strong>恒定输入</strong>：输入一直为 4，则稳态输出为：</p>
@@ -1785,6 +1789,8 @@ y=[0.25,\ 0.5,\ 0.25,\ 0,\ 0,\ldots].
 \boxed{y[n]=0.5x[n]+0.5y[n-1]}
 </script>
 </p>
+<p><a href="../img/digital_filters/iir_structure.svg"><img alt="一阶 IIR 结构：当前输入与延迟后的输出反馈相加" src="../img/digital_filters/iir_structure.svg" /></a></p>
+<p>输出经一个采样延迟后反馈，与当前输入一起计算下一次输出。</p>
 <p>初始状态为零，输入单位冲激：</p>
 <table>
 <thead>
@@ -1817,6 +1823,8 @@ y=[0.25,\ 0.5,\ 0.25,\ 0,\ 0,\ldots].
 </tbody>
 </table>
 <p>每次输出都是前一次的一半，在精确数学模型中无限衰减而不会在有限采样内归零。</p>
+<p><a href="../img/digital_filters/impulse_comparison.svg"><img alt="FIR 与 IIR 单位冲激响应对比" src="../img/digital_filters/impulse_comparison.svg" /></a></p>
+<p>FIR 在第三个非零输出后归零；IIR 的尾部不断减半，图中只画出前 13 个样本。</p>
 <p>常见的一阶平滑器：</p>
 <p>
 <script type="math/tex; mode=display">
@@ -1906,10 +1914,14 @@ y=[0.25,\ 0.5,\ 0.25,\ 0,\ 0,\ldots].
 <li>使用低通插值滤波器求出合理的新采样值，并抑制插零产生的频谱镜像。</li>
 </ol>
 <p>这里需要按插值倍数合理设置滤波器增益，不能把“插零后直接输出”当作完整插值。</p>
+<p><a href="../img/digital_filters/interpolation.svg"><img alt="两倍插值：原始序列、插零序列和滤波后的序列" src="../img/digital_filters/interpolation.svg" /></a></p>
+<p>图中采用增益为 2 的简单插值 FIR <script type="math/tex">[0.5,1,0.5]</script>，并补偿一个高速样本的延迟以对齐展示。插零点经过滤波后变成相邻原始样本的中间值；这只是线性插值示例，不代表理想的镜像抑制。</p>
 <h3 id="42">4.2 抽取：为什么不能直接丢点<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
 <p>200 Msps 降为 100 Msps 时，奈奎斯特频率从 100 MHz 降至 50 MHz。</p>
 <p>如果原信号中有超过 50 MHz 的频率成分，直接隔点取数可能产生<strong>混叠（Aliasing）</strong>：不同的原始频率折叠到同一输出频率，之后无法区分。</p>
 <p>因此，典型流程是：<strong>先抗混叠低通，再每隔 <script type="math/tex">M</script> 个采样取一个</strong>。</p>
+<p><a href="../img/digital_filters/aliasing.svg"><img alt="100 Msps 采样下，70 MHz 与 30 MHz 余弦产生相同采样点" src="../img/digital_filters/aliasing.svg" /></a></p>
+<p>以原来的 200 Msps 输入为例，70 MHz 分量可以被表示；若直接抽取到 100 Msps，它与 30 MHz 余弦落在相同采样点上，无法区分。抗混叠滤波要在抽取之前完成。</p>
 <h3 id="43">4.3 分数倍转换<a class="headerlink" href="#43" title="Permanent link">&para;</a></h3>
 <p>插值倍数为 <script type="math/tex">L</script>，抽取倍数为 <script type="math/tex">M</script>：</p>
 <p>
@@ -1923,8 +1935,8 @@ y=[0.25,\ 0.5,\ 0.25,\ 0,\ 0,\ldots].
 100\ \mathrm{Msps}\times\frac{3}{2}=150\ \mathrm{Msps}.
 </script>
 </p>
-<p>概念结构：</p>
-<p><strong>输入 → 插值 L 倍 → 低通 FIR → 抽取 M 倍 → 输出</strong></p>
+<p><a href="../img/digital_filters/rate_conversion.svg"><img alt="插值、抽取和分数倍采样率转换的处理顺序" src="../img/digital_filters/rate_conversion.svg" /></a></p>
+<p>插值先插零再低通，抽取先低通再取样。分数倍转换中的低通同时抑制插值镜像和抽取混叠，并按插值倍数设置增益。</p>
 <p>实际芯片里可以使用多相 FIR（Polyphase FIR），避免所有乘加都按插值后的高速时钟工作。具体吞吐率和时钟频率由硬件架构决定。</p>
 <h2 id="5">5. 采样率不等于时钟频率<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
 <p>对 RTL 工程师，必须区分：</p>
@@ -1939,6 +1951,8 @@ y=[0.25,\ 0.5,\ 0.25,\ 0,\ 0,\ldots].
 f_{\mathrm{sample}}=\frac{249.6}{4}=62.4\ \mathrm{Msps}.
 </script>
 </p>
+<p><a href="../img/digital_filters/valid_sample_timing.svg"><img alt="每四个时钟周期接收一个有效样本的时序图" src="../img/digital_filters/valid_sample_timing.svg" /></a></p>
+<p>只有 <code>sample_vld=1</code> 的周期接收新样本，历史寄存器也只在这些周期推进。其余周期不应当作额外的零值样本。</p>
 <p>反过来，如果一个时钟周期并行处理两个采样，采样率也可能高于时钟频率。</p>
 <p>FIR 里的 <script type="math/tex">x[n-1]</script> 指<strong>前一个有效采样</strong>，不一定是前一个时钟周期的输入信号。这会直接影响采样延迟寄存器何时更新。</p>
 <h2 id="6-3-tap-fir">6. 一个可综合的 3-tap FIR<a class="headerlink" href="#6-3-tap-fir" title="Permanent link">&para;</a></h2>
