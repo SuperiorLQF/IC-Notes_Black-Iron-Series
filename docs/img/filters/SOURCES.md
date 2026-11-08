@@ -2,16 +2,14 @@
 
 ## 第一个对比表：理想 RC 电路图
 
-| 本站图片 | 原文件 |
+| 本站图片 | 电路结构 |
 | --- | --- |
-| [理想 RC 低通](rc-low-pass-ideal.png) | [Proiect/ftj.jpg](https://github.com/mirunal23/Low-pass-and-High-pass-Filters/blob/1b8ef061147e9af24e2fb940197343d9beba982b/Proiect/ftj.jpg) |
-| [理想 RC 高通](rc-high-pass-matched.svg) | 本站绘制的 SVG：沿用低通图的公共参考线、端点与电压向上箭头，电容串联、电阻接参考端 |
+| [理想 RC 低通](rc-low-pass-matched.svg) | 电阻串联，电容从输出节点接至公共参考线 |
+| [理想 RC 高通](rc-high-pass-matched.svg) | 电容串联，电阻从输出节点接至公共参考线 |
 
-低通图取自 GitHub 项目 `mirunal23/Low-pass-and-High-pass-Filters`，固定提交 `1b8ef061147e9af24e2fb940197343d9beba982b`。低通原文件虽以 `.jpg` 命名，实际为带透明通道的 PNG；本站保留原始图片字节，仅将扩展名改为 `.png`，未重绘或改动电路。
+两图均为本站通过 `scripts/generate_rc_diagrams.py` 绘制的黑白 SVG，使用完全相同的画布、元件符号、线宽、端点、字体和电压箭头，仅交换电阻与电容的位置。底部为公共参考线；箭头从下方参考端指向上方节点，表示输入或输出的参考电压方向，不表示电流。
 
-高通图为本站新绘制的矢量电路示意图，不再使用原先风格不同的 `fts.jpg`。输出电压取电阻上端相对底部参考线的电位差。
-
-原仓库未提供明确的图片许可声明。此处保留原始来源，不将其标为下方教材图片的 Design Science License。
+可在仓库根目录运行 `python scripts/generate_rc_diagrams.py` 重新生成。这两张图不再使用此前的外部位图；下方教材图片的来源与许可不受影响。
 
 ## 第 3 节：教材电路图
 
