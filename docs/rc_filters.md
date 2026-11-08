@@ -43,17 +43,53 @@ $$
 
 复阻抗不是另一套物理规律，而是元件微分关系在**正弦稳态**下的简写。
 
-以电容为例，写成复指数形式：
+以电容为例，设两端的正弦电压为
 
 $$
+v_C(t)=V_m\cos(\omega t+\varphi),
+$$
+
+其中 \(V_m\) 是峰值，\(\varphi\) 是初相位。根据欧拉公式
+
+$$
+e^{j\theta}=\cos\theta+j\sin\theta,
+\qquad
+\cos\theta=\operatorname{Re}\{e^{j\theta}\},
+$$
+
+正弦电压可以改写为
+
+$$
+\begin{aligned}
+v_C(t)
+&=\operatorname{Re}\!\left\{V_m e^{j(\omega t+\varphi)}\right\}\\
+&=\operatorname{Re}\!\left\{\underbrace{V_m e^{j\varphi}}_{\underline V_C}\,e^{j\omega t}\right\}.
+\end{aligned}
+$$
+
+把峰值和初相位合并成一个复数，称为**相量**：
+
+$$
+\underline V_C=V_m e^{j\varphi},
+\qquad
 v_C(t)=\operatorname{Re}\!\left\{\underline V_C e^{j\omega t}\right\}.
 $$
 
-代入电容方程，求导会带来一个 \(j\omega\)：
+这里使用峰值相量；实际电压仍是取实部后得到的实数。这样写的好处是，\(\underline V_C\) 与时间无关，而
 
 $$
-\underline I_C=j\omega C\underline V_C
-\quad\Longrightarrow\quad
+\frac{\mathrm d}{\mathrm dt}e^{j\omega t}=j\omega e^{j\omega t}.
+$$
+
+代入 \(i_C=C\,\mathrm dv_C/\mathrm dt\)，得到
+
+$$
+i_C(t)=\operatorname{Re}\!\left\{j\omega C\underline V_C e^{j\omega t}\right\}.
+$$
+
+电流的相量就是 \(\underline I_C=j\omega C\underline V_C\)。也就是说，**在正弦稳态分析中，求导可以转化为乘 \(j\omega\)**，于是
+
+$$
 \boxed{Z_C=\frac{\underline V_C}{\underline I_C}
 =\frac{1}{j\omega C}}.
 $$
