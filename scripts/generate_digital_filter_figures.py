@@ -17,6 +17,8 @@ plt.rcParams.update({'font.family':'DejaVu Sans','font.size':11,
 def save(fig, name):
     fig.savefig(OUT/name, bbox_inches='tight', facecolor='white', metadata={'Date':None})
     plt.close(fig)
+    target = OUT/name
+    target.write_text('\n'.join(line.rstrip() for line in target.read_text().splitlines())+'\n')
 
 
 def stems(ax, n, values, title):
