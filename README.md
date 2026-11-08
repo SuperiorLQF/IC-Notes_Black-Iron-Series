@@ -52,6 +52,7 @@ python -m unittest discover -s sonar_terrain/tests -v
 ## 笔记与工具入口
 
 - [RC 滤波器基础与公式推导](docs/rc_filters.md)
+- [数字滤波器入门：FIR、IIR 与 SFC](docs/digital_filters_intro.md)
 - [VLD/RDY 握手与流水仲裁案例](docs/classic_cases/index.md)
 - [DigiWave 波形编辑器](https://superiorlqf.github.io/IC-Notes_Black-Iron-Series/digiwave/)
 - [MkDocs 导航配置](mkdocs.yml)
