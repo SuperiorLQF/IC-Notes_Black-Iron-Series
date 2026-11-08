@@ -12,7 +12,7 @@
         <link rel="prev" href="../rc_filters/">
       
       
-        <link rel="next" href="../noc/">
+        <link rel="next" href="../fir_design/">
       
       
         
@@ -925,6 +925,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fir_design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FIR 设计与参数选择
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2061,7 +2089,7 @@ y[n]=\frac{x[n]+2x[n-1]+x[n-2]}4.
 <li>为什么 3-tap FIR 的历史寄存器通常应按采样有效信号推进？</li>
 </ol>
 <p><strong>答案</strong>：① 使用历史输出反馈；② 80 Msps；③ 新奈奎斯特频率降低，原高频可能折叠；④ 公式中的 n 是有效样本序号，而非任意时钟周期。</p>
-<p><strong>下一节</strong>：FIR 的频率响应——为什么几路乘加能实现低通，系数如何影响截止频率，以及 tap 数、线性相位、定点位宽和流水线的联系。</p>
+<p><strong>下一节</strong>：<a href="../fir_design/">FIR 设计：频率、tap 数与参数选择</a>，包含低通/高通频率响应、tap 估算、75-tap 设计算例和系数量化结果。</p>
 
 
 

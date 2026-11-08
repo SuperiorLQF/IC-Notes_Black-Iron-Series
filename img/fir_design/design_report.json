@@ -1,0 +1,56 @@
+{
+  "sample_rate_hz": 100000000.0,
+  "passband_edge_hz": 10000000.0,
+  "stopband_edge_hz": 15000000.0,
+  "ripple_target_db": 0.1,
+  "attenuation_target_db": 60.0,
+  "cutoff_hz": 12500000.0,
+  "kaiser_initial_numtaps": 74,
+  "numtaps": 75,
+  "order": 74,
+  "beta": 5.65326,
+  "group_delay_samples": 37.0,
+  "group_delay_seconds": 3.7e-07,
+  "measured": {
+    "passband_ripple_db": 0.01601767350044972,
+    "stopband_attenuation_db": 60.383931607033496,
+    "dc_gain": 0.9999999999999999
+  },
+  "quantized": {
+    "12": {
+      "passband_ripple_db": 0.03364881448099357,
+      "stopband_attenuation_db": 53.60700777283554,
+      "dc_gain": 1.0
+    },
+    "16": {
+      "passband_ripple_db": 0.015406362012060488,
+      "stopband_attenuation_db": 60.19525083750952,
+      "dc_gain": 1.000091552734375
+    },
+    "20": {
+      "passband_ripple_db": 0.0159940250481336,
+      "stopband_attenuation_db": 60.37580742254681,
+      "dc_gain": 1.0
+    }
+  },
+  "frequency_grid_points": 131073,
+  "accumulator_bits_generic": 39,
+  "accumulator_bits_for_this_coefficient_set": 32,
+  "measurement": "Dense frequency-grid check, not an analytic all-frequency bound",
+  "highpass_example": {
+    "numtaps": 81,
+    "beta": 5.65326,
+    "measured": {
+      "passband_ripple_db": 0.016126895199158324,
+      "stopband_attenuation_db": 60.67288807255923,
+      "dc_gain": 0.0003316639205033772
+    },
+    "stopband_edge_hz": 10000000.0,
+    "passband_edge_hz": 15000000.0,
+    "initial_75_tap_measurement": {
+      "passband_ripple_db": 0.014559184329787322,
+      "stopband_attenuation_db": 59.62648234511278,
+      "dc_gain": -0.0003068067919995644
+    }
+  }
+}
