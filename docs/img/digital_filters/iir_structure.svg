@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="285" viewBox="0 0 720 285" role="img" aria-label="First-order IIR with output feedback">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#111"/></marker></defs>
+<rect width="720" height="285" fill="white"/>
+<text x="40" y="65" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" text-anchor="middle">x[n]</text>
+<path d="M40 90H125" fill="none" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="125" y="67" width="100" height="46" fill="white" stroke="#111" stroke-width="2" rx="3"/>
+<text x="175.0" y="96.0" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" text-anchor="middle">× 0.5</text>
+<path d="M225 90H338" fill="none" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+<circle cx="360" cy="90" r="21" fill="white" stroke="#111" stroke-width="2"/>
+<text x="360" y="97" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="24" text-anchor="middle">Σ</text>
+<path d="M381 90H680" fill="none" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="653" y="65" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" text-anchor="middle">y[n]</text>
+<circle cx="570" cy="90" r="3.5" fill="#111"/>
+<path d="M570 90V210H505" fill="none" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="425" y="187" width="80" height="46" fill="white" stroke="#111" stroke-width="2" rx="3"/>
+<text x="465.0" y="216.0" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" text-anchor="middle">z⁻¹</text>
+<path d="M425 210H325" fill="none" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+<rect x="225" y="187" width="100" height="46" fill="white" stroke="#111" stroke-width="2" rx="3"/>
+<text x="275.0" y="216.0" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="18" text-anchor="middle">× 0.5</text>
+<path d="M225 210H160V140H360V112" fill="none" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="365" y="245" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" text-anchor="middle">y[n−1]</text>
+<text x="360" y="275" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="16" text-anchor="middle">Feedback keeps past output in the state</text>
+</svg>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="255" viewBox="0 0 760 255" role="img" aria-label="Clock cycles and valid samples">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#111"/></marker></defs>
+<rect width="760" height="255" fill="white"/>
+<text x="20" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" text-anchor="start">Clock cycle</text>
+<text x="20" y="105" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" text-anchor="start">sample_vld</text>
+<text x="20" y="170" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" text-anchor="start">Data</text>
+<text x="150" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">0</text>
+<text x="210" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">1</text>
+<text x="270" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">2</text>
+<text x="330" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">3</text>
+<text x="390" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">4</text>
+<text x="450" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">5</text>
+<text x="510" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">6</text>
+<text x="570" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">7</text>
+<text x="630" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">8</text>
+<text x="690" y="40" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="15" text-anchor="middle">9</text>
+<path d="M120.0 120H120.0V85H180.0H180.0V120H240.0H240.0V120H300.0H300.0V120H360.0H360.0V85H420.0H420.0V120H480.0H480.0V120H540.0H540.0V120H600.0H600.0V85H660.0H660.0V120H720.0V120" fill="none" stroke="#111" stroke-width="2"/>
+<path d="M150 132V148" fill="none" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="150" y="175" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" text-anchor="middle">x[0]</text>
+<path d="M390 132V148" fill="none" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="390" y="175" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" text-anchor="middle">x[1]</text>
+<path d="M630 132V148" fill="none" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="630" y="175" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" text-anchor="middle">x[2]</text>
+<text x="380" y="225" fill="#111" font-family="DejaVu Sans,Arial,sans-serif" font-size="17" text-anchor="middle">249.6 MHz clock / 4 cycles per sample = 62.4 Msps</text>
+</svg>

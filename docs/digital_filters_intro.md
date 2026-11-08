@@ -31,6 +31,10 @@ $$
 | 输入 | 0 | 0 | 9 | 0 | 0 | 0 |
 | 输出 | 0 | 0 | 3 | 3 | 3 | 0 |
 
+[![三点平均滤波器的输入脉冲与输出序列](img/digital_filters/moving_average.svg)](img/digital_filters/moving_average.svg)
+
+图中输入的 9 被分散为连续三个 3，峰值降低，但影响持续时间变长。
+
 单个突变被分散到三个采样时刻。这是最简单的低通滤波器之一：它倾向于保留缓慢变化、削弱快速变化，但并不会把所有高频成分都彻底消除。
 
 ## 2. FIR：有限冲激响应
@@ -50,6 +54,10 @@ $$
 $$
 
 它的硬件结构是：两个采样延迟寄存器、三路系数乘法，以及一组加法逻辑。系数为 \(1/4,1/2,1/4\) 时，可以通过移位和加法实现常数乘法。
+
+[![三抽头 FIR 结构：延迟、系数乘法和两级求和](img/digital_filters/fir_structure.svg)](img/digital_filters/fir_structure.svg)
+
+每个 \(z^{-1}\) 保存前一个有效样本；三路分别加权，再相加得到输出。
 
 ### 2.1 为什么它能滤除高频
 
@@ -96,6 +104,10 @@ $$
 \boxed{y[n]=0.5x[n]+0.5y[n-1]}
 $$
 
+[![一阶 IIR 结构：当前输入与延迟后的输出反馈相加](img/digital_filters/iir_structure.svg)](img/digital_filters/iir_structure.svg)
+
+输出经一个采样延迟后反馈，与当前输入一起计算下一次输出。
+
 初始状态为零，输入单位冲激：
 
 | 采样序号 | 0 | 1 | 2 | 3 | 4 |
@@ -104,6 +116,10 @@ $$
 | 输出 | 0.5 | 0.25 | 0.125 | 0.0625 | 0.03125 |
 
 每次输出都是前一次的一半，在精确数学模型中无限衰减而不会在有限采样内归零。
+
+[![FIR 与 IIR 单位冲激响应对比](img/digital_filters/impulse_comparison.svg)](img/digital_filters/impulse_comparison.svg)
+
+FIR 在第三个非零输出后归零；IIR 的尾部不断减半，图中只画出前 13 个样本。
 
 常见的一阶平滑器：
 
@@ -151,6 +167,10 @@ IIR 通常能以较少系数达到某些较陡的幅频指标，不过必须关�
 
 这里需要按插值倍数合理设置滤波器增益，不能把“插零后直接输出”当作完整插值。
 
+[![两倍插值：原始序列、插零序列和滤波后的序列](img/digital_filters/interpolation.svg)](img/digital_filters/interpolation.svg)
+
+图中采用增益为 2 的简单插值 FIR \([0.5,1,0.5]\)，并补偿一个高速样本的延迟以对齐展示。插零点经过滤波后变成相邻原始样本的中间值；这只是线性插值示例，不代表理想的镜像抑制。
+
 ### 4.2 抽取：为什么不能直接丢点
 
 200 Msps 降为 100 Msps 时，奈奎斯特频率从 100 MHz 降至 50 MHz。
@@ -158,6 +178,10 @@ IIR 通常能以较少系数达到某些较陡的幅频指标，不过必须关�
 如果原信号中有超过 50 MHz 的频率成分，直接隔点取数可能产生**混叠（Aliasing）**：不同的原始频率折叠到同一输出频率，之后无法区分。
 
 因此，典型流程是：**先抗混叠低通，再每隔 \(M\) 个采样取一个**。
+
+[![100 Msps 采样下，70 MHz 与 30 MHz 余弦产生相同采样点](img/digital_filters/aliasing.svg)](img/digital_filters/aliasing.svg)
+
+以原来的 200 Msps 输入为例，70 MHz 分量可以被表示；若直接抽取到 100 Msps，它与 30 MHz 余弦落在相同采样点上，无法区分。抗混叠滤波要在抽取之前完成。
 
 ### 4.3 分数倍转换
 
@@ -173,9 +197,9 @@ $$
 100\ \mathrm{Msps}\times\frac{3}{2}=150\ \mathrm{Msps}.
 $$
 
-概念结构：
+[![插值、抽取和分数倍采样率转换的处理顺序](img/digital_filters/rate_conversion.svg)](img/digital_filters/rate_conversion.svg)
 
-**输入 → 插值 L 倍 → 低通 FIR → 抽取 M 倍 → 输出**
+插值先插零再低通，抽取先低通再取样。分数倍转换中的低通同时抑制插值镜像和抽取混叠，并按插值倍数设置增益。
 
 实际芯片里可以使用多相 FIR（Polyphase FIR），避免所有乘加都按插值后的高速时钟工作。具体吞吐率和时钟频率由硬件架构决定。
 
@@ -192,6 +216,10 @@ $$
 $$
 f_{\mathrm{sample}}=\frac{249.6}{4}=62.4\ \mathrm{Msps}.
 $$
+
+[![每四个时钟周期接收一个有效样本的时序图](img/digital_filters/valid_sample_timing.svg)](img/digital_filters/valid_sample_timing.svg)
+
+只有 `sample_vld=1` 的周期接收新样本，历史寄存器也只在这些周期推进。其余周期不应当作额外的零值样本。
 
 反过来，如果一个时钟周期并行处理两个采样，采样率也可能高于时钟频率。
 
