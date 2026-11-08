@@ -102,7 +102,150 @@ $$
 
 频率越低，电容阻抗的模越大；频率越高，阻抗的模越小。\(f=0\) 应按直流稳态或 \(f\to0\) 的极限理解，不能直接把 \(1/0\) 当成普通数代入计算。
 
-### 2.2 阻抗与电抗的关系
+### 2.2 相量的含义与运算
+
+相量把同频正弦信号的幅值和初相位合并为一个复数。以余弦作为参考：
+
+$$
+v(t)=V_m\cos(\omega t+\varphi)
+\quad\longleftrightarrow\quad
+\underline V=V_m e^{j\varphi}=V_m\angle\varphi.
+$$
+
+| 符号 | 保存的信息 |
+| --- | --- |
+| \(V_m\) | 峰值，决定波形高度 |
+| \(\omega=2\pi f\) | 角频率，决定振荡快慢 |
+| \(\varphi\) | 初相位，决定相对于参考信号的提前或滞后 |
+| \(\underline V\) | 峰值与初相位，不含共同的时间因子 \(e^{j\omega t}\) |
+
+频率没有被忽略，而是在分析同频信号时，把共同的 \(e^{j\omega t}\) 省略。若原信号使用正弦，可先换成余弦：\(\sin\theta=\cos(\theta-90^\circ)\)。
+
+例如，电压
+
+$$
+v(t)=10\cos(1000t+\pi/6)\ \mathrm V
+$$
+
+对应相量
+
+$$
+\underline V=10\angle30^\circ
+=10(\cos30^\circ+j\sin30^\circ)
+\approx8.66+j5\ \mathrm V.
+$$
+
+\(8.66+j5\) 不是某一时刻的实际电压，而是编码了峰值 10 V、初相位 \(30^\circ\) 的复数。恢复瞬时电压时，要补回时间因子再取实部。
+
+#### 复平面上的理解
+
+把 \(\underline V\) 看成复平面上的箭头，长度是峰值，与实轴的夹角是初相位。乘上 \(e^{j\omega t}\) 后，箭头以角速度 \(\omega\) 旋转，其在实轴上的投影就是瞬时电压。
+
+$$
+\underbrace{\underline V}_{\text{固定相量}}
+\quad\longrightarrow\quad
+\underbrace{\underline V e^{j\omega t}}_{\text{旋转的复数}}
+\quad\longrightarrow\quad
+\underbrace{\operatorname{Re}\{\underline V e^{j\omega t}\}}_{\text{实际电压}}.
+$$
+
+相量本身通常不随时间变化，旋转来自共同的时间因子。
+
+#### 幅值比与相位差
+
+设两个同频电压的相量为
+
+$$
+\underline V_1=10\angle30^\circ,\qquad
+\underline V_2=5\angle(-20^\circ).
+$$
+
+相除时，幅值相除、相角相减：
+
+$$
+\frac{\underline V_2}{\underline V_1}
+=\frac{5}{10}\angle(-20^\circ-30^\circ)
+=0.5\angle(-50^\circ).
+$$
+
+因此，\(v_2\) 的幅值是 \(v_1\) 的一半，相位滞后 \(50^\circ\)。这就是频率响应同时描述的两件事：幅值变化与相位变化。
+
+相量相加应直接按复数运算，例如先转成 \(a+jb\) 再相加；不能把两个相量的幅值和相角分别相加。不同频率的信号也不能直接合并成一个固定相量，应分别分析，再回到时域叠加。
+
+#### 峰值与有效值
+
+本节采用峰值相量 \(\underline V=V_m\angle\varphi\)。有些教材采用有效值相量，幅值为 \(V_m/\sqrt2\)。两种约定下，阻抗和电压比相同，但还原瞬时电压、计算功率时不能混用。
+
+### 2.3 正弦稳态与暂态
+
+电路接上正弦输入时，输出通常包含两部分：
+
+$$
+\boxed{v_{\mathrm{out}}(t)=v_{\mathrm{暂态}}(t)+v_{\mathrm{稳态}}(t)}.
+$$
+
+暂态与初始储能、接通时刻等有关。稳定 RC 电路中的暂态随时间衰减；持续输入下，最后留下的同频正弦响应就是**正弦稳态**。
+
+“稳态”不是电压不再变化，而是正弦波的幅值和相位关系不再随时间变化。电压仍然持续振荡：
+
+$$
+v_{\mathrm{稳态}}(t)=A\cos(\omega t+\psi).
+$$
+
+#### RC 低通算例
+
+RC 低通满足
+
+$$
+\tau\frac{\mathrm dy}{\mathrm dt}+y=x,\qquad\tau=RC.
+$$
+
+输入为 \(x(t)=V_m\cos(\omega t)\)，由相量关系
+
+$$
+\underline Y=\frac{1}{1+j\omega\tau}\underline X
+$$
+
+可得到稳态输出
+
+$$
+y_{\mathrm{ss}}(t)=\frac{V_m}{\sqrt{1+(\omega\tau)^2}}
+\cos\!\left[\omega t-\arctan(\omega\tau)\right].
+$$
+
+完整响应还要加上指数暂态：
+
+$$
+y(t)=y_{\mathrm{ss}}(t)+Ke^{-t/\tau},
+\qquad K=y(0)-y_{\mathrm{ss}}(0).
+$$
+
+取 \(\omega\tau=1\)，稳态输出的幅值是输入的 \(1/\sqrt2\)，相位滞后 \(45^\circ\)：
+
+$$
+y_{\mathrm{ss}}(t)=\frac{V_m}{\sqrt2}\cos(\omega t-\pi/4).
+$$
+
+如果 \(t=0\) 接通输入，且电容初始电压为零，则
+
+$$
+\boxed{y(t)=\frac{V_m}{\sqrt2}\cos(\omega t-\pi/4)
+-\frac{V_m}{2}e^{-t/\tau}},\qquad t\ge0.
+$$
+
+在 \(t=0\)，两项抵消，保证电容电压从零开始；经过若干个时间常数后，指数项很小，输出接近前面的稳态正弦波。
+
+#### 分析方法的选择
+
+| 问题 | 常用方法 |
+| --- | --- |
+| 某个频率下的稳态增益和相位 | 相量、复阻抗 |
+| 接通后电压如何从初值变化 | 微分方程、拉普拉斯变换 |
+| 多个频率组成的输入 | 各频率分别分析，再叠加时域结果 |
+
+相量法直接给出正弦稳态关系，不会自动包含接通时的指数暂态；稳定线性电路中，输出与输入同频，主要改变的是幅值和相位。
+
+### 2.4 阻抗与电抗的关系
 
 把阻抗写成
 
