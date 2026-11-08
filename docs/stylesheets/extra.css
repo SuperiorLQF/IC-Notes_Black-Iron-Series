@@ -80,3 +80,27 @@ html body img[src*='img150'] { width: 150%;}
   text-emphasis-color: #000000;
   -webkit-text-emphasis: '⬤';
 }
+
+/* RC 总结表：两幅电路图使用相同列宽和显示尺寸。 */
+.md-typeset .rc-summary .md-typeset__table {
+  display: block;
+}
+.md-typeset .rc-summary table:not([class]) {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.md-typeset .rc-summary th:first-child {
+  width: 20%;
+}
+.md-typeset .rc-summary th:nth-child(n+2) {
+  width: 40%;
+}
+.md-typeset .rc-summary td img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  margin-inline: auto;
+}
