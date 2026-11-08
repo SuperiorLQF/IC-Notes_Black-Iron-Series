@@ -2,6 +2,8 @@
 
 数字 IC 学习笔记、交互案例与实验代码，使用 MkDocs Material 发布。
 
+AI 协作与笔记风格要求见 [AI_README.md](AI_README.md)。
+
 [在线笔记](https://superiorlqf.github.io/IC-Notes_Black-Iron-Series/) · [经典案例](https://superiorlqf.github.io/IC-Notes_Black-Iron-Series/classic_cases/)
 
 ## 侧扫声呐地形重建：已完成的工作
