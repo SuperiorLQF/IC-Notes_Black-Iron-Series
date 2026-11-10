@@ -14,7 +14,7 @@
   <button onclick="openTool()" class="tool-btn">开启新标签页</button>
 </div>
 
-[直接打开 HTML 表格编辑器](table-editor/index.html){ target="_blank" rel="noopener" }：源码与表格双向同步，支持合并拆分、文字与单元格格式、增删行列、拖拽或数值调整宽高、格内换行、复制粘贴，以及撤销和本地保存。
+[直接打开 HTML 表格编辑器](table-editor/index.html){ target="_blank" rel="noopener" }：源码与表格双向同步，支持合并拆分、文字与单元格格式、增删行列、整表缩放、字号设置、拖拽或数值调整行列宽高、格内换行、复制粘贴，以及撤销和本地保存。
 
 <script>
 function openTool() {
