@@ -34,3 +34,11 @@ Paint regression checks cover literal Bus labels (including spaces and leading
 zeros), blank-area deselection, real-edge/K ranges, high/low half-height and
 Bus full-height rendering, default/custom/clear colours, gray print pixels,
 undo/redo, JSON roundtrips and fill movement/copying.
+
+## HTML 表格编辑器
+
+```bash
+node tests/table-editor.browser.cjs
+```
+
+需要 Playwright 和 Chromium，默认可执行文件为 `/usr/bin/chromium`，可用 `CHROMIUM_PATH` 覆盖。测试启动本地 HTTP 服务，使用真实页面验证双向同步、矩形合并/拆分、跨跨度增删行列、局部与整格格式、Shift/Alt+Enter 换行、拖拽/数值调整行高列宽、HTML/TSV 剪贴板、拒绝冲突粘贴、导出/导入、撤销、本地恢复及手机布局。

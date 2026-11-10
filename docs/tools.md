@@ -9,9 +9,12 @@
     <option value="">-- 请选择工具 --</option>
     <option value="sva-sim">🚀 SVA 仿真器</option>
     <option value="digiwave">🌊 DigiWave 波形编辑器</option>
+    <option value="table-editor">▦ HTML 表格编辑器</option>
   </select>
   <button onclick="openTool()" class="tool-btn">开启新标签页</button>
 </div>
+
+[直接打开 HTML 表格编辑器](table-editor/index.html){ target="_blank" rel="noopener" }：源码与表格双向同步，支持合并拆分、文字与单元格格式、增删行列、拖拽或数值调整宽高、格内换行、复制粘贴，以及撤销和本地保存。
 
 <script>
 function openTool() {
@@ -24,6 +27,8 @@ function openTool() {
   } else if (value === 'digiwave') {
     // 假设你将波形引擎代码保存为了 digiwave.html，请确保路径正确
     window.open('../digiwave/index.html', '_blank');
+  } else if (value === 'table-editor') {
+    window.open('../table-editor/index.html', '_blank');
   } else {
     alert('⚠️ 请先在下拉菜单中选择一个工具！');
   }

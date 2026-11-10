@@ -54,6 +54,7 @@ python -m unittest discover -s sonar_terrain/tests -v
 - [RC 滤波器基础与公式推导](docs/rc_filters.md)
 - [数字滤波器入门：FIR、IIR 与 SFC](docs/digital_filters_intro.md)
 - [VLD/RDY 握手与流水仲裁案例](docs/classic_cases/index.md)
+- [HTML 表格编辑器 Table Studio](https://superiorlqf.github.io/IC-Notes_Black-Iron-Series/table-editor/)：源码实时双向同步、合并拆分、富文本、格内换行、增删行列、拖拽调整宽高及剪贴板操作；单文件 HTML，无外部依赖，可离线使用。
 - [DigiWave 波形编辑器](https://superiorlqf.github.io/IC-Notes_Black-Iron-Series/digiwave/)
 - [MkDocs 导航配置](mkdocs.yml)
 
