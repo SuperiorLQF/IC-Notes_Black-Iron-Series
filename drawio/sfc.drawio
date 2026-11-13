@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" type="device" version="24.7.17">
+  <diagram id="sfc-block-diagram" name="SFC">
+    <mxGraphModel dx="1200" dy="330" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="330" math="0" shadow="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="sfc-region" value="" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#EFF3E7;strokeColor=#30352E;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="1">
+          <mxGeometry x="309" y="42" width="798" height="258" as="geometry" />
+        </mxCell>
+        <mxCell id="afifo" value="AFIFO (4)" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#DCECD3;strokeColor=#4A5144;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;gradientColor=#D3E7C6;gradientDirection=south;" vertex="1" parent="1">
+          <mxGeometry x="129" y="87" width="147" height="177" as="geometry" />
+        </mxCell>
+        <mxCell id="input-ch0" value="ch0" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=none;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="12" y="102" width="66" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="input-ch1" value="ch1" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=none;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="12" y="198" width="66" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="input-ch0-port" value="" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=none;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="90" y="129" width="0.03" height="0.03" as="geometry" />
+        </mxCell>
+        <mxCell id="input-ch1-port" value="" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=none;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="90" y="225" width="0.03" height="0.03" as="geometry" />
+        </mxCell>
+        <mxCell id="ch0-to-afifo" style="edgeStyle=none;exitPerimeter=0;entryPerimeter=0;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=9;startArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.23728813559322035;entryDx=0;entryDy=0;" edge="1" parent="1" source="input-ch0-port" target="afifo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ch1-to-afifo" style="edgeStyle=none;exitPerimeter=0;entryPerimeter=0;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=9;startArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.7796610169491526;entryDx=0;entryDy=0;" edge="1" parent="1" source="input-ch1-port" target="afifo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sfc-ctrl" value="SFC_CTRL" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#4472C4;strokeColor=#536988;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;gradientColor=#3D6EBB;gradientDirection=south;" vertex="1" parent="sfc-region">
+          <mxGeometry x="39" y="45" width="150" height="177" as="geometry" />
+        </mxCell>
+        <mxCell id="shift-bank" value="" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#F3C5AD;strokeColor=#A34420;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;strokeWidth=3;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="sfc-region">
+          <mxGeometry x="252" y="36" width="165" height="192" as="geometry" />
+        </mxCell>
+        <mxCell id="shift-reg-0" value="SHIFT_REG0_164" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#DDECCE;strokeColor=#829471;strokeWidth=1.5;fontColor=#000000;fontFamily=Courier New;fontSize=13.950000000000001;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;strokeWidth=1;" vertex="1" parent="shift-bank">
+          <mxGeometry x="6" y="9.0" width="153" height="43.2" as="geometry" />
+        </mxCell>
+        <mxCell id="shift-reg-1" value="SHIFT_REG1_164" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#DDECCE;strokeColor=#829471;strokeWidth=1.5;fontColor=#000000;fontFamily=Courier New;fontSize=13.950000000000001;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;strokeWidth=1;" vertex="1" parent="shift-bank">
+          <mxGeometry x="6" y="52.199999999999996" width="153" height="43.2" as="geometry" />
+        </mxCell>
+        <mxCell id="shift-reg-2" value="SHIFT_REG2_164" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#DDECCE;strokeColor=#829471;strokeWidth=1.5;fontColor=#000000;fontFamily=Courier New;fontSize=13.950000000000001;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;strokeWidth=1;" vertex="1" parent="shift-bank">
+          <mxGeometry x="6" y="95.4" width="153" height="43.2" as="geometry" />
+        </mxCell>
+        <mxCell id="shift-reg-3" value="SHIFT_REG3_164" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#DDECCE;strokeColor=#829471;strokeWidth=1.5;fontColor=#000000;fontFamily=Courier New;fontSize=13.950000000000001;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;strokeWidth=1;" vertex="1" parent="shift-bank">
+          <mxGeometry x="6" y="138.60000000000002" width="153" height="43.2" as="geometry" />
+        </mxCell>
+        <mxCell id="mux" value="MUX" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#4472C4;strokeColor=#4D6C94;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=19.5;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;" vertex="1" parent="sfc-region">
+          <mxGeometry x="483" y="18" width="69" height="213" as="geometry" />
+        </mxCell>
+        <mxCell id="coefficient-table" value="COEF TABLE" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#FFE293;strokeColor=#746B4A;strokeWidth=1.5;fontColor=#000000;fontFamily=Courier New;fontSize=20.4;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;" vertex="1" parent="sfc-region">
+          <mxGeometry x="615" y="18" width="153" height="51" as="geometry" />
+        </mxCell>
+        <mxCell id="filter-bank" value="" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#F2BCA7;strokeColor=#807568;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;container=1;collapsible=0;recursiveResize=0;" vertex="1" parent="sfc-region">
+          <mxGeometry x="603" y="96" width="177" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="sfc-filter-0" value="SFC_FILTER0" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#FFE5B6;strokeColor=#675344;strokeWidth=1.5;fontColor=#000000;fontFamily=Courier New;fontSize=19.799999999999997;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;" vertex="1" parent="filter-bank">
+          <mxGeometry x="9" y="15" width="153" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="sfc-filter-1" value="SFC_FILTER1" style="rounded=0;whiteSpace=wrap;html=0;fillColor=#FFE5B6;strokeColor=#675344;strokeWidth=1.5;fontColor=#000000;fontFamily=Courier New;fontSize=19.799999999999997;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;" vertex="1" parent="filter-bank">
+          <mxGeometry x="9" y="69" width="153" height="57" as="geometry" />
+        </mxCell>
+        <mxCell id="output-port" value="" style="rounded=0;whiteSpace=wrap;html=0;fillColor=none;strokeColor=none;strokeWidth=1.5;fontColor=#000000;fontFamily=Times New Roman;fontSize=27;align=center;verticalAlign=middle;spacing=0;spacingTop=0;spacingBottom=0;spacingLeft=0;spacingRight=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="1152" y="207" width="0.03" height="0.03" as="geometry" />
+        </mxCell>
+        <mxCell id="afifo-to-controller" style="edgeStyle=none;exitPerimeter=0;entryPerimeter=0;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=9;startArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="afifo" target="sfc-ctrl">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="controller-to-shift-bank" style="edgeStyle=none;exitPerimeter=0;entryPerimeter=0;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=9;startArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5078125;entryDx=0;entryDy=0;" edge="1" parent="sfc-region" source="sfc-ctrl" target="shift-bank">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="shift-bank-to-mux" style="edgeStyle=none;exitPerimeter=0;entryPerimeter=0;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=9;startArrow=none;exitX=1;exitY=0.5078125;exitDx=0;exitDy=0;entryX=0;entryY=0.5422535211267606;entryDx=0;entryDy=0;" edge="1" parent="sfc-region" source="shift-bank" target="mux">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mux-to-coefficients" style="edgeStyle=none;exitPerimeter=0;entryPerimeter=0;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=9;startArrow=none;exitX=1;exitY=0.11971830985915492;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="sfc-region" source="mux" target="coefficient-table">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="coefficients-to-filter-bank" style="edgeStyle=none;exitPerimeter=0;entryPerimeter=0;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=9;startArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="sfc-region" source="coefficient-table" target="filter-bank">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mux-to-filters" style="edgeStyle=none;exitPerimeter=0;entryPerimeter=0;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=9;startArrow=none;exitX=1;exitY=0.6901408450704225;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="sfc-region" source="mux" target="sfc-filter-0">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="filters-to-output" style="edgeStyle=none;exitPerimeter=0;entryPerimeter=0;rounded=0;orthogonalLoop=1;jettySize=auto;html=0;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;endSize=9;startArrow=none;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sfc-filter-0" target="output-port">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
