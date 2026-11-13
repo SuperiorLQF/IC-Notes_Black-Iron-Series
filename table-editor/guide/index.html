@@ -1276,6 +1276,17 @@
   <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       
+        表格间距
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
         浏览器回归
       
     </span>
@@ -1351,7 +1362,41 @@
 </table>
 <p>多列向下填充时，各列独立推算；多行横向填充时，各行独立推算。按住 Ctrl/Cmd 强制循环复制，Esc 取消拖动。一次填充可以用一次 Undo 撤销，也可 Redo 恢复，HTML 源码同步更新。</p>
 <p>合并单元格不能作为填充种子；目标区域包含合并格时会拒绝本次操作并保留原内容，请先 Split。填充角与整表缩放箭头分别使用，绿色方块负责填充，表格外侧 ↘ 负责整表缩放。</p>
-<h2 id="_3">浏览器回归<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h2 id="_3">表格间距<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>工具栏的 <strong>Spacing</strong> 对整张表生效，字号保持不变：</p>
+<table>
+<thead>
+<tr>
+<th>档位</th>
+<th style="text-align: right;">上下内边距</th>
+<th style="text-align: right;">左右内边距</th>
+<th style="text-align: right;">行高倍数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Normal（正常）</td>
+<td style="text-align: right;">10 px</td>
+<td style="text-align: right;">12 px</td>
+<td style="text-align: right;">1.5</td>
+</tr>
+<tr>
+<td>Compact（紧密）</td>
+<td style="text-align: right;">4 px</td>
+<td style="text-align: right;">8 px</td>
+<td style="text-align: right;">1.3</td>
+</tr>
+<tr>
+<td>Very compact（很紧密）</td>
+<td style="text-align: right;">1 px</td>
+<td style="text-align: right;">4 px</td>
+<td style="text-align: right;">1.15</td>
+</tr>
+</tbody>
+</table>
+<p>切换档位会清除固定的表格、行和单元格高度，并收紧格内段落间距，使行高自动适应文字。已有内容、字号、颜色和合并结构保留；可以一次撤销恢复原高度。之后仍可用 H 或拖拽设定行高，手动行高下限为 12 px，实际高度至少能容纳内容。新增空行和列沿用当前间距档位。</p>
+<p>间距写入内联 HTML 样式，导出、重新导入和浏览器本地保存后均保留。导入的间距与预设不一致时显示 Custom。</p>
+<h2 id="_4">浏览器回归<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <p>需要 Node.js、Playwright 与 Chromium。在仓库根目录运行：</p>
 <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Bash</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a>node<span class="w"> </span>tests/table-editor.browser.cjs
 </code></pre></div></td></tr></table></div>
